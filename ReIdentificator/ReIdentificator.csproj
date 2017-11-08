@@ -67,6 +67,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="BodyDetector.cs" />
+    <Compile Include="BodyHeightHelper.cs" />
     <Compile Include="Comparer.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
