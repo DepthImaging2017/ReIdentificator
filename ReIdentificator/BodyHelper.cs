@@ -1,20 +1,17 @@
-﻿// CREDITS
-// partly based on https://pterneas.com/2012/06/08/kinect-for-windows-find-user-height-accurately/
-// and https://github.com/jhealy/kinect2
-//
-// MIT License
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associateddocumentation files (the ""Software""), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: 
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. 
-// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY
-
-using System;
+﻿using System;
 using Microsoft.Kinect;
+using System.Diagnostics;
+using System.Numerics;
 
 public static class BodyHeightExtension
 {
 
+    /*
+     * Currently unused
+     */
     public static double Height(this Body TargetBody, int minLegJoints)
     {
+
         if (TargetBody == null) return -1.0;
         if (TargetBody.IsTracked == false) return -2.0;
 
@@ -50,25 +47,56 @@ public static class BodyHeightExtension
 
         return _retval;
     }
+    /*
+     * TODO: To be corrected!!
+     */
+    public static double HeightOfBody(this Body TargetBody, Microsoft.Kinect.Vector4 clipPlane)
+    {
+        double height = clipPlane.W;
+        if (Math.Abs(height) > double.Epsilon)
+        {
+            CameraSpacePoint head = TargetBody.Joints[JointType.Head].Position;
+            double result = DistanceToPlane(clipPlane, head);
+            return result;
 
-    /// <summary>
-    /// Returns the upper height of the specified skeleton (head to waist).
-    /// </summary>
+        }
+        else
+        {
+            return -1;
+        }
+
+    }
+    public static double DistanceBetweenTwoJoints(this Body TargetBody, JointType typeA, JointType typeB)
+    {
+        Joint typeA_Joint = TargetBody.Joints[typeA];
+        Joint typeB_Joint = TargetBody.Joints[typeB];
+        if (NumberOfTrackedJoints(typeA_Joint, typeB_Joint) == 2)
+        {
+            return Length(typeA_Joint, typeB_Joint);
+        }
+        return -1;
+
+    }
+    private static double DistanceToPlane(Microsoft.Kinect.Vector4 clipPlane, CameraSpacePoint point)
+    {
+        double X = clipPlane.X;
+        double Y = clipPlane.Y;
+        double Z = clipPlane.Z;
+        double W = clipPlane.W;
+
+        double numerator = X * point.X + Y * point.Y + Z * point.Z + W;
+        double denominator = Math.Sqrt(X * X + Y * Y + Z * Z);
+        return numerator / denominator;
+
+    }
     public static double UpperHeight(this Body TargetBody)
     {
-        Joint _head = TargetBody.Joints[JointType.Head];        
-        Joint _neck = TargetBody.Joints[JointType.SpineMid];        
-        Joint _spine = TargetBody.Joints[JointType.SpineShoulder];        
+        Joint _head = TargetBody.Joints[JointType.Head];
+        Joint _neck = TargetBody.Joints[JointType.SpineMid];
+        Joint _spine = TargetBody.Joints[JointType.SpineShoulder];
         Joint _waist = TargetBody.Joints[JointType.SpineBase];
         return Length(_head, _neck, _spine, _waist);
     }
-
-    /// <summary>
-    /// Returns the length of the segment defined by the specified joints.
-    /// </summary>
-    /// <param name="p1">The first joint (start of the segment).</param>
-    /// <param name="p2">The second joint (end of the segment).</param>
-    /// <returns>The length of the segment in meters.</returns>
     public static double Length(Joint p1, Joint p2)
     {
         return Math.Sqrt(
@@ -76,12 +104,6 @@ public static class BodyHeightExtension
             Math.Pow(p1.Position.Y - p2.Position.Y, 2) +
             Math.Pow(p1.Position.Z - p2.Position.Z, 2));
     }
-
-    /// <summary>
-    /// Returns the length of the segments defined by the specified joints.
-    /// </summary>
-    /// <param name="joints">A collection of two or more joints.</param>
-    /// <returns>The length of all the segments in meters.</returns>
     public static double Length(params Joint[] joints)
     {
         double length = 0;
@@ -93,10 +115,7 @@ public static class BodyHeightExtension
 
         return length;
     }
-
-    /// <summary>
-    /// Given a collection of joints, calculates the number of the joints that are tracked accurately.
-    /// </summary>
+    // Given a collection of joints, calculates the number of the joints that are tracked accurately.
     public static int NumberOfTrackedJoints(params Joint[] joints)
     {
         int trackedJoints = 0;
