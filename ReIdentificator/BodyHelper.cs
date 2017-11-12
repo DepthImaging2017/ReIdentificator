@@ -7,47 +7,6 @@ public static class BodyHeightExtension
 {
 
     /*
-     * Currently unused
-     */
-    public static double Height(this Body TargetBody, int minLegJoints)
-    {
-
-        if (TargetBody == null) return -1.0;
-        if (TargetBody.IsTracked == false) return -2.0;
-
-        const double HEAD_DIVERGENCE = 0.1;
-
-        Joint _head = TargetBody.Joints[JointType.Head];
-        Joint _neck = TargetBody.Joints[JointType.Neck];
-
-        Joint _spine = TargetBody.Joints[JointType.SpineShoulder];
-        Joint _waist = TargetBody.Joints[JointType.SpineBase];
-        Joint _hipLeft = TargetBody.Joints[JointType.HipLeft];
-        Joint _hipRight = TargetBody.Joints[JointType.HipRight];
-        Joint _kneeLeft = TargetBody.Joints[JointType.KneeLeft];
-        Joint _kneeRight = TargetBody.Joints[JointType.KneeRight];
-        Joint _ankleLeft = TargetBody.Joints[JointType.AnkleLeft];
-        Joint _ankleRight = TargetBody.Joints[JointType.AnkleRight];
-        Joint _footLeft = TargetBody.Joints[JointType.FootLeft];
-        Joint _footRight = TargetBody.Joints[JointType.FootRight];
-
-        // Find which leg is tracked more accurately.
-        int legLeftTrackedJoints = NumberOfTrackedJoints(_hipLeft, _kneeLeft, _ankleLeft, _footLeft);
-        int legRightTrackedJoints = NumberOfTrackedJoints(_hipRight, _kneeRight, _ankleRight, _footRight);
-
-        if (legLeftTrackedJoints < minLegJoints && legRightTrackedJoints < minLegJoints)
-        {
-            return -3;
-        }
-
-
-        double legLength = legLeftTrackedJoints > legRightTrackedJoints ? Length(_hipLeft, _kneeLeft, _ankleLeft, _footLeft)
-            : Length(_hipRight, _kneeRight, _ankleRight, _footRight);
-        double _retval = Length(_head, _neck, _spine, _waist) + legLength + HEAD_DIVERGENCE;
-
-        return _retval;
-    }
-    /*
      * TODO: To be corrected!!
      */
     public static double HeightOfBody(this Body TargetBody, Microsoft.Kinect.Vector4 clipPlane)

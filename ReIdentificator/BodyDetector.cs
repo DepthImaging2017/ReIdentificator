@@ -13,7 +13,6 @@ namespace ReIdentificator
         private KinectSensor kinect;
         private Comparer comparer;
         private int minimumDetectionPerBody = 10;
-        private int minimumLegJointsDetected = 3;
         private Microsoft.Kinect.Vector4 clipPlane;
         public BodyDetector(KinectSensor kinect, Comparer comparer)
         {
@@ -80,18 +79,37 @@ namespace ReIdentificator
         }
         private void calculateBodyDataForCurrentFrame(BodyDetector_body _body, Body body)
         {
-            //if (body.Height(minimumLegJointsDetected) > 0)
-            //_body.heights.Add(body.Height(minimumLegJointsDetected));
-            _body.heights.Add(body.HeightOfBody(clipPlane));
-            _body.torsoHeights.Add(body.UpperHeight());
-            _body.neckToSpineMid_list.Add(body.DistanceBetweenTwoJoints(JointType.Neck, JointType.SpineMid));
-            _body.spineMidToSpineBase_list.Add(body.DistanceBetweenTwoJoints(JointType.SpineMid, JointType.SpineBase));
-            _body.neckToLeftShoulder_list.Add(body.DistanceBetweenTwoJoints(JointType.Neck, JointType.ShoulderLeft));
-            _body.neckToRightShoulder_list.Add(body.DistanceBetweenTwoJoints(JointType.Neck, JointType.ShoulderRight));
-            _body.leftHipToSpineBase_list.Add(body.DistanceBetweenTwoJoints(JointType.HipLeft, JointType.SpineBase));
-            _body.rightHipToSpineBase_list.Add(body.DistanceBetweenTwoJoints(JointType.HipRight, JointType.SpineBase));
-            _body.spineMidToLeftShoulder_list.Add(body.DistanceBetweenTwoJoints(JointType.SpineMid, JointType.ShoulderLeft));
-            _body.spineMidToRightShoulder_list.Add(body.DistanceBetweenTwoJoints(JointType.SpineMid, JointType.ShoulderLeft));
+            double valueToAdd = -1;
+            valueToAdd = body.HeightOfBody(clipPlane);
+            if (valueToAdd > 0)
+                _body.heights.Add(valueToAdd);
+            valueToAdd = body.UpperHeight();
+            if (valueToAdd > 0)
+                _body.torsoHeights.Add(valueToAdd);
+            valueToAdd = body.DistanceBetweenTwoJoints(JointType.Neck, JointType.SpineMid);
+            if (valueToAdd > 0)
+                _body.neckToSpineMid_list.Add(valueToAdd);
+            valueToAdd = body.DistanceBetweenTwoJoints(JointType.SpineMid, JointType.SpineBase);
+            if (valueToAdd > 0)
+                _body.spineMidToSpineBase_list.Add(valueToAdd);
+            valueToAdd = body.DistanceBetweenTwoJoints(JointType.Neck, JointType.ShoulderLeft);
+            if (valueToAdd > 0)
+                _body.neckToLeftShoulder_list.Add(valueToAdd);
+            valueToAdd = body.DistanceBetweenTwoJoints(JointType.Neck, JointType.ShoulderRight);
+            if (valueToAdd > 0)
+                _body.neckToRightShoulder_list.Add(valueToAdd);
+            valueToAdd = body.DistanceBetweenTwoJoints(JointType.HipLeft, JointType.SpineBase);
+            if (valueToAdd > 0)
+                _body.leftHipToSpineBase_list.Add(valueToAdd);
+            valueToAdd = body.DistanceBetweenTwoJoints(JointType.HipRight, JointType.SpineBase);
+            if (valueToAdd > 0)
+                _body.rightHipToSpineBase_list.Add(valueToAdd);
+            valueToAdd = body.DistanceBetweenTwoJoints(JointType.SpineMid, JointType.ShoulderLeft);
+            if (valueToAdd > 0)
+                _body.spineMidToLeftShoulder_list.Add(valueToAdd);
+            valueToAdd = body.DistanceBetweenTwoJoints(JointType.SpineMid, JointType.ShoulderLeft);
+            if (valueToAdd > 0)
+                _body.spineMidToRightShoulder_list.Add(valueToAdd);
 
         }
         private void processBody(BodyDetector_body _body)
@@ -112,6 +130,7 @@ namespace ReIdentificator
                 _body.rightHipToSpineBase = _body.rightHipToSpineBase_list.Average();
                 _body.spineMidToLeftShoulder = _body.spineMidToLeftShoulder_list.Average();
                 _body.spineMidToRightShoulder = _body.spineMidToRightShoulder_list.Average();
+                Debug.WriteLine(_body.neckToSpineMid + " " + _body.spineMidToSpineBase + " " + _body.neckToLeftShoulder + " " + _body.leftHipToSpineBase +  " " + _body.spineMidToLeftShoulder);
             }
 
         }
