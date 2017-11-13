@@ -114,23 +114,23 @@ namespace ReIdentificator
         }
         private void processBody(BodyDetector_body _body)
         {
-            //TODO: ignore extremes?
+            double trimmedMeanPercentage = 0.2;
             if (_body.heights.Count >= minimumDetectionPerBody)
             {
                 _body.height = _body.heights.Average();
             }
             if (_body.torsoHeights.Count >= minimumDetectionPerBody)
             {
-                _body.torsoHeight = _body.torsoHeights.Average();
-                _body.neckToSpineMid = _body.neckToSpineMid_list.Average();
-                _body.spineMidToSpineBase = _body.spineMidToSpineBase_list.Average();
-                _body.neckToLeftShoulder = _body.neckToLeftShoulder_list.Average();
-                _body.neckToRightShoulder = _body.neckToRightShoulder_list.Average();
-                _body.leftHipToSpineBase = _body.leftHipToSpineBase_list.Average();
-                _body.rightHipToSpineBase = _body.rightHipToSpineBase_list.Average();
-                _body.spineMidToLeftShoulder = _body.spineMidToLeftShoulder_list.Average();
-                _body.spineMidToRightShoulder = _body.spineMidToRightShoulder_list.Average();
-                Debug.WriteLine(_body.neckToSpineMid + " " + _body.spineMidToSpineBase + " " + _body.neckToLeftShoulder + " " + _body.leftHipToSpineBase +  " " + _body.spineMidToLeftShoulder);
+                _body.torsoHeight = Util.trimmedMean(_body.torsoHeights, trimmedMeanPercentage);
+                _body.neckToSpineMid = Util.trimmedMean(_body.neckToSpineMid_list, trimmedMeanPercentage);
+                _body.spineMidToSpineBase = Util.trimmedMean(_body.spineMidToSpineBase_list, trimmedMeanPercentage);
+                _body.neckToLeftShoulder = Util.trimmedMean(_body.neckToLeftShoulder_list, trimmedMeanPercentage);
+                _body.neckToRightShoulder = Util.trimmedMean(_body.neckToRightShoulder_list, trimmedMeanPercentage);
+                _body.leftHipToSpineBase = Util.trimmedMean(_body.leftHipToSpineBase_list, trimmedMeanPercentage);
+                _body.rightHipToSpineBase = Util.trimmedMean(_body.rightHipToSpineBase_list, trimmedMeanPercentage);
+                _body.spineMidToLeftShoulder = Util.trimmedMean(_body.spineMidToLeftShoulder_list, trimmedMeanPercentage);
+                _body.spineMidToRightShoulder = Util.trimmedMean(_body.spineMidToRightShoulder_list, trimmedMeanPercentage);
+                Debug.WriteLine(_body.neckToSpineMid + " " + _body.spineMidToSpineBase + " " + _body.neckToLeftShoulder + " " + _body.leftHipToSpineBase + " " + _body.spineMidToLeftShoulder);
             }
 
         }
