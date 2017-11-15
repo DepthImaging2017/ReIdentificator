@@ -3,8 +3,11 @@ using Microsoft.Kinect;
 using System.Diagnostics;
 using System.Numerics;
 
-public static class BodyHeightExtension
+public static class BodyExtension
 {
+    private static double minDistanceToSensorPlane = 0.8;
+    private static double maxDistanceToSensorPlane = 4;
+
 
     /*
      * TODO: To be corrected!!
@@ -29,7 +32,7 @@ public static class BodyHeightExtension
     {
         Joint typeA_Joint = TargetBody.Joints[typeA];
         Joint typeB_Joint = TargetBody.Joints[typeB];
-        if (NumberOfTrackedJoints(typeA_Joint, typeB_Joint) == 2)
+        if (NumberOfTrackedJoints(typeA_Joint, typeB_Joint) == 2 && typeA_Joint.Position.Z > minDistanceToSensorPlane && typeA_Joint.Position.Z < maxDistanceToSensorPlane)
         {
             return Length(typeA_Joint, typeB_Joint);
         }
@@ -87,4 +90,15 @@ public static class BodyHeightExtension
         }
         return trackedJoints;
     }
+    public static double Yaw(this Microsoft.Kinect.Vector4 quaternion)
+    {
+        double value = 2.0 * (quaternion.W * quaternion.Y - quaternion.Z * quaternion.X);
+        value = value > 1.0 ? 1.0 : value;
+        value = value < -1.0 ? -1.0 : value;
+
+        double pitch = Math.Asin(value);
+
+        return pitch * (180.0 / Math.PI);
+    }
 }
+

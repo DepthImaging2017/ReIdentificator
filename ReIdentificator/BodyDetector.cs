@@ -79,37 +79,41 @@ namespace ReIdentificator
         }
         private void calculateBodyDataForCurrentFrame(BodyDetector_body _body, Body body)
         {
-            double valueToAdd = -1;
-            valueToAdd = body.HeightOfBody(clipPlane);
-            if (valueToAdd > 0)
-                _body.heights.Add(valueToAdd);
-            valueToAdd = body.UpperHeight();
-            if (valueToAdd > 0)
-                _body.torsoHeights.Add(valueToAdd);
-            valueToAdd = body.DistanceBetweenTwoJoints(JointType.Neck, JointType.SpineMid);
-            if (valueToAdd > 0)
-                _body.neckToSpineMid_list.Add(valueToAdd);
-            valueToAdd = body.DistanceBetweenTwoJoints(JointType.SpineMid, JointType.SpineBase);
-            if (valueToAdd > 0)
-                _body.spineMidToSpineBase_list.Add(valueToAdd);
-            valueToAdd = body.DistanceBetweenTwoJoints(JointType.Neck, JointType.ShoulderLeft);
-            if (valueToAdd > 0)
-                _body.neckToLeftShoulder_list.Add(valueToAdd);
-            valueToAdd = body.DistanceBetweenTwoJoints(JointType.Neck, JointType.ShoulderRight);
-            if (valueToAdd > 0)
-                _body.neckToRightShoulder_list.Add(valueToAdd);
-            valueToAdd = body.DistanceBetweenTwoJoints(JointType.HipLeft, JointType.SpineBase);
-            if (valueToAdd > 0)
-                _body.leftHipToSpineBase_list.Add(valueToAdd);
-            valueToAdd = body.DistanceBetweenTwoJoints(JointType.HipRight, JointType.SpineBase);
-            if (valueToAdd > 0)
-                _body.rightHipToSpineBase_list.Add(valueToAdd);
-            valueToAdd = body.DistanceBetweenTwoJoints(JointType.SpineMid, JointType.ShoulderLeft);
-            if (valueToAdd > 0)
-                _body.spineMidToLeftShoulder_list.Add(valueToAdd);
-            valueToAdd = body.DistanceBetweenTwoJoints(JointType.SpineMid, JointType.ShoulderLeft);
-            if (valueToAdd > 0)
-                _body.spineMidToRightShoulder_list.Add(valueToAdd);
+            //don't add if person is walking sideway
+            if (System.Math.Abs(body.JointOrientations[JointType.SpineMid].Orientation.Yaw()) < 22)
+            {
+                double valueToAdd = -1;
+                valueToAdd = body.HeightOfBody(clipPlane);
+                if (valueToAdd > 0)
+                    _body.heights.Add(valueToAdd);
+                valueToAdd = body.UpperHeight();
+                if (valueToAdd > 0)
+                    _body.torsoHeights.Add(valueToAdd);
+                valueToAdd = body.DistanceBetweenTwoJoints(JointType.Neck, JointType.SpineMid);
+                if (valueToAdd > 0)
+                    _body.neckToSpineMid_list.Add(valueToAdd);
+                valueToAdd = body.DistanceBetweenTwoJoints(JointType.SpineMid, JointType.SpineBase);
+                if (valueToAdd > 0)
+                    _body.spineMidToSpineBase_list.Add(valueToAdd);
+                valueToAdd = body.DistanceBetweenTwoJoints(JointType.Neck, JointType.ShoulderLeft);
+                if (valueToAdd > 0)
+                    _body.neckToLeftShoulder_list.Add(valueToAdd);
+                valueToAdd = body.DistanceBetweenTwoJoints(JointType.Neck, JointType.ShoulderRight);
+                if (valueToAdd > 0)
+                    _body.neckToRightShoulder_list.Add(valueToAdd);
+                valueToAdd = body.DistanceBetweenTwoJoints(JointType.HipLeft, JointType.SpineBase);
+                if (valueToAdd > 0)
+                    _body.leftHipToSpineBase_list.Add(valueToAdd);
+                valueToAdd = body.DistanceBetweenTwoJoints(JointType.HipRight, JointType.SpineBase);
+                if (valueToAdd > 0)
+                    _body.rightHipToSpineBase_list.Add(valueToAdd);
+                valueToAdd = body.DistanceBetweenTwoJoints(JointType.SpineMid, JointType.ShoulderLeft);
+                if (valueToAdd > 0)
+                    _body.spineMidToLeftShoulder_list.Add(valueToAdd);
+                valueToAdd = body.DistanceBetweenTwoJoints(JointType.SpineMid, JointType.ShoulderLeft);
+                if (valueToAdd > 0)
+                    _body.spineMidToRightShoulder_list.Add(valueToAdd);
+            }
 
         }
         private void processBody(BodyDetector_body _body)
