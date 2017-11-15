@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ReIdentificator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="Output" Height="376.471" Width="960.294">
     <Grid>
-        
+        <TextBox x:Name="LoggingBox" HorizontalAlignment="Left" Height="325" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="899"/>
+
     </Grid>
 </Window>

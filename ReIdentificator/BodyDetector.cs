@@ -12,16 +12,18 @@ namespace ReIdentificator
         private List<BodyDetector_body> bodiesToProcess = new List<BodyDetector_body>();
         private KinectSensor kinect;
         private Comparer comparer;
+        private MainWindow UI;
         private Microsoft.Kinect.Vector4 clipPlane;
 
         private readonly int minimumDetectionPerBody = 10;
         private readonly double minDistanceToSensorPlane = 0.8;
         private readonly double maxDistanceToSensorPlane = 4;
 
-        public BodyDetector(KinectSensor kinect, Comparer comparer)
+        public BodyDetector(MainWindow ui, KinectSensor kinect, Comparer comparer)
         {
             this.kinect = kinect;
             this.comparer = comparer;
+            this.UI = ui;
             this.bodyFrameReader = this.kinect.BodyFrameSource.OpenReader();
             this.bodyFrameReader.FrameArrived += this.Reader_BodyFrameArrived;
             this.bodies = new Body[this.kinect.BodyFrameSource.BodyCount];
@@ -139,9 +141,8 @@ namespace ReIdentificator
                 _body.rightHipToSpineBase = Util.trimmedMean(_body.rightHipToSpineBase_list, trimmedMeanPercentage);
                 _body.spineMidToLeftShoulder = Util.trimmedMean(_body.spineMidToLeftShoulder_list, trimmedMeanPercentage);
                 _body.spineMidToRightShoulder = Util.trimmedMean(_body.spineMidToRightShoulder_list, trimmedMeanPercentage);
-                Debug.WriteLine(_body.neckToSpineMid + " " + _body.spineMidToSpineBase + " " + _body.neckToLeftShoulder + " " + _body.leftHipToSpineBase + " " + _body.spineMidToLeftShoulder);
+                UI.printLog("body parameters: " + _body.neckToSpineMid + " " + _body.spineMidToSpineBase + " " + _body.neckToLeftShoulder + " " + _body.leftHipToSpineBase + " " + _body.spineMidToLeftShoulder);
             }
-
         }
     }
     class BodyDetector_body

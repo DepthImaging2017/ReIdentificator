@@ -15,8 +15,12 @@ namespace ReIdentificator
             this.kinect = KinectSensor.GetDefault();
             this.kinect.Open();
             this.comparer = new Comparer();
-            this.bodyDetector = new BodyDetector(this.kinect, this.comparer);
+            this.bodyDetector = new BodyDetector(this, this.kinect, this.comparer);
             InitializeComponent();
+        }
+        public void printLog(string logtext)
+        {
+            LoggingBox.AppendText("\n"+ logtext);
         }
     }
 }
