@@ -12,8 +12,12 @@ namespace ReIdentificator
         private List<BodyDetector_body> bodiesToProcess = new List<BodyDetector_body>();
         private KinectSensor kinect;
         private Comparer comparer;
-        private int minimumDetectionPerBody = 10;
         private Microsoft.Kinect.Vector4 clipPlane;
+
+        private readonly int minimumDetectionPerBody = 10;
+        private readonly double minDistanceToSensorPlane = 0.8;
+        private readonly double maxDistanceToSensorPlane = 4;
+
         public BodyDetector(KinectSensor kinect, Comparer comparer)
         {
             this.kinect = kinect;
@@ -79,8 +83,9 @@ namespace ReIdentificator
         }
         private void calculateBodyDataForCurrentFrame(BodyDetector_body _body, Body body)
         {
-            //don't add if person is walking sideway
-            if (System.Math.Abs(body.JointOrientations[JointType.SpineMid].Orientation.Yaw()) < 22)
+            //don't add if person is walking sideway or if outside determinated range
+            if (System.Math.Abs(body.JointOrientations[JointType.SpineMid].Orientation.Yaw()) < 22
+                && body.Joints[JointType.SpineMid].Position.Z > minDistanceToSensorPlane && body.Joints[JointType.SpineMid].Position.Z < maxDistanceToSensorPlane)
             {
                 double valueToAdd = -1;
                 valueToAdd = body.HeightOfBody(clipPlane);

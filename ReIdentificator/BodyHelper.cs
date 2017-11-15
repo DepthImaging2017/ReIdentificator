@@ -5,9 +5,6 @@ using System.Numerics;
 
 public static class BodyExtension
 {
-    private static double minDistanceToSensorPlane = 0.8;
-    private static double maxDistanceToSensorPlane = 4;
-
 
     /*
      * TODO: To be corrected!!
@@ -32,7 +29,7 @@ public static class BodyExtension
     {
         Joint typeA_Joint = TargetBody.Joints[typeA];
         Joint typeB_Joint = TargetBody.Joints[typeB];
-        if (NumberOfTrackedJoints(typeA_Joint, typeB_Joint) == 2 && typeA_Joint.Position.Z > minDistanceToSensorPlane && typeA_Joint.Position.Z < maxDistanceToSensorPlane)
+        if (NumberOfTrackedJoints(typeA_Joint, typeB_Joint) == 2)
         {
             return Length(typeA_Joint, typeB_Joint);
         }
