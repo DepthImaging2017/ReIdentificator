@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 using Microsoft.Kinect;
-using System.Diagnostics;
+using System;
 
 namespace ReIdentificator
 {
@@ -10,6 +10,8 @@ namespace ReIdentificator
         private KinectSensor kinect = null;
         private BodyDetector bodyDetector;
         private Comparer comparer;
+        public event EventHandler<LeftFrameEventArgs> BodyLeftFrame;
+
         public MainWindow()
         {
             this.kinect = KinectSensor.GetDefault();
@@ -21,6 +23,28 @@ namespace ReIdentificator
         public void printLog(string logtext)
         {
             LoggingBox.AppendText("\n"+ logtext);
+        }
+        public void raisePersonLeftFrameEvent(ulong trackingId)
+        {
+            OnBodyLeftFrame(new LeftFrameEventArgs(trackingId));
+        }
+        protected virtual void OnBodyLeftFrame(LeftFrameEventArgs e)
+        {
+            BodyLeftFrame?.Invoke(this, e);
+        }
+    }
+    public class LeftFrameEventArgs : EventArgs
+    {
+        private ulong trackingId;
+        public LeftFrameEventArgs(ulong id)
+        {
+            trackingId = id;
+        }        
+
+        public ulong TrackingId
+        {
+            get { return trackingId; }
+            set { trackingId = value; }
         }
     }
 }

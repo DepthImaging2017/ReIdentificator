@@ -12,18 +12,18 @@ namespace ReIdentificator
         private List<BodyDetector_body> bodiesToProcess = new List<BodyDetector_body>();
         private KinectSensor kinect;
         private Comparer comparer;
-        private MainWindow UI;
+        private MainWindow mainWindow;
         private Microsoft.Kinect.Vector4 clipPlane;
 
         private readonly int minimumDetectionPerBody = 10;
         private readonly double minDistanceToSensorPlane = 0.8;
         private readonly double maxDistanceToSensorPlane = 4;
 
-        public BodyDetector(MainWindow ui, KinectSensor kinect, Comparer comparer)
+        public BodyDetector(MainWindow mainWindow, KinectSensor kinect, Comparer comparer)
         {
             this.kinect = kinect;
             this.comparer = comparer;
-            this.UI = ui;
+            this.mainWindow = mainWindow;
             this.bodyFrameReader = this.kinect.BodyFrameSource.OpenReader();
             this.bodyFrameReader.FrameArrived += this.Reader_BodyFrameArrived;
             this.bodies = new Body[this.kinect.BodyFrameSource.BodyCount];
@@ -77,6 +77,7 @@ namespace ReIdentificator
                     // body left frame
                     if (!visibleInFrame)
                     {
+                        mainWindow.raisePersonLeftFrameEvent(b.TrackingId);
                         bodiesToProcess.RemoveAt(i);
                         processBody(b);
                     }
@@ -141,7 +142,7 @@ namespace ReIdentificator
                 _body.rightHipToSpineBase = Util.trimmedMean(_body.rightHipToSpineBase_list, trimmedMeanPercentage);
                 _body.spineMidToLeftShoulder = Util.trimmedMean(_body.spineMidToLeftShoulder_list, trimmedMeanPercentage);
                 _body.spineMidToRightShoulder = Util.trimmedMean(_body.spineMidToRightShoulder_list, trimmedMeanPercentage);
-                UI.printLog("body parameters: " + _body.height + " - " +  _body.neckToSpineMid + " - " + _body.spineMidToSpineBase + " - " + _body.neckToLeftShoulder + " - " + _body.neckToRightShoulder + " - " + _body.leftHipToSpineBase + " - " + _body.rightHipToSpineBase + " - " + _body.spineMidToLeftShoulder + " - " + _body.spineMidToRightShoulder);
+                mainWindow.printLog("body parameters: " + _body.height + " - " +  _body.neckToSpineMid + " - " + _body.spineMidToSpineBase + " - " + _body.neckToLeftShoulder + " - " + _body.neckToRightShoulder + " - " + _body.leftHipToSpineBase + " - " + _body.rightHipToSpineBase + " - " + _body.spineMidToLeftShoulder + " - " + _body.spineMidToRightShoulder);
             }
         }
     }
