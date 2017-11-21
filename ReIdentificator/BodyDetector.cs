@@ -77,7 +77,7 @@ namespace ReIdentificator
                     // body left frame
                     if (!visibleInFrame)
                     {
-                        mainWindow.raisePersonLeftFrameEvent(b.TrackingId);
+                        mainWindow.raisePersonLeftViewEvent(b.TrackingId);
                         bodiesToProcess.RemoveAt(i);
                         processBody(b);
                     }

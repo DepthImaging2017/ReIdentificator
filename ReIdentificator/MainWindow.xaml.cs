@@ -10,7 +10,7 @@ namespace ReIdentificator
         private KinectSensor kinect = null;
         private BodyDetector bodyDetector;
         private Comparer comparer;
-        public event EventHandler<LeftFrameEventArgs> BodyLeftFrame;
+        public event EventHandler<LeftViewEventArgs> BodyLeftView;
 
         public MainWindow()
         {
@@ -24,19 +24,19 @@ namespace ReIdentificator
         {
             LoggingBox.AppendText("\n"+ logtext);
         }
-        public void raisePersonLeftFrameEvent(ulong trackingId)
+        public void raisePersonLeftViewEvent(ulong trackingId)
         {
-            OnBodyLeftFrame(new LeftFrameEventArgs(trackingId));
+            OnBodyLeftView(new LeftViewEventArgs(trackingId));
         }
-        protected virtual void OnBodyLeftFrame(LeftFrameEventArgs e)
+        protected virtual void OnBodyLeftView(LeftViewEventArgs e)
         {
-            BodyLeftFrame?.Invoke(this, e);
+            BodyLeftView?.Invoke(this, e);
         }
     }
-    public class LeftFrameEventArgs : EventArgs
+    public class LeftViewEventArgs : EventArgs
     {
         private ulong trackingId;
-        public LeftFrameEventArgs(ulong id)
+        public LeftViewEventArgs(ulong id)
         {
             trackingId = id;
         }        
