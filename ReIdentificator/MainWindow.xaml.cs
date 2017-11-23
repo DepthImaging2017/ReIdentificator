@@ -9,6 +9,7 @@ namespace ReIdentificator
     {
         private KinectSensor kinect = null;
         private BodyDetector bodyDetector;
+        private ImageDetector imageDetector;
         private Comparer comparer;
         public event EventHandler<LeftViewEventArgs> BodyLeftView;
 
@@ -18,6 +19,7 @@ namespace ReIdentificator
             this.kinect.Open();
             this.comparer = new Comparer();
             this.bodyDetector = new BodyDetector(this, this.kinect, this.comparer);
+            this.imageDetector = new ImageDetector(this.kinect, this.comparer, this);
             InitializeComponent();
         }
         public void printLog(string logtext)
