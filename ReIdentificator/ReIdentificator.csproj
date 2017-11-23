@@ -59,7 +59,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ImageDetector.cs" />
+    <Compile Include="ImageProcessor.cs" />
     <Compile Include="Util.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -69,7 +69,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="BodyDetector.cs" />
+    <Compile Include="BodyProcessor.cs" />
     <Compile Include="BodyHelper.cs" />
     <Compile Include="Comparer.cs" />
     <Compile Include="MainWindow.xaml.cs">

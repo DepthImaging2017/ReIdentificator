@@ -5,11 +5,10 @@ using System.Linq;
 
 namespace ReIdentificator
 {
-    class BodyDetector
+    class BodyProcessor
     {
-        private BodyFrameReader bodyFrameReader = null;
         private Body[] bodies = null;
-        private List<BodyDetector_body> bodiesToProcess = new List<BodyDetector_body>();
+        private List<BodyProcessor_body> bodiesToProcess = new List<BodyProcessor_body>();
         private KinectSensor kinect;
         private Comparer comparer;
         private MainWindow mainWindow;
@@ -19,72 +18,56 @@ namespace ReIdentificator
         private readonly double minDistanceToSensorPlane = 0.8;
         private readonly double maxDistanceToSensorPlane = 4;
 
-        public BodyDetector(MainWindow mainWindow, KinectSensor kinect, Comparer comparer)
+        public BodyProcessor(MainWindow mainWindow, KinectSensor kinect, Comparer comparer)
         {
             this.kinect = kinect;
             this.comparer = comparer;
             this.mainWindow = mainWindow;
-            this.bodyFrameReader = this.kinect.BodyFrameSource.OpenReader();
-            this.bodyFrameReader.FrameArrived += this.Reader_BodyFrameArrived;
             this.bodies = new Body[this.kinect.BodyFrameSource.BodyCount];
         }
-        private void Reader_BodyFrameArrived(object sender, BodyFrameArrivedEventArgs e)
+        public void processBodyFrame(BodyFrame bodyFrame)
         {
-            bool dataReceived = false;
+            bodyFrame.GetAndRefreshBodyData(this.bodies);
+            clipPlane = bodyFrame.FloorClipPlane;
 
-            using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
+            // iterate through each body
+            for (int bodyIndex = 0; bodyIndex < this.bodies.Length; bodyIndex++)
             {
-                if (bodyFrame != null)
+                Body body = this.bodies[bodyIndex];
+                if (body.IsTracked)
                 {
-                    bodyFrame.GetAndRefreshBodyData(this.bodies);
-                    clipPlane = bodyFrame.FloorClipPlane;
-                    dataReceived = true;
+                    if (!bodiesToProcess.Exists(element => element.TrackingId == body.TrackingId))
+                    {
+                        bodiesToProcess.Add(new BodyProcessor_body(body.TrackingId));
+                    }
+                    BodyProcessor_body _body = bodiesToProcess.Find(element => element.TrackingId == body.TrackingId);
+                    calculateBodyDataForCurrentFrame(_body, body);
 
                 }
+
             }
-
-            if (dataReceived)
+            // detect if body has left frame, then process it
+            for (int i = 0; i < this.bodiesToProcess.Count; i++)
             {
-
-                // iterate through each body
+                BodyProcessor_body b = bodiesToProcess[i];
+                bool visibleInFrame = false;
                 for (int bodyIndex = 0; bodyIndex < this.bodies.Length; bodyIndex++)
                 {
                     Body body = this.bodies[bodyIndex];
-                    if (body.IsTracked)
-                    {
-                        if (!bodiesToProcess.Exists(element => element.TrackingId == body.TrackingId))
-                        {
-                            bodiesToProcess.Add(new BodyDetector_body(body.TrackingId));
-                        }
-                        BodyDetector_body _body = bodiesToProcess.Find(element => element.TrackingId == body.TrackingId);
-                        calculateBodyDataForCurrentFrame(_body, body);
-
-                    }
+                    if (body.TrackingId == b.TrackingId)
+                        visibleInFrame = true;
 
                 }
-                // detect if body has left frame, then process it
-                for (int i = 0; i < this.bodiesToProcess.Count; i++)
+                // body left frame
+                if (!visibleInFrame)
                 {
-                    BodyDetector_body b = bodiesToProcess[i];
-                    bool visibleInFrame = false;
-                    for (int bodyIndex = 0; bodyIndex < this.bodies.Length; bodyIndex++)
-                    {
-                        Body body = this.bodies[bodyIndex];
-                        if (body.TrackingId == b.TrackingId)
-                            visibleInFrame = true;
-
-                    }
-                    // body left frame
-                    if (!visibleInFrame)
-                    {
-                        mainWindow.raisePersonLeftViewEvent(b.TrackingId);
-                        bodiesToProcess.RemoveAt(i);
-                        processBody(b);
-                    }
+                    mainWindow.raisePersonLeftViewEvent(b.TrackingId);
+                    bodiesToProcess.RemoveAt(i);
+                    processBody(b);
                 }
             }
         }
-        private void calculateBodyDataForCurrentFrame(BodyDetector_body _body, Body body)
+        private void calculateBodyDataForCurrentFrame(BodyProcessor_body _body, Body body)
         {
             //don't add if person is walking sideway or if outside determinated range
             if (System.Math.Abs(body.JointOrientations[JointType.SpineMid].Orientation.Yaw()) < 22
@@ -124,7 +107,7 @@ namespace ReIdentificator
             }
 
         }
-        private void processBody(BodyDetector_body _body)
+        private void processBody(BodyProcessor_body _body)
         {
             double trimmedMeanPercentage = 0.2;
             if (_body.heights.Count >= minimumDetectionPerBody)
@@ -142,11 +125,11 @@ namespace ReIdentificator
                 _body.rightHipToSpineBase = Util.trimmedMean(_body.rightHipToSpineBase_list, trimmedMeanPercentage);
                 _body.spineMidToLeftShoulder = Util.trimmedMean(_body.spineMidToLeftShoulder_list, trimmedMeanPercentage);
                 _body.spineMidToRightShoulder = Util.trimmedMean(_body.spineMidToRightShoulder_list, trimmedMeanPercentage);
-                mainWindow.printLog("body parameters: " + _body.height + " - " +  _body.neckToSpineMid + " - " + _body.spineMidToSpineBase + " - " + _body.neckToLeftShoulder + " - " + _body.neckToRightShoulder + " - " + _body.leftHipToSpineBase + " - " + _body.rightHipToSpineBase + " - " + _body.spineMidToLeftShoulder + " - " + _body.spineMidToRightShoulder);
+                mainWindow.printLog("body parameters: " + _body.height + " - " + _body.neckToSpineMid + " - " + _body.spineMidToSpineBase + " - " + _body.neckToLeftShoulder + " - " + _body.neckToRightShoulder + " - " + _body.leftHipToSpineBase + " - " + _body.rightHipToSpineBase + " - " + _body.spineMidToLeftShoulder + " - " + _body.spineMidToRightShoulder);
             }
         }
     }
-    class BodyDetector_body
+    class BodyProcessor_body
     {
         public ulong TrackingId { get; set; }
         public double height { get; set; } // -1 if not detected properly
@@ -170,7 +153,7 @@ namespace ReIdentificator
         public double spineMidToRightShoulder { get; set; }
         public List<double> spineMidToRightShoulder_list { get; set; } = new List<double>();
 
-        public BodyDetector_body(ulong trackingId)
+        public BodyProcessor_body(ulong trackingId)
         {
             this.TrackingId = trackingId;
         }

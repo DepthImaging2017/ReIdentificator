@@ -4,27 +4,59 @@ using System;
 
 namespace ReIdentificator
 {
-   
     public partial class MainWindow : Window
     {
         private KinectSensor kinect = null;
-        private BodyDetector bodyDetector;
-        private ImageDetector imageDetector;
+        private BodyProcessor bodyProcessor;
+        private ImageProcessor imageProcessor;
         private Comparer comparer;
+        private MultiSourceFrameReader multiSourceFrameReader = null;
+
         public event EventHandler<LeftViewEventArgs> BodyLeftView;
 
         public MainWindow()
         {
+            InitializeComponent();
             this.kinect = KinectSensor.GetDefault();
             this.kinect.Open();
             this.comparer = new Comparer();
-            this.bodyDetector = new BodyDetector(this, this.kinect, this.comparer);
-            this.imageDetector = new ImageDetector(this.kinect, this.comparer, this);
-            InitializeComponent();
+            this.bodyProcessor = new BodyProcessor(this, this.kinect, this.comparer);
+            this.imageProcessor = new ImageProcessor(this.kinect, this.comparer, this);
+            this.multiSourceFrameReader =
+            this.kinect.OpenMultiSourceFrameReader(
+             FrameSourceTypes.Body);
+            this.multiSourceFrameReader.MultiSourceFrameArrived +=
+            this.Reader_MultiSourceFrameArrived;
+        }        
+        private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
+        {
+            MultiSourceFrame multiSourceFrame = e.FrameReference.AcquireFrame();
+
+            if (multiSourceFrame == null)
+            {
+                return;
+            }
+
+            using (ColorFrame colorFrame =
+            multiSourceFrame.ColorFrameReference.AcquireFrame())
+            using (BodyFrame bodyFrame =
+            multiSourceFrame.BodyFrameReference.AcquireFrame())
+            {
+                if (bodyFrame != null)
+                {
+                    bodyProcessor.processBodyFrame(bodyFrame);
+                }
+                if (bodyFrame != null && colorFrame != null)
+                {
+                   //processImage
+                }
+                
+            } 
+
         }
         public void printLog(string logtext)
         {
-            LoggingBox.AppendText("\n"+ logtext);
+            LoggingBox.AppendText("\n" + logtext);
         }
         public void raisePersonLeftViewEvent(ulong trackingId)
         {
@@ -41,7 +73,7 @@ namespace ReIdentificator
         public LeftViewEventArgs(ulong id)
         {
             trackingId = id;
-        }        
+        }
 
         public ulong TrackingId
         {

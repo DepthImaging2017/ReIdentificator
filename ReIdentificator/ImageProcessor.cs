@@ -11,7 +11,7 @@ using System.Windows.Media.Imaging;
 
 namespace ReIdentificator
 {
-    class ImageDetector
+    class ImageProcessor
     {
         private KinectSensor kinect;
         private Comparer comparer;
@@ -19,7 +19,7 @@ namespace ReIdentificator
         private byte[] colorPixels;
         private WriteableBitmap colorBitmap;
         private MainWindow mainWindow;
-        public ImageDetector(KinectSensor kinect, Comparer comparer, MainWindow mainWindow)
+        public ImageProcessor(KinectSensor kinect, Comparer comparer, MainWindow mainWindow)
         {
             this.kinect = kinect;
             this.comparer = comparer;
