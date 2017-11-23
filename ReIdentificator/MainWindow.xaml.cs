@@ -24,7 +24,7 @@ namespace ReIdentificator
             this.imageProcessor = new ImageProcessor(this.kinect, this.comparer, this);
             this.multiSourceFrameReader =
             this.kinect.OpenMultiSourceFrameReader(
-             FrameSourceTypes.Body);
+             FrameSourceTypes.Body | FrameSourceTypes.Color);
             this.multiSourceFrameReader.MultiSourceFrameArrived +=
             this.Reader_MultiSourceFrameArrived;
         }        
