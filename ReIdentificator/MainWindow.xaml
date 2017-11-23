@@ -7,8 +7,6 @@
         mc:Ignorable="d"
         Title="Output" Height="376.471" Width="1602.451">
     <Grid>
-        <TextBox x:Name="LoggingBox" HorizontalAlignment="Left" Height="261" Margin="10,74,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="1574"/>
-
         <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
             <TextBox x:Name="LoggingBox" HorizontalAlignment="Left" Height="261" Margin="10,10,10,10" TextWrapping="Wrap" VerticalAlignment="Top" Width="500"/>
             <!--<Image x:Name="FrameDisplayImage" Grid.Row="1" Stretch="Uniform"/>-->
