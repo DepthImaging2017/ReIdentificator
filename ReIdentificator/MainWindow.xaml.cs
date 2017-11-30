@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using Microsoft.Kinect;
 using System;
+using System.Windows.Media.Imaging;
 
 namespace ReIdentificator
 {
@@ -12,11 +13,14 @@ namespace ReIdentificator
         private ImageProcessor imageProcessor;
         private Comparer comparer;
         private MultiSourceFrameReader multiSourceFrameReader = null;
+        private WriteableBitmap bitmap = null;
+        private int skipFrameTicker = 0;
 
         public event EventHandler<LeftViewEventArgs> BodyLeftView;
 
         public MainWindow()
         {
+
             InitializeComponent();
             this.kinect = KinectSensor.GetDefault();
             this.kinect.Open();
@@ -24,14 +28,30 @@ namespace ReIdentificator
             this.bodyProcessor = new BodyProcessor(this, this.kinect, this.comparer);
             this.shapeProcessor = new ShapeProcessor(this, this.kinect, this.comparer);
             this.imageProcessor = new ImageProcessor(this.kinect, this.comparer, this);
+
+            
+            this.bitmap = new WriteableBitmap(kinect.DepthFrameSource.FrameDescription.Width,
+            kinect.DepthFrameSource.FrameDescription.Height, 96, 96, System.Windows.Media.PixelFormats.Gray8, null);
+            //FrameDisplayImage.Source = bitmap;
             this.multiSourceFrameReader =
             this.kinect.OpenMultiSourceFrameReader(
              FrameSourceTypes.Body | /*FrameSourceTypes.Color |*/ FrameSourceTypes.BodyIndex | FrameSourceTypes.Depth);
             this.multiSourceFrameReader.MultiSourceFrameArrived +=
             this.Reader_MultiSourceFrameArrived;
-        }        
+
+        }
+        public void RenderPixelArray(byte[] pixels)
+        {
+           int stride = bitmap.PixelWidth;
+           bitmap.WritePixels(
+               new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight),
+               pixels, stride, 0);
+
+           FrameDisplayImage.Source = bitmap;
+        }
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
+            skipFrameTicker++;
             MultiSourceFrame multiSourceFrame = e.FrameReference.AcquireFrame();
 
             if (multiSourceFrame == null)
@@ -58,10 +78,9 @@ namespace ReIdentificator
                     {
                         //processImage
                     }
-                    if (bodyIndexFrame != null && depthFrame != null && bodyFrame != null)
+                    if (bodyIndexFrame != null && depthFrame != null && bodyFrame != null && skipFrameTicker % 15 == 0)
                     {
-
-                        shapeProcessor.processBodyIndexFrame(bodyIndexFrame, depthFrame, bodyFrame);
+                       shapeProcessor.processBodyIndexFrame(bodyIndexFrame, depthFrame, bodyFrame);
                     }
                 }
                 finally
@@ -81,7 +100,7 @@ namespace ReIdentificator
 
                 }
 
-            } 
+            }
 
         }
         public void printLog(string logtext)

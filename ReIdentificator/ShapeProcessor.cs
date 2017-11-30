@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Kinect;
-using System.Diagnostics;
 
 namespace ReIdentificator
 {
@@ -24,6 +23,13 @@ namespace ReIdentificator
 
         public void processBodyIndexFrame(BodyIndexFrame bodyIndexFrame, DepthFrame depthFrame, BodyFrame bodyFrame)
         {
+
+            byte[] shapeToBeDrawn = new byte[depthFrame.FrameDescription.Width * depthFrame.FrameDescription.Height];
+            for (int j = 0; j < shapeToBeDrawn.Length; j++)
+            {
+                shapeToBeDrawn[j] = 144;
+            }
+
             bodyFrame.GetAndRefreshBodyData(this.bodies);
 
             bodyIndexFrameData =
@@ -53,27 +59,31 @@ namespace ReIdentificator
                 for (int i = 0; i < minXForRow.Length; i++)
                 {
                     maxXForRow[i] = -1;
-                }                
+                }
                 for (int x = 0; x < depthFrame.FrameDescription.Width; x++)
                 {
                     int depthIndex = (y * depthFrame.FrameDescription.Width) + x;
                     byte pixelValue = bodyIndexFrameData[depthIndex];
                     if (pixelValue < 255)
                     {
-                        if(x < minXForRow[pixelValue])
+                        if (x < minXForRow[pixelValue])
                         {
                             minXForRow[pixelValue] = x;
                         }
                         if (x > maxXForRow[pixelValue])
                         {
                             maxXForRow[pixelValue] = x;
-                        }                       
+                        }
                     }
                 }
+
                 for (int j = 0; j < minXForRow.Length; j++)
                 {
-                    if (minXForRow[j] < depthFrame.FrameDescription.Width+1 && maxXForRow[j] > -1)
+                    if (minXForRow[j] < depthFrame.FrameDescription.Width + 1 && maxXForRow[j] > -1)
                     {
+                        shapeToBeDrawn[minXForRow[j] + y * depthFrame.FrameDescription.Width] = 33;
+                        shapeToBeDrawn[maxXForRow[j] + y * depthFrame.FrameDescription.Width] = 33;
+
                         DepthSpacePoint d = new DepthSpacePoint();
                         d.X = minXForRow[j];
                         d.Y = y;
@@ -89,7 +99,8 @@ namespace ReIdentificator
 
                 }
             }
-            processCameraSpacePointsOfCurrentFrame(cameraSpacePointsOfBodieCountour);
+            mainWindow.RenderPixelArray(shapeToBeDrawn);
+            processCameraSpacePointsOfCurrentFrame(cameraSpacePointsOfBodieCountour, depthFrame);
             // TestAusgabe:
             /*if (cameraSpacePointsOfBody1.Count > 0)
             {
@@ -103,7 +114,7 @@ namespace ReIdentificator
             }*/
 
         }
-        private void processCameraSpacePointsOfCurrentFrame(List<CameraSpacePoint>[] cameraSpacePointsOfBodies)
+        private void processCameraSpacePointsOfCurrentFrame(List<CameraSpacePoint>[] cameraSpacePointsOfBodies, DepthFrame depthFrame)
         {
             for (int i = 0; i < cameraSpacePointsOfBodies.Length; i++)
             {
@@ -115,7 +126,7 @@ namespace ReIdentificator
                         shapesToProcess.Add(new ShapeProcessor_shape(TrackingId));
                     }
                     ShapeProcessor_shape shape = shapesToProcess.Find(element => element.TrackingId == TrackingId);
-                    //do calculations for camparison
+                    //TODO save in shape object meaningfull data
                 }
             }
 
