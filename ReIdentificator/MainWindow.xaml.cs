@@ -58,10 +58,10 @@ namespace ReIdentificator
                     {
                         //processImage
                     }
-                    if (bodyIndexFrame != null && depthFrame != null)
+                    if (bodyIndexFrame != null && depthFrame != null && bodyFrame != null)
                     {
 
-                        shapeProcessor.processBodyIndexFrame(bodyIndexFrame, depthFrame);
+                        shapeProcessor.processBodyIndexFrame(bodyIndexFrame, depthFrame, bodyFrame);
                     }
                 }
                 finally
