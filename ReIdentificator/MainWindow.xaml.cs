@@ -8,6 +8,7 @@ namespace ReIdentificator
     {
         private KinectSensor kinect = null;
         private BodyProcessor bodyProcessor;
+        private ShapeProcessor shapeProcessor;
         private ImageProcessor imageProcessor;
         private Comparer comparer;
         private MultiSourceFrameReader multiSourceFrameReader = null;
@@ -21,10 +22,11 @@ namespace ReIdentificator
             this.kinect.Open();
             this.comparer = new Comparer();
             this.bodyProcessor = new BodyProcessor(this, this.kinect, this.comparer);
+            this.shapeProcessor = new ShapeProcessor(this, this.kinect, this.comparer);
             this.imageProcessor = new ImageProcessor(this.kinect, this.comparer, this);
             this.multiSourceFrameReader =
             this.kinect.OpenMultiSourceFrameReader(
-             FrameSourceTypes.Body | FrameSourceTypes.Color);
+             FrameSourceTypes.Body | /*FrameSourceTypes.Color |*/ FrameSourceTypes.BodyIndex | FrameSourceTypes.Depth);
             this.multiSourceFrameReader.MultiSourceFrameArrived +=
             this.Reader_MultiSourceFrameArrived;
         }        
@@ -37,20 +39,48 @@ namespace ReIdentificator
                 return;
             }
 
+            using (DepthFrame depthFrame =
+            multiSourceFrame.DepthFrameReference.AcquireFrame())
+            using (BodyIndexFrame bodyIndexFrame =
+            multiSourceFrame.BodyIndexFrameReference.AcquireFrame())
             using (ColorFrame colorFrame =
             multiSourceFrame.ColorFrameReference.AcquireFrame())
             using (BodyFrame bodyFrame =
             multiSourceFrame.BodyFrameReference.AcquireFrame())
             {
-                if (bodyFrame != null)
+                try
                 {
-                    bodyProcessor.processBodyFrame(bodyFrame);
+                    if (bodyFrame != null)
+                    {
+                        bodyProcessor.processBodyFrame(bodyFrame);
+                    }
+                    if (bodyFrame != null && colorFrame != null)
+                    {
+                        //processImage
+                    }
+                    if (bodyIndexFrame != null && depthFrame != null)
+                    {
+
+                        shapeProcessor.processBodyIndexFrame(bodyIndexFrame, depthFrame);
+                    }
                 }
-                if (bodyFrame != null && colorFrame != null)
+                finally
                 {
-                   //processImage
+                    if (bodyFrame != null)
+                    {
+                        bodyFrame.Dispose();
+                    }
+                    if (colorFrame != null)
+                    {
+                        colorFrame.Dispose();
+                    }
+                    if (bodyIndexFrame != null)
+                    {
+                        bodyIndexFrame.Dispose();
+                    }
+
                 }
-                
+
             } 
 
         }
