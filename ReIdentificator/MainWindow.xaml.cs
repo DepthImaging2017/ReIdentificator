@@ -20,7 +20,6 @@ namespace ReIdentificator
 
         public MainWindow()
         {
-
             InitializeComponent();
             this.kinect = KinectSensor.GetDefault();
             this.kinect.Open();
@@ -28,7 +27,6 @@ namespace ReIdentificator
             this.bodyProcessor = new BodyProcessor(this, this.kinect, this.comparer);
             this.shapeProcessor = new ShapeProcessor(this, this.kinect, this.comparer);
             this.imageProcessor = new ImageProcessor(this.kinect, this.comparer, this);
-
             
             this.bitmap = new WriteableBitmap(kinect.DepthFrameSource.FrameDescription.Width,
             kinect.DepthFrameSource.FrameDescription.Height, 96, 96, System.Windows.Media.PixelFormats.Gray8, null);
@@ -38,8 +36,13 @@ namespace ReIdentificator
              FrameSourceTypes.Body | /*FrameSourceTypes.Color |*/ FrameSourceTypes.BodyIndex | FrameSourceTypes.Depth);
             this.multiSourceFrameReader.MultiSourceFrameArrived +=
             this.Reader_MultiSourceFrameArrived;
-
         }
+
+        public BodyProcessor getBodyProcessor()
+        {
+            return this.bodyProcessor;
+        }
+
         public void RenderPixelArray(byte[] pixels)
         {
            int stride = bitmap.PixelWidth;
@@ -49,6 +52,7 @@ namespace ReIdentificator
 
            FrameDisplayImage.Source = bitmap;
         }
+
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
             skipFrameTicker++;
@@ -97,25 +101,26 @@ namespace ReIdentificator
                     {
                         bodyIndexFrame.Dispose();
                     }
-
                 }
-
             }
-
         }
+
         public void printLog(string logtext)
         {
             LoggingBox.AppendText("\n" + logtext);
         }
+
         public void raisePersonLeftViewEvent(ulong trackingId)
         {
             OnBodyLeftView(new LeftViewEventArgs(trackingId));
         }
+
         protected virtual void OnBodyLeftView(LeftViewEventArgs e)
         {
             BodyLeftView?.Invoke(this, e);
         }
     }
+
     public class LeftViewEventArgs : EventArgs
     {
         private ulong trackingId;
