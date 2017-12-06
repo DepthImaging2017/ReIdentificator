@@ -9,7 +9,7 @@ namespace ReIdentificator
         /// <param name="percent">The percentage to drop from each side.</param>
         public static double trimmedMean(List<Double> values, double percent)
         {
-            values.Sort();            
+            values.Sort();
             int k = (int)Math.Floor(values.Count * percent);
 
             double sum = 0;

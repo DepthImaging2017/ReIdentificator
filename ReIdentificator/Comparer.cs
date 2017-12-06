@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ReIdentificator
 {
-    class Comparer
+    public class Comparer
     {
         public Comparer()
         {

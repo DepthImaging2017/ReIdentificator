@@ -74,6 +74,7 @@
     </ApplicationDefinition>
     <Compile Include="Database.cs" />
     <Compile Include="ImageProcessor.cs" />
+    <Compile Include="ShapeProcessor.cs" />
     <Compile Include="Util.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

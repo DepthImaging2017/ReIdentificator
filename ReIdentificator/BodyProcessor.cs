@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace ReIdentificator
 {
-    class BodyProcessor
+    public class BodyProcessor
     {
         private Body[] bodies = null;
         private List<BodyProcessor_body> bodiesToProcess = new List<BodyProcessor_body>();
@@ -25,6 +25,12 @@ namespace ReIdentificator
             this.mainWindow = mainWindow;
             this.bodies = new Body[this.kinect.BodyFrameSource.BodyCount];
         }
+
+        public Body[] getBodies()
+        {
+            return this.bodies;
+        }
+
         public void processBodyFrame(BodyFrame bodyFrame)
         {
             bodyFrame.GetAndRefreshBodyData(this.bodies);
@@ -67,6 +73,7 @@ namespace ReIdentificator
                 }
             }
         }
+
         private void calculateBodyDataForCurrentFrame(BodyProcessor_body _body, Body body)
         {
             //don't add if person is walking sideway or if outside determinated range
@@ -105,8 +112,8 @@ namespace ReIdentificator
                 if (valueToAdd > 0)
                     _body.spineMidToRightShoulder_list.Add(valueToAdd);
             }
-
         }
+
         private void processBody(BodyProcessor_body _body)
         {
             double trimmedMeanPercentage = 0.2;
@@ -129,6 +136,7 @@ namespace ReIdentificator
             }
         }
     }
+
     class BodyProcessor_body
     {
         public ulong TrackingId { get; set; }
@@ -157,7 +165,5 @@ namespace ReIdentificator
         {
             this.TrackingId = trackingId;
         }
-
-
     }
 }
