@@ -57,7 +57,8 @@ namespace ReIdentificator
                     {
                         for (int bodyIndex = 0; bodyIndex < bodies.Length; bodyIndex++)
                         {
-                            if(bodies[bodyIndex] != null && bodies[bodyIndex].IsTracked) {
+                            if(bodies[bodyIndex] != null && bodies[bodyIndex].IsTracked)
+                            {
                                 Joint shoulderLeft = bodies[bodyIndex].Joints[JointType.ShoulderLeft];
                                 ColorSpacePoint colorPoint = kinect.CoordinateMapper.MapCameraPointToColorSpace(shoulderLeft.Position);
                                 Debug.WriteLine("screen coords: " + colorPoint.X + " , " + colorPoint.Y);
@@ -96,42 +97,38 @@ namespace ReIdentificator
             }
         }
 
-        string averageColor(List<byte[]> colors)
+        byte[] averageColor(List<byte[]> colors)
         {
-            // for now, this is just a mockup
-            byte[] avg = colors.First<byte[]>();
-            return avg[0] + "," + avg[1] + "," + avg[2] + ',' + avg[3];
+            int red = 0;
+            int green = 0;
+            int blue = 0;
+            int opacity = 0;
+            int length = 0;
+
+            colors.ForEach(color => {
+                red += (int)Math.Pow(color[0], 2);
+                green += (int)Math.Pow(color[1], 2);
+                blue += (int)Math.Pow(color[2], 2);
+                opacity += (int)Math.Pow(color[3], 2);
+                length++;
+            });
+
+            byte[] asarray = {
+                (byte)Math.Sqrt(red / length),
+                (byte)Math.Sqrt(green / length),
+                (byte)Math.Sqrt(blue / length),
+                (byte)Math.Sqrt(opacity / length)
+            };
+
+            return asarray;
         }
 
         void HandleBodyLeftViewEvent(object sender, LeftViewEventArgs e)
         {
             Console.WriteLine("body with id " + e.TrackingId + " has left frame");
-            mainWindow.printLog("average color of left shoulder of person with id " + e.TrackingId + ": " + averageColor(this.colors[e.TrackingId]));
+            byte[] avgcol = averageColor(this.colors[e.TrackingId]);
+            mainWindow.printLog("average color of left shoulder of person with id " + e.TrackingId + ": " + avgcol[0] + ", " + avgcol[1] + ", " + avgcol[2] + ", " + avgcol[3]);
         }
-
-        public int AvgOf2MainColors(int color1, int color2)
-        {
-            int avgMainColor = (int)Math.Sqrt((Math.Pow(color1, 2) + Math.Pow(color2, 2)) / 2);
-            return avgMainColor;
-        }
-
-        public int AvgOfXMainColors(int[] colors)
-        {
-            int colorTemp = 0;
-            for(int i = 0; i<colors.Length; i++)
-            {
-                colorTemp += (int) Math.Pow(colors[i],2);
-            }
-            colorTemp = (int) Math.Sqrt(colorTemp / colors.Length);
-
-            return colorTemp;
-        }
-
-        public int[] AvgColor(int r, int g, int b)
-         {
-             int[] color = new int[3] { r, g, b };
-             return color;
-         }
 
          /* public int IndicatorColor(int r1, int g1, int b1, int avgr2, int avgg2, int avgb2)
          {
