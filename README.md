@@ -4,6 +4,14 @@ Reidentify persons with Kinect
 ## Requirements
 
   * mongoDB
+  * mongoDB driver
+
+## Install mongoDB driver
+
+Run following command in NuGet Package Manager console
+```
+Install-Package MongoDB.Driver
+```
 
 ## Run
 
