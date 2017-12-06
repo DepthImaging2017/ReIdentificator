@@ -19,7 +19,7 @@ namespace ReIdentificator
         private byte[] colorPixels;
         private WriteableBitmap colorBitmap;
         private MainWindow mainWindow;
-        private Dictionary<ulong, List<byte[]>> colors = new Dictionary<ulong, List<byte[]>>();
+        private Dictionary<ulong, List<byte[]>[]> colors = new Dictionary<ulong, List<byte[]>[]>();
 
         public ImageProcessor(KinectSensor kinect, Comparer comparer, MainWindow mainWindow)
         {
@@ -84,19 +84,28 @@ namespace ReIdentificator
                             if(bodies[bodyIndex] != null && bodies[bodyIndex].IsTracked)
                             {
                                 Joint shoulderLeft = bodies[bodyIndex].Joints[JointType.ShoulderLeft];
-                                byte[] color = this.getColorOfJoint(shoulderLeft);
-                                
+                                byte[] shoulderLeftColor = this.getColorOfJoint(shoulderLeft);
+
+                                Joint shoulderRight = bodies[bodyIndex].Joints[JointType.ShoulderRight];
+                                byte[] shoulderRightColor = this.getColorOfJoint(shoulderRight);
+
                                 // output to user
-                                mainWindow.ColorBox.Background = new SolidColorBrush(Color.FromRgb(color[0], color[1], color[2]));
+                                mainWindow.ColorBoxLeftShoulder.Background = new SolidColorBrush(Color.FromRgb(shoulderLeftColor[0], shoulderLeftColor[1], shoulderLeftColor[2]));
+                                mainWindow.ColorBoxRightShoulder.Background = new SolidColorBrush(Color.FromRgb(shoulderRightColor[0], shoulderRightColor[1], shoulderRightColor[2]));
 
                                 // save in this body's color timeseries
                                 if (!this.colors.ContainsKey(bodies[bodyIndex].TrackingId))
                                 {
                                     // if necessary instantiate list
-                                    this.colors[bodies[bodyIndex].TrackingId] = new List<byte[]>();
+                                    // for now, include 2 joints: shoulderLeft and shoulderRight
+                                    this.colors[bodies[bodyIndex].TrackingId] = new List<byte[]>[2];
+                                    this.colors[bodies[bodyIndex].TrackingId][0] = new List<byte[]>();
+                                    this.colors[bodies[bodyIndex].TrackingId][1] = new List<byte[]>();
+                                    //[2];
                                 }
                                 // save it
-                                this.colors[bodies[bodyIndex].TrackingId].Add(color);
+                                this.colors[bodies[bodyIndex].TrackingId][0].Add(shoulderLeftColor);
+                                this.colors[bodies[bodyIndex].TrackingId][1].Add(shoulderRightColor);
                             }
                         }
                     }
@@ -133,8 +142,10 @@ namespace ReIdentificator
         void HandleBodyLeftViewEvent(object sender, LeftViewEventArgs e)
         {
             Console.WriteLine("body with id " + e.TrackingId + " has left frame");
-            byte[] avgcol = averageColor(this.colors[e.TrackingId]);
-            mainWindow.printLog("average color of left shoulder of person with id " + e.TrackingId + ": " + avgcol[0] + ", " + avgcol[1] + ", " + avgcol[2] + ", " + avgcol[3]);
+            byte[] avgcolLeftShoulder = averageColor(this.colors[e.TrackingId][0]);
+            byte[] avgcolRightShoulder = averageColor(this.colors[e.TrackingId][1]);
+            mainWindow.printLog("average color of left shoulder of person with id " + e.TrackingId + ": " + avgcolLeftShoulder[0] + ", " + avgcolLeftShoulder[1] + ", " + avgcolLeftShoulder[2] + ", " + avgcolLeftShoulder[3]);
+            mainWindow.printLog("average color of right shoulder of person with id " + e.TrackingId + ": " + avgcolRightShoulder[0] + ", " + avgcolRightShoulder[1] + ", " + avgcolRightShoulder[2] + ", " + avgcolRightShoulder[3]);
         }
 
          /* public int IndicatorColor(int r1, int g1, int b1, int avgr2, int avgg2, int avgb2)

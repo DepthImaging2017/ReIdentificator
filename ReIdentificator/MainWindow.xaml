@@ -9,7 +9,8 @@
     <Grid Name="gdmain">
         <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
             <TextBox x:Name="LoggingBox" HorizontalAlignment="Left" Height="261" Margin="10,10,10,10" TextWrapping="Wrap" VerticalAlignment="Top" Width="500"/>
-            <Canvas x:Name="ColorBox" Height="100" Width="100" Background="Red" Top="0" Left="0"/>
+            <Canvas x:Name="ColorBoxLeftShoulder" Height="100" Width="100" Background="Red" Top="0" Left="0"/>
+            <Canvas x:Name="ColorBoxRightShoulder" Height="100" Width="100" Background="Red" Top="0" Left="0"/>
             <Image x:Name="FrameDisplayImage" Stretch="None" Width="570" Height="512" MinWidth="5"/>
         </StackPanel>
         
