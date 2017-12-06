@@ -33,6 +33,30 @@ namespace ReIdentificator
             mainWindow.BodyLeftView += HandleBodyLeftViewEvent;
         }
 
+        public byte[] getColorOfJoint(Joint joint)
+        {
+            ColorSpacePoint colorPoint = kinect.CoordinateMapper.MapCameraPointToColorSpace(joint.Position);
+            Debug.WriteLine("screen coords: " + colorPoint.X + " , " + colorPoint.Y);
+
+            // calculate pixel index of joint coordinate
+            int pixelIndex = (int)Math.Floor(colorPoint.Y);
+            pixelIndex *= 1920;
+            pixelIndex += (int)Math.Floor(colorPoint.X);
+            pixelIndex *= 4;
+
+            // extract color components
+            byte red = colorPixels[pixelIndex + 2];
+            byte green = colorPixels[pixelIndex + 1];
+            byte blue = colorPixels[pixelIndex];
+            byte opacity = colorPixels[pixelIndex + 3];
+
+            // log
+            Debug.WriteLine("color: " + red + ", " + green + ", " + blue + ", " + opacity);
+
+            byte[] asarray = { red, green, blue, opacity };
+            return asarray;
+        }
+
         private void Reader_ColorFrameArrived(object sender, ColorFrameArrivedEventArgs e)
         {
             using (ColorFrame colorFrame = e.FrameReference.AcquireFrame())
@@ -60,36 +84,19 @@ namespace ReIdentificator
                             if(bodies[bodyIndex] != null && bodies[bodyIndex].IsTracked)
                             {
                                 Joint shoulderLeft = bodies[bodyIndex].Joints[JointType.ShoulderLeft];
-                                ColorSpacePoint colorPoint = kinect.CoordinateMapper.MapCameraPointToColorSpace(shoulderLeft.Position);
-                                Debug.WriteLine("screen coords: " + colorPoint.X + " , " + colorPoint.Y);
-
-                                // calculate pixel index of joint coordinate
-                                int pixelIndex = (int)Math.Floor(colorPoint.Y);
-                                pixelIndex *= 1920;
-                                pixelIndex += (int)Math.Floor(colorPoint.X);
-                                pixelIndex *= 4;
-                                
-                                // extract color components
-                                byte red = colorPixels[pixelIndex + 2];
-                                byte green = colorPixels[pixelIndex + 1];
-                                byte blue = colorPixels[pixelIndex];
-                                byte opacity = colorPixels[pixelIndex + 3];
-                                
-                                // log
-                                Debug.WriteLine("color: " + red + ", " + green + ", " + blue + ", " + opacity);
+                                byte[] color = this.getColorOfJoint(shoulderLeft);
                                 
                                 // output to user
-                                mainWindow.ColorBox.Background = new SolidColorBrush(Color.FromRgb(red, green, blue));
+                                mainWindow.ColorBox.Background = new SolidColorBrush(Color.FromRgb(color[0], color[1], color[2]));
 
                                 // save in this body's color timeseries
-                                byte[] asarray = { red, green, blue, opacity };
                                 if (!this.colors.ContainsKey(bodies[bodyIndex].TrackingId))
                                 {
                                     // if necessary instantiate list
                                     this.colors[bodies[bodyIndex].TrackingId] = new List<byte[]>();
                                 }
                                 // save it
-                                this.colors[bodies[bodyIndex].TrackingId].Add(asarray);
+                                this.colors[bodies[bodyIndex].TrackingId].Add(color);
                             }
                         }
                     }
