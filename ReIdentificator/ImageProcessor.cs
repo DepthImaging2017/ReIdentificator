@@ -57,7 +57,7 @@ namespace ReIdentificator
                     {
                         for (int bodyIndex = 0; bodyIndex < bodies.Length; bodyIndex++)
                         {
-                            if(bodies[bodyIndex].IsTracked) {
+                            if(bodies[bodyIndex] != null && bodies[bodyIndex].IsTracked) {
                                 Joint shoulderLeft = bodies[bodyIndex].Joints[JointType.ShoulderLeft];
                                 ColorSpacePoint colorPoint = kinect.CoordinateMapper.MapCameraPointToColorSpace(shoulderLeft.Position);
                                 Debug.WriteLine("screen coords: " + colorPoint.X + " , " + colorPoint.Y);
