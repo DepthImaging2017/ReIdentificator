@@ -1,3 +1,6 @@
+# Manually inserted ignores
+ReIdentificator/data/*
+
 # User-specific files
 *.suo
 *.user

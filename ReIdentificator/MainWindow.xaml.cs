@@ -1,6 +1,10 @@
 ﻿using System.Windows;
+using System.Diagnostics;
+using System.Collections.Generic;
 using Microsoft.Kinect;
 using System;
+using System.Threading.Tasks;
+using MongoDB.Bson;
 using System.Windows.Media.Imaging;
 
 namespace ReIdentificator
@@ -13,6 +17,7 @@ namespace ReIdentificator
         private ImageProcessor imageProcessor;
         private Comparer comparer;
         private MultiSourceFrameReader multiSourceFrameReader = null;
+        private Database db;
         private WriteableBitmap bitmap = null;
         private int skipFrameTicker = 0;
 
@@ -36,6 +41,8 @@ namespace ReIdentificator
              FrameSourceTypes.Body | /*FrameSourceTypes.Color |*/ FrameSourceTypes.BodyIndex | FrameSourceTypes.Depth);
             this.multiSourceFrameReader.MultiSourceFrameArrived +=
             this.Reader_MultiSourceFrameArrived;
+
+            this.db = new Database("mongodb://localhost:27017", "depthImaging", "individuals");
         }
 
         public BodyProcessor getBodyProcessor()
