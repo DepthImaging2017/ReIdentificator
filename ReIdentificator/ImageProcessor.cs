@@ -90,8 +90,33 @@ namespace ReIdentificator
                                 byte[] shoulderRightColor = this.getColorOfJoint(shoulderRight);
 
                                 // output to user
-                                mainWindow.ColorBoxLeftShoulder.Background = new SolidColorBrush(Color.FromRgb(shoulderLeftColor[0], shoulderLeftColor[1], shoulderLeftColor[2]));
-                                mainWindow.ColorBoxRightShoulder.Background = new SolidColorBrush(Color.FromRgb(shoulderRightColor[0], shoulderRightColor[1], shoulderRightColor[2]));
+                                switch (bodyIndex)
+                                {
+                                    case 0:
+                                        mainWindow.ColorBoxLeftShoulder1.Background = new SolidColorBrush(Color.FromRgb(shoulderLeftColor[0], shoulderLeftColor[1], shoulderLeftColor[2]));
+                                        mainWindow.ColorBoxRightShoulder1.Background = new SolidColorBrush(Color.FromRgb(shoulderRightColor[0], shoulderRightColor[1], shoulderRightColor[2]));
+                                        break;
+                                    case 1:
+                                        mainWindow.ColorBoxLeftShoulder2.Background = new SolidColorBrush(Color.FromRgb(shoulderLeftColor[0], shoulderLeftColor[1], shoulderLeftColor[2]));
+                                        mainWindow.ColorBoxRightShoulder2.Background = new SolidColorBrush(Color.FromRgb(shoulderRightColor[0], shoulderRightColor[1], shoulderRightColor[2]));
+                                        break;
+                                    case 2:
+                                        mainWindow.ColorBoxLeftShoulder3.Background = new SolidColorBrush(Color.FromRgb(shoulderLeftColor[0], shoulderLeftColor[1], shoulderLeftColor[2]));
+                                        mainWindow.ColorBoxRightShoulder3.Background = new SolidColorBrush(Color.FromRgb(shoulderRightColor[0], shoulderRightColor[1], shoulderRightColor[2]));
+                                        break;
+                                    case 3:
+                                        mainWindow.ColorBoxLeftShoulder4.Background = new SolidColorBrush(Color.FromRgb(shoulderLeftColor[0], shoulderLeftColor[1], shoulderLeftColor[2]));
+                                        mainWindow.ColorBoxRightShoulder4.Background = new SolidColorBrush(Color.FromRgb(shoulderRightColor[0], shoulderRightColor[1], shoulderRightColor[2]));
+                                        break;
+                                    case 4:
+                                        mainWindow.ColorBoxLeftShoulder5.Background = new SolidColorBrush(Color.FromRgb(shoulderLeftColor[0], shoulderLeftColor[1], shoulderLeftColor[2]));
+                                        mainWindow.ColorBoxRightShoulder5.Background = new SolidColorBrush(Color.FromRgb(shoulderRightColor[0], shoulderRightColor[1], shoulderRightColor[2]));
+                                        break;
+                                    case 5:
+                                        mainWindow.ColorBoxLeftShoulder6.Background = new SolidColorBrush(Color.FromRgb(shoulderLeftColor[0], shoulderLeftColor[1], shoulderLeftColor[2]));
+                                        mainWindow.ColorBoxRightShoulder6.Background = new SolidColorBrush(Color.FromRgb(shoulderRightColor[0], shoulderRightColor[1], shoulderRightColor[2]));
+                                        break;
+                                }
 
                                 // save in this body's color timeseries
                                 if (!this.colors.ContainsKey(bodies[bodyIndex].TrackingId))
@@ -107,6 +132,12 @@ namespace ReIdentificator
                                 this.colors[bodies[bodyIndex].TrackingId][0].Add(shoulderLeftColor);
                                 this.colors[bodies[bodyIndex].TrackingId][1].Add(shoulderRightColor);
                             }
+                        }
+
+                        if(bodies[0] == null || (bodies[0] != null && !bodies[0].IsTracked))
+                        {
+                            this.mainWindow.ColorBoxLeftShoulder1.Background = new SolidColorBrush(Colors.LightGray);
+                            this.mainWindow.ColorBoxRightShoulder1.Background = new SolidColorBrush(Colors.LightGray);
                         }
                     }
                 }

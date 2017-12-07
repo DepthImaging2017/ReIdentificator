@@ -7,11 +7,43 @@
         mc:Ignorable="d"
         Title="Output" Height="565.061" Width="1602.451">
     <Grid Name="gdmain">
-        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical">
+            <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+                <Image x:Name="FrameDisplayImage" Stretch="None" Width="570" Height="512" MinWidth="5"/>
+                <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical">
+                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock>1</TextBlock>
+                        <Canvas x:Name="ColorBoxLeftShoulder1" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxRightShoulder1" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock>2</TextBlock>
+                        <Canvas x:Name="ColorBoxLeftShoulder2" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxRightShoulder2" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock>3</TextBlock>
+                        <Canvas x:Name="ColorBoxLeftShoulder3" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxRightShoulder3" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock>4</TextBlock>
+                        <Canvas x:Name="ColorBoxLeftShoulder4" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxRightShoulder4" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock>5</TextBlock>
+                        <Canvas x:Name="ColorBoxLeftShoulder5" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxRightShoulder5" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock>6</TextBlock>
+                        <Canvas x:Name="ColorBoxLeftShoulder6" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxRightShoulder6" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
             <TextBox x:Name="LoggingBox" HorizontalAlignment="Left" Height="261" Margin="10,10,10,10" TextWrapping="Wrap" VerticalAlignment="Top" Width="500"/>
-            <Canvas x:Name="ColorBoxLeftShoulder" Height="100" Width="100" Background="Red" Top="0" Left="0"/>
-            <Canvas x:Name="ColorBoxRightShoulder" Height="100" Width="100" Background="Red" Top="0" Left="0"/>
-            <Image x:Name="FrameDisplayImage" Stretch="None" Width="570" Height="512" MinWidth="5"/>
         </StackPanel>
         
         
