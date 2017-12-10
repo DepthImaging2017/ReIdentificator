@@ -13,6 +13,8 @@ namespace ReIdentificator
 {
     class ImageProcessor
     {
+        private int errorSpan;
+        private static JointType[] jointTypesToTrack = { JointType.ShoulderLeft, JointType.ShoulderRight };
         private KinectSensor kinect;
         private Comparer comparer;
         private ColorFrameReader colorFrameReader = null;
@@ -167,6 +169,10 @@ namespace ReIdentificator
                 (byte)Math.Sqrt(opacity / length)
             };
 
+            //needs to be tested
+            //int[] indicator = IndicatorColor(asarray);
+            //asarray = PostAvgColor(colors, indicator, errorSpan);
+
             return asarray;
         }
 
@@ -179,21 +185,77 @@ namespace ReIdentificator
             mainWindow.printLog("average color of right shoulder of person with id " + e.TrackingId + ": " + avgcolRightShoulder[0] + ", " + avgcolRightShoulder[1] + ", " + avgcolRightShoulder[2] + ", " + avgcolRightShoulder[3]);
         }
 
-         /* public int IndicatorColor(int r1, int g1, int b1, int avgr2, int avgg2, int avgb2)
+        int[] IndicatorColor(byte[] asarray)
          {
-             int newR = AvgOf2MainColors(r1, avgr2);
-             int newG = AvgOf2MainColors(g1, avgg2);
-             int newB = AvgOf2MainColors(b1, avgb2);
-             return (newR+ avgr2+ newG+ avgg2 + newB+ avgb2) /3;
+           int indicator = 0;
+           int red = (int)Math.Pow(asarray[0], 2);
+           int green = (int)Math.Pow(asarray[1], 2);
+           int blue = (int)Math.Pow(asarray[2], 2);
+            indicator = red + blue + green;
+            int[] indicatorColor = { red, green, blue, indicator };
+           //opacity += (int)Math.Pow(color[3], 2);
+           return indicator;
          }
 
-         public PostAvgColor(int[] colors, int preColor)
+         byte[] PostAvgColor(List<byte[]> colors, int[] preColors, byte intError)
          {
-             int[] indicatorsError;
-             int[] postErrorColors;
-             int j = 0;
+            //195075 == (255^2)*3
+             byte error = intError;
+             int overallError = (int) (error*195075);
+             int eachError = (int)(error * 65025);
 
-             int error = 0;
+             int red = 0;
+             int green = 0;
+             int blue = 0;
+             //int opacity = 0;
+             int length = 0;
+
+             colors.ForEach(color => {
+
+                int redTemp = 0;
+                int greenTemp = 0;
+                int blueTemp = 0;
+                //int opacityTemp = 0;
+                 redTemp += (int)Math.Pow(color[0], 2);
+                 greenTemp += (int)Math.Pow(color[1], 2);
+                 blueTemp += (int)Math.Pow(color[2], 2);
+                 //opacityTemp += (int)Math.Pow(color[3], 2);
+                int comparison = redTemp + greenTemp + blueTemp; //+opacityTemp
+                 if (comparison > preColors[3] - error && comparison < preColors[3] + error)
+                 {
+                     if (redTemp > preColors[0] - error * 1.5 && redTemp < preColors[0] + error * 1.5)
+                     {
+                         if (greenTemp > preColors[1] - error * 1.5 && greenTemp < preColors[1] + error * 1.5)
+                         {
+                             if (blueTemp > preColors[2] - error * 1.5 && blueTemp < preColors[2] + error * 1.5)
+                             {
+                                 red += redTemp;
+                                 green += greenTemp;
+                                 blue += blueTemp;
+                                 length++;
+                             }
+                         }
+                     }
+                 }
+             });
+
+             byte[] asarray = {
+                 (byte)Math.Sqrt(red / length),
+                 (byte)Math.Sqrt(green / length),
+                 (byte)Math.Sqrt(blue / length),
+                 //(byte)Math.Sqrt(opacity / length)
+                 255
+             };
+
+            //If less than three quarters of all Points are in the Span
+            if(asarray.Length < colors.length*0.75)
+            {
+                asarry = PostAvgColor(colors, preColors, intError + 0.1);
+            }
+
+            return asarray;
+
+             /*int error = 0;
 
              for (int i = 0; i < colors.Length; i++)
              {
@@ -216,7 +278,7 @@ namespace ReIdentificator
                  arrCol = postErrorColors[i]
                  finalColor = AvgColor(arrCol.r, arrCol.g, arrCol.b, finalColor.r, finalColor.g, finalColor.b);
              }
-             return finalColor;
-         }*/
+             return finalColor;*/
+         }
     }
 }
