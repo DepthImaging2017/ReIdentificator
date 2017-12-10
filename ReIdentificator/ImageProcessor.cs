@@ -195,10 +195,11 @@ namespace ReIdentificator
             indicator = red + blue + green;
             int[] indicatorColor = { red, green, blue, indicator };
            //opacity += (int)Math.Pow(color[3], 2);
-           return indicator;
+           return indicatorColor;
          }
 
-         void GetColorOfBodyParts(JointType[] jointTypesToTrack){
+         void GetColorOfBodyParts(JointType[] jointTypesToTrack, Body[] bodies)
+        {
            for (int bodyIndex = 0; bodyIndex < bodies.Length; bodyIndex++)
            {
              if(bodies[bodyIndex] != null && bodies[bodyIndex].IsTracked)
@@ -209,43 +210,44 @@ namespace ReIdentificator
                  this.colors[bodies[bodyIndex].TrackingId] = new List<byte[]>[jointTypesToTrack.Length];
                  for(int i = 0; i<jointTypesToTrack.Length; i++){
                    this.colors[bodies[bodyIndex].TrackingId][i] = new List<byte[]>();
-                 };
+                 }
                }
 
-               for(int j = 0; j<jointTypesToTrack; j++){
+               for(int j = 0; j<jointTypesToTrack.Length; j++){
                  Joint bodyPart = bodies[bodyIndex].Joints[jointTypesToTrack[j]];
                  byte[] colorOfBodyPart = this.getColorOfJoint(bodyPart);
 
                  // save it
-                 this.colors[bodies[bodyIndex].TrackingId][j].Add(this.getColorOfJoint(colorOfBodyPart));
+                 this.colors[bodies[bodyIndex].TrackingId][j].Add(colorOfBodyPart);
                }
 
                // output to user
+
                switch (bodyIndex)
                {
                  case 0:
-                 mainWindow.ColorBoxLeftShoulder1.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][0], this.colors[bodies[bodyIndex].TrackingId][0][1], this.colors[bodies[bodyIndex].TrackingId][0][2]));
-                 mainWindow.ColorBoxRightShoulder1.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][0], this.colors[bodies[bodyIndex].TrackingId][1][1], this.colors[bodies[bodyIndex].TrackingId][1][2]));
+                 mainWindow.ColorBoxLeftShoulder1.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][0], this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][1], this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][2]));
+                 mainWindow.ColorBoxRightShoulder1.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][0], this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][1], this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][2]));
                  break;
                  case 1:
-                 mainWindow.ColorBoxLeftShoulder2.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][0], this.colors[bodies[bodyIndex].TrackingId][0][1], this.colors[bodies[bodyIndex].TrackingId][0][2]));
-                 mainWindow.ColorBoxRightShoulder2.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][0], this.colors[bodies[bodyIndex].TrackingId][1][1], this.colors[bodies[bodyIndex].TrackingId][1][2]));
+                 mainWindow.ColorBoxLeftShoulder2.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][0], this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][1], this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][2]));
+                 mainWindow.ColorBoxRightShoulder2.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][0], this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][1], this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][2]));
                  break;
                  case 2:
-                 mainWindow.ColorBoxLeftShoulder3.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][0], this.colors[bodies[bodyIndex].TrackingId][0][1], this.colors[bodies[bodyIndex].TrackingId][0][2]));
-                 mainWindow.ColorBoxRightShoulder3.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][0], this.colors[bodies[bodyIndex].TrackingId][1][1], this.colors[bodies[bodyIndex].TrackingId][1][2]));
+                 mainWindow.ColorBoxLeftShoulder3.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][0], this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][1], this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][2]));
+                 mainWindow.ColorBoxRightShoulder3.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][0], this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][1], this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][2]));
                  break;
                  case 3:
-                 mainWindow.ColorBoxLeftShoulder4.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][0], this.colors[bodies[bodyIndex].TrackingId][0][1], this.colors[bodies[bodyIndex].TrackingId][0][2]));
-                 mainWindow.ColorBoxRightShoulder4.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][0], this.colors[bodies[bodyIndex].TrackingId][1][1], this.colors[bodies[bodyIndex].TrackingId][1][2]));
+                 mainWindow.ColorBoxLeftShoulder4.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][0], this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][1], this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][2]));
+                 mainWindow.ColorBoxRightShoulder4.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][0], this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][1], this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][2]));
                  break;
                  case 4:
-                 mainWindow.ColorBoxLeftShoulder5.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][0], this.colors[bodies[bodyIndex].TrackingId][0][1], this.colors[bodies[bodyIndex].TrackingId][0][2]));
-                 mainWindow.ColorBoxRightShoulder5.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][0], this.colors[bodies[bodyIndex].TrackingId][1][1], this.colors[bodies[bodyIndex].TrackingId][1][2]));
+                 mainWindow.ColorBoxLeftShoulder5.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][0], this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][1], this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][2]));
+                 mainWindow.ColorBoxRightShoulder5.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][0], this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][1], this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][2]));
                  break;
                  case 5:
-                 mainWindow.ColorBoxLeftShoulder6.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][0], this.colors[bodies[bodyIndex].TrackingId][0][1], this.colors[bodies[bodyIndex].TrackingId][0][2]));
-                 mainWindow.ColorBoxRightShoulder6.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][0], this.colors[bodies[bodyIndex].TrackingId][1][1], this.colors[bodies[bodyIndex].TrackingId][1][2]));
+                 mainWindow.ColorBoxLeftShoulder6.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][0], this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][1], this.colors[bodies[bodyIndex].TrackingId][0][bodyIndex][2]));
+                 mainWindow.ColorBoxRightShoulder6.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][0], this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][1], this.colors[bodies[bodyIndex].TrackingId][1][bodyIndex][2]));
                  break;
                }
 
@@ -265,6 +267,7 @@ namespace ReIdentificator
            int blue = 0;
            //int opacity = 0;
            int length = 0;
+            int lengthForCheck = 0;
 
            colors.ForEach(color => {
 
@@ -304,9 +307,9 @@ namespace ReIdentificator
              };
 
              //If less than three quarters of all Points are in the Span
-             if(asarray.Length < colors.length*0.75)
+             if(asarray.Length < lengthForCheck * 0.75)
              {
-               asarry = PostAvgColor(colors, preColors, intError + 0.1);
+                asarray = PostAvgColor(colors, preColors, (byte) (intError + 0.1));
              }
 
              return asarray;
