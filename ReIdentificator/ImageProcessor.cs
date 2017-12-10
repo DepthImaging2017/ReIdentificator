@@ -81,6 +81,7 @@ namespace ReIdentificator
                     Body[] bodies = this.mainWindow.getBodyProcessor().getBodies();
                     if (bodies != null)
                     {
+                        //GetColorOfBodyParts(jointTypesToTrack);
                         for (int bodyIndex = 0; bodyIndex < bodies.Length; bodyIndex++)
                         {
                             if(bodies[bodyIndex] != null && bodies[bodyIndex].IsTracked)
@@ -197,88 +198,143 @@ namespace ReIdentificator
            return indicator;
          }
 
+         void GetColorOfBodyParts(JointType[] jointTypesToTrack){
+           for (int bodyIndex = 0; bodyIndex < bodies.Length; bodyIndex++)
+           {
+             if(bodies[bodyIndex] != null && bodies[bodyIndex].IsTracked)
+             {
+               // save in this body's color timeseries
+               if (!this.colors.ContainsKey(bodies[bodyIndex].TrackingId))
+               {
+                 this.colors[bodies[bodyIndex].TrackingId] = new List<byte[]>[jointTypesToTrack.Length];
+                 for(int i = 0; i<jointTypesToTrack.Length; i++){
+                   this.colors[bodies[bodyIndex].TrackingId][i] = new List<byte[]>();
+                 };
+               }
+
+               for(int j = 0; j<jointTypesToTrack; j++){
+                 Joint bodyPart = bodies[bodyIndex].Joints[jointTypesToTrack[j]];
+                 byte[] colorOfBodyPart = this.getColorOfJoint(bodyPart);
+
+                 // save it
+                 this.colors[bodies[bodyIndex].TrackingId][j].Add(this.getColorOfJoint(colorOfBodyPart));
+               }
+
+               // output to user
+               switch (bodyIndex)
+               {
+                 case 0:
+                 mainWindow.ColorBoxLeftShoulder1.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][0], this.colors[bodies[bodyIndex].TrackingId][0][1], this.colors[bodies[bodyIndex].TrackingId][0][2]));
+                 mainWindow.ColorBoxRightShoulder1.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][0], this.colors[bodies[bodyIndex].TrackingId][1][1], this.colors[bodies[bodyIndex].TrackingId][1][2]));
+                 break;
+                 case 1:
+                 mainWindow.ColorBoxLeftShoulder2.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][0], this.colors[bodies[bodyIndex].TrackingId][0][1], this.colors[bodies[bodyIndex].TrackingId][0][2]));
+                 mainWindow.ColorBoxRightShoulder2.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][0], this.colors[bodies[bodyIndex].TrackingId][1][1], this.colors[bodies[bodyIndex].TrackingId][1][2]));
+                 break;
+                 case 2:
+                 mainWindow.ColorBoxLeftShoulder3.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][0], this.colors[bodies[bodyIndex].TrackingId][0][1], this.colors[bodies[bodyIndex].TrackingId][0][2]));
+                 mainWindow.ColorBoxRightShoulder3.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][0], this.colors[bodies[bodyIndex].TrackingId][1][1], this.colors[bodies[bodyIndex].TrackingId][1][2]));
+                 break;
+                 case 3:
+                 mainWindow.ColorBoxLeftShoulder4.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][0], this.colors[bodies[bodyIndex].TrackingId][0][1], this.colors[bodies[bodyIndex].TrackingId][0][2]));
+                 mainWindow.ColorBoxRightShoulder4.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][0], this.colors[bodies[bodyIndex].TrackingId][1][1], this.colors[bodies[bodyIndex].TrackingId][1][2]));
+                 break;
+                 case 4:
+                 mainWindow.ColorBoxLeftShoulder5.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][0], this.colors[bodies[bodyIndex].TrackingId][0][1], this.colors[bodies[bodyIndex].TrackingId][0][2]));
+                 mainWindow.ColorBoxRightShoulder5.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][0], this.colors[bodies[bodyIndex].TrackingId][1][1], this.colors[bodies[bodyIndex].TrackingId][1][2]));
+                 break;
+                 case 5:
+                 mainWindow.ColorBoxLeftShoulder6.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][0][0], this.colors[bodies[bodyIndex].TrackingId][0][1], this.colors[bodies[bodyIndex].TrackingId][0][2]));
+                 mainWindow.ColorBoxRightShoulder6.Background = new SolidColorBrush(Color.FromRgb(this.colors[bodies[bodyIndex].TrackingId][1][0], this.colors[bodies[bodyIndex].TrackingId][1][1], this.colors[bodies[bodyIndex].TrackingId][1][2]));
+                 break;
+               }
+
+             }
+           }
+         }
+
          byte[] PostAvgColor(List<byte[]> colors, int[] preColors, byte intError)
          {
-            //195075 == (255^2)*3
-             byte error = intError;
-             int overallError = (int) (error*195075);
-             int eachError = (int)(error * 65025);
+           //195075 == (255^2)*3
+           byte error = intError;
+           int overallError = (int) (error*195075);
+           int eachError = (int)(error * 65025);
 
-             int red = 0;
-             int green = 0;
-             int blue = 0;
-             //int opacity = 0;
-             int length = 0;
+           int red = 0;
+           int green = 0;
+           int blue = 0;
+           //int opacity = 0;
+           int length = 0;
 
-             colors.ForEach(color => {
+           colors.ForEach(color => {
 
-                int redTemp = 0;
-                int greenTemp = 0;
-                int blueTemp = 0;
-                //int opacityTemp = 0;
-                 redTemp += (int)Math.Pow(color[0], 2);
-                 greenTemp += (int)Math.Pow(color[1], 2);
-                 blueTemp += (int)Math.Pow(color[2], 2);
-                 //opacityTemp += (int)Math.Pow(color[3], 2);
-                int comparison = redTemp + greenTemp + blueTemp; //+opacityTemp
-                 if (comparison > preColors[3] - error && comparison < preColors[3] + error)
+             int redTemp = 0;
+             int greenTemp = 0;
+             int blueTemp = 0;
+             //int opacityTemp = 0;
+             redTemp += (int)Math.Pow(color[0], 2);
+             greenTemp += (int)Math.Pow(color[1], 2);
+             blueTemp += (int)Math.Pow(color[2], 2);
+             //opacityTemp += (int)Math.Pow(color[3], 2);
+             int comparison = redTemp + greenTemp + blueTemp; //+opacityTemp
+             if (comparison > preColors[3] - error && comparison < preColors[3] + error)
+             {
+               if (redTemp > preColors[0] - error * 1.5 && redTemp < preColors[0] + error * 1.5)
+               {
+                 if (greenTemp > preColors[1] - error * 1.5 && greenTemp < preColors[1] + error * 1.5)
                  {
-                     if (redTemp > preColors[0] - error * 1.5 && redTemp < preColors[0] + error * 1.5)
-                     {
-                         if (greenTemp > preColors[1] - error * 1.5 && greenTemp < preColors[1] + error * 1.5)
-                         {
-                             if (blueTemp > preColors[2] - error * 1.5 && blueTemp < preColors[2] + error * 1.5)
-                             {
-                                 red += redTemp;
-                                 green += greenTemp;
-                                 blue += blueTemp;
-                                 length++;
-                             }
-                         }
-                     }
+                   if (blueTemp > preColors[2] - error * 1.5 && blueTemp < preColors[2] + error * 1.5)
+                   {
+                     red += redTemp;
+                     green += greenTemp;
+                     blue += blueTemp;
+                     length++;
+                   }
                  }
+               }
+             }
              });
 
              byte[] asarray = {
-                 (byte)Math.Sqrt(red / length),
-                 (byte)Math.Sqrt(green / length),
-                 (byte)Math.Sqrt(blue / length),
-                 //(byte)Math.Sqrt(opacity / length)
-                 255
+               (byte)Math.Sqrt(red / length),
+               (byte)Math.Sqrt(green / length),
+               (byte)Math.Sqrt(blue / length),
+               //(byte)Math.Sqrt(opacity / length)
+               255
              };
 
-            //If less than three quarters of all Points are in the Span
-            if(asarray.Length < colors.length*0.75)
-            {
-                asarry = PostAvgColor(colors, preColors, intError + 0.1);
-            }
+             //If less than three quarters of all Points are in the Span
+             if(asarray.Length < colors.length*0.75)
+             {
+               asarry = PostAvgColor(colors, preColors, intError + 0.1);
+             }
 
-            return asarray;
+             return asarray;
 
              /*int error = 0;
 
              for (int i = 0; i < colors.Length; i++)
              {
-                 indicatorsError[i] = IndicatorColor(colors[0.r], colors[0.g], colors[0.b], preColor.r, preColor.b, preColor.g);
-                 error += indicatorsError[i];
-             }
-             error = error / indicatorsError.Length;
-             for (int i = 0; i < indicatorsError.Length; i++)
-             {
-                 if(indicatorsError[i] < error)
-                 {
-                     j++;
-                     postErrorColors[j] = colors[i];
-                 }
-             }
-
-             Color finalColor = postErrorColors[0];
-             for (int i = 1; i < postErrorColors.Length; i ++)
-             {
-                 arrCol = postErrorColors[i]
-                 finalColor = AvgColor(arrCol.r, arrCol.g, arrCol.b, finalColor.r, finalColor.g, finalColor.b);
-             }
-             return finalColor;*/
+             indicatorsError[i] = IndicatorColor(colors[0.r], colors[0.g], colors[0.b], preColor.r, preColor.b, preColor.g);
+             error += indicatorsError[i];
+           }
+           error = error / indicatorsError.Length;
+           for (int i = 0; i < indicatorsError.Length; i++)
+           {
+           if(indicatorsError[i] < error)
+           {
+           j++;
+           postErrorColors[j] = colors[i];
          }
-    }
+       }
+
+       Color finalColor = postErrorColors[0];
+       for (int i = 1; i < postErrorColors.Length; i ++)
+       {
+       arrCol = postErrorColors[i]
+       finalColor = AvgColor(arrCol.r, arrCol.g, arrCol.b, finalColor.r, finalColor.g, finalColor.b);
+     }
+     return finalColor;*/
+   }
+ }
 }
