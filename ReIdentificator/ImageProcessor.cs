@@ -13,7 +13,7 @@ namespace ReIdentificator
 {
     class ImageProcessor
     {
-        private int errorSpan;
+        private double deleteTheTopAndBottom = 0.05;
         private static JointType[] jointTypesToTrack = { JointType.ShoulderLeft, JointType.ShoulderRight };
         private KinectSensor kinect;
         private Comparer comparer;
@@ -171,8 +171,8 @@ namespace ReIdentificator
             };
 
             //needs to be tested
-            //int[] indicator = IndicatorColor(asarray);
-            //asarray = PostAvgColor(colors, indicator, errorSpan);
+            int[] indicator = IndicatorColor(asarray);
+            asarray = PostAvgColor(colors, indicator, deleteTheTopAndBottom);
 
             return asarray;
         }
@@ -255,20 +255,20 @@ namespace ReIdentificator
            }
          }
 
-         byte[] PostAvgColor(List<byte[]> colors, int[] preColors, byte intError)
+         byte[] PostAvgColor(List<byte[]> colors, int[] preColors, double intError)
          {
            //195075 == (255^2)*3
-           byte error = intError;
+           double error = intError;
            int overallError = (int) (error*195075);
            int eachError = (int)(error * 65025);
-
-           int red = 0;
+            mainWindow.printLog("" + error);
+            int red = 0;
            int green = 0;
            int blue = 0;
            //int opacity = 0;
            int length = 0;
             int lengthForCheck = 0;
-
+            
            colors.ForEach(color => {
 
              int redTemp = 0;
@@ -280,13 +280,13 @@ namespace ReIdentificator
              blueTemp += (int)Math.Pow(color[2], 2);
              //opacityTemp += (int)Math.Pow(color[3], 2);
              int comparison = redTemp + greenTemp + blueTemp; //+opacityTemp
-             if (comparison > preColors[3] - error && comparison < preColors[3] + error)
+             if (comparison > preColors[3] - overallError && comparison < preColors[3] + overallError)
              {
-               if (redTemp > preColors[0] - error * 1.5 && redTemp < preColors[0] + error * 1.5)
+               if (redTemp > preColors[0] - eachError * 1.5 && redTemp < preColors[0] + eachError * 1.5)
                {
-                 if (greenTemp > preColors[1] - error * 1.5 && greenTemp < preColors[1] + error * 1.5)
+                 if (greenTemp > preColors[1] - eachError * 1.5 && greenTemp < preColors[1] + eachError * 1.5)
                  {
-                   if (blueTemp > preColors[2] - error * 1.5 && blueTemp < preColors[2] + error * 1.5)
+                   if (blueTemp > preColors[2] - eachError * 1.5 && blueTemp < preColors[2] + eachError * 1.5)
                    {
                      red += redTemp;
                      green += greenTemp;
@@ -298,21 +298,28 @@ namespace ReIdentificator
              }
              });
 
-             byte[] asarray = {
+            if (length != 0)
+            {
+                byte[] asarray = {
                (byte)Math.Sqrt(red / length),
                (byte)Math.Sqrt(green / length),
                (byte)Math.Sqrt(blue / length),
                //(byte)Math.Sqrt(opacity / length)
                255
              };
+                //If less than three quarters of all Points are in the Span
+                if (asarray.Length < lengthForCheck * 0.75)
+                {
+                    asarray = PostAvgColor(colors, preColors, (double)(intError * 5 / 4));
+                }
 
-             //If less than three quarters of all Points are in the Span
-             if(asarray.Length < lengthForCheck * 0.75)
-             {
-                asarray = PostAvgColor(colors, preColors, (byte) (intError + 0.1));
-             }
-
-             return asarray;
+                return asarray;
+            }
+            else
+            {
+                byte[] asarray = PostAvgColor(colors, preColors, (double)(intError * 5 / 4));
+                return asarray;
+            }
 
              /*int error = 0;
 
