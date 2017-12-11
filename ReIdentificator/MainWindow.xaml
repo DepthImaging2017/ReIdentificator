@@ -13,33 +13,33 @@
                 <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical">
                     <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
                         <TextBlock>1</TextBlock>
-                        <Canvas x:Name="ColorBoxLeftShoulder1" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                        <Canvas x:Name="ColorBoxRightShoulder1" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxFirstJoint1" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxSecondJoint1" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
                     </StackPanel>
                     <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
                         <TextBlock>2</TextBlock>
-                        <Canvas x:Name="ColorBoxLeftShoulder2" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                        <Canvas x:Name="ColorBoxRightShoulder2" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxFirstJoint2" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxSecondJoint2" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
                     </StackPanel>
                     <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
                         <TextBlock>3</TextBlock>
-                        <Canvas x:Name="ColorBoxLeftShoulder3" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                        <Canvas x:Name="ColorBoxRightShoulder3" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxFirstJoint3" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxSecondJoint3" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
                     </StackPanel>
                     <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
                         <TextBlock>4</TextBlock>
-                        <Canvas x:Name="ColorBoxLeftShoulder4" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                        <Canvas x:Name="ColorBoxRightShoulder4" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxFirstJoint4" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxSecondJoint4" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
                     </StackPanel>
                     <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
                         <TextBlock>5</TextBlock>
-                        <Canvas x:Name="ColorBoxLeftShoulder5" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                        <Canvas x:Name="ColorBoxRightShoulder5" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxFirstJoint5" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxSecondJoint5" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
                     </StackPanel>
                     <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
                         <TextBlock>6</TextBlock>
-                        <Canvas x:Name="ColorBoxLeftShoulder6" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                        <Canvas x:Name="ColorBoxRightShoulder6" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxFirstJoint6" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
+                        <Canvas x:Name="ColorBoxSecondJoint6" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
