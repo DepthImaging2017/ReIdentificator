@@ -112,7 +112,6 @@ namespace ReIdentificator
                 (byte)Math.Sqrt(opacity / length)
             };
 
-            //needs to be tested
             int[] indicator = IndicatorColor(asarray);
             asarray = PostAvgColor(colors, indicator, deleteTheTopAndBottom);
 
@@ -127,7 +126,7 @@ namespace ReIdentificator
             byte[] avgColOfSecJoint = averageColor(this.colors[e.TrackingId][1]);
             mainWindow.printLog("average color of the first joint of person with id " + e.TrackingId + ": " + avgColOfFirstJoint[0] + ", " + avgColOfFirstJoint[1] + ", " + avgColOfFirstJoint[2] + ", " + avgColOfFirstJoint[3]);
             mainWindow.printLog("average color of the second of person with id " + e.TrackingId + ": " + avgColOfSecJoint[0] + ", " + avgColOfSecJoint[1] + ", " + avgColOfSecJoint[2] + ", " + avgColOfSecJoint[3]);
-            for (int i = 0; i < currColorToView.Length; i++)
+            for (int i = 0; i < currColorToView.GetLength(0); i++)
             {
                 if (currColorToView[i, 0] == e.TrackingId)
                 {
@@ -305,7 +304,7 @@ namespace ReIdentificator
                         this.colors[bodies[bodyIndex].TrackingId][j].Add(colorOfBodyPart);
                }
              }
-                
+
            }
          }
 
@@ -315,14 +314,14 @@ namespace ReIdentificator
            double error = intError;
            int overallError = (int) (error*195075);
            int eachError = (int)(error * 65025);
-            
+
             int red = 0;
            int green = 0;
            int blue = 0;
            //int opacity = 0;
            int length = 0;
             int lengthForCheck = 0;
-            
+
            colors.ForEach(color => {
 
              int redTemp = 0;
