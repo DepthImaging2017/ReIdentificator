@@ -131,7 +131,7 @@ namespace ReIdentificator
                 if (currColorToView[i, 0] == e.TrackingId)
                 {
                     fieldToShow = currColorToView[i, 1];
-                    for(int j = 0; j > i; j--)
+                    for(int j = currColorToView.GetLength(0)-1; j == i; j--)
                     {
                         if(currColorToView[j, 0] != -1)
                         {
