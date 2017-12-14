@@ -16,7 +16,7 @@ namespace ReIdentificator
         private double deleteTheTopAndBottom = 0.05;
         private static JointType[] jointTypesToTrack = { JointType.ShoulderLeft, JointType.ShoulderRight };
         private int avgColorView = 0;
-        private double[,] currColorToView = new double[6, 2] { {  - 1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 } };
+        private ulong[,] currColorToView = new ulong[6, 2] { {  0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } };
         private KinectSensor kinect;
         private Comparer comparer;
         private byte[] colorPixels;
@@ -38,8 +38,8 @@ namespace ReIdentificator
         public byte[] getColorOfJoint(Joint joint)
         {
             ColorSpacePoint colorPoint = kinect.CoordinateMapper.MapCameraPointToColorSpace(joint.Position);
-            Debug.WriteLine("screen coords: " + colorPoint.X + " , " + colorPoint.Y);
-
+            if (between(colorPoint.X, 0, 1920) && between(colorPoint.Y, 0, 1080))
+            {
             // calculate pixel index of joint coordinate
             int pixelIndex = (int)Math.Floor(colorPoint.Y);
             pixelIndex *= 1920;
@@ -52,11 +52,14 @@ namespace ReIdentificator
             byte blue = colorPixels[pixelIndex];
             byte opacity = colorPixels[pixelIndex + 3];
 
-            // log
-            Debug.WriteLine("color: " + red + ", " + green + ", " + blue + ", " + opacity);
-
             byte[] asarray = { red, green, blue, opacity };
             return asarray;
+            }
+            else
+            {
+                byte[] asarray = { 0, 0, 0, 0};
+                return asarray;
+            }
         }
 
         public void processColorFrame(ColorFrame colorFrame, BodyFrame bodyFrame)
@@ -113,20 +116,22 @@ namespace ReIdentificator
             byte[] avgColOfFirstJoint = averageColor(this.colors[e.TrackingId][0]);
             byte[] avgColOfSecJoint = averageColor(this.colors[e.TrackingId][1]);
             mainWindow.printLog("average color of the first joint of person with id " + e.TrackingId + ": " + avgColOfFirstJoint[0] + ", " + avgColOfFirstJoint[1] + ", " + avgColOfFirstJoint[2] + ", " + avgColOfFirstJoint[3]);
-            mainWindow.printLog("average color of the second of person with id " + e.TrackingId + ": " + avgColOfSecJoint[0] + ", " + avgColOfSecJoint[1] + ", " + avgColOfSecJoint[2] + ", " + avgColOfSecJoint[3]);
+            mainWindow.printLog("average color of the second joint of person with id " + e.TrackingId + ": " + avgColOfSecJoint[0] + ", " + avgColOfSecJoint[1] + ", " + avgColOfSecJoint[2] + ", " + avgColOfSecJoint[3]);
             for (int i = 0; i < currColorToView.GetLength(0); i++)
             {
                 if (currColorToView[i, 0] == e.TrackingId)
                 {
                     fieldToShow = currColorToView[i, 1];
-                    for(int j = currColorToView.GetLength(0)-1; j == i; j--)
+                    Debug.WriteLine(i);
+                    for (int j = currColorToView.GetLength(0) - 1; j > i-1; j--)
                     {
-                        if(currColorToView[j, 0] != -1)
+                        if (currColorToView[j, 0] != 0)
                         {
                             currColorToView[i, 1] = currColorToView[j, 1];
                             currColorToView[i, 0] = currColorToView[j, 0];
-                            currColorToView[j, 0] = -1;
-                            currColorToView[j, 1] = -1;
+                            currColorToView[j, 0] = 0;
+                            currColorToView[j, 1] = 0;
+                            break;
                         }
                     }
                     break;
@@ -194,13 +199,14 @@ namespace ReIdentificator
                for(int j = 0; j<jointTypesToTrack.Length; j++){
                  Joint bodyPart = bodies[bodyIndex].Joints[jointTypesToTrack[j]];
                  byte[] colorOfBodyPart = this.getColorOfJoint(bodyPart);
+                        if(colorOfBodyPart[3] != 0) {
                         double fieldToShow = -1;
                         for(int k = 0; k < bodies.Length; k++)
                         {
-                            if(currColorToView[k,0] == -1)
+                                if (currColorToView[k,0] == 0)
                             {
                                 currColorToView[k, 0] = bodies[bodyIndex].TrackingId;
-                                currColorToView[k, 1] = avgColorView;
+                                currColorToView[k, 1] = (ulong) avgColorView;
                                 fieldToShow = currColorToView[k, 1];
                                 if(avgColorView == 5)
                                 {
@@ -287,10 +293,10 @@ namespace ReIdentificator
                                 }
                                 break;
                         }
-
                         // save it
                         this.colors[bodies[bodyIndex].TrackingId][j].Add(colorOfBodyPart);
-               }
+                        }
+                    }
              }
 
            }
@@ -387,5 +393,18 @@ namespace ReIdentificator
      }
      return finalColor;*/
    }
- }
+
+        public bool between(float x, int low, int high)
+        {
+            if (x <= high && x >= low)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+    }
 }
