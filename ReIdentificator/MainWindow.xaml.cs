@@ -32,13 +32,13 @@ namespace ReIdentificator
             this.bodyProcessor = new BodyProcessor(this, this.kinect, this.comparer);
             this.shapeProcessor = new ShapeProcessor(this, this.kinect, this.comparer);
             this.imageProcessor = new ImageProcessor(this.kinect, this.comparer, this);
-            
+
             this.bitmap = new WriteableBitmap(kinect.DepthFrameSource.FrameDescription.Width,
             kinect.DepthFrameSource.FrameDescription.Height, 96, 96, System.Windows.Media.PixelFormats.Gray8, null);
             //FrameDisplayImage.Source = bitmap;
             this.multiSourceFrameReader =
             this.kinect.OpenMultiSourceFrameReader(
-             FrameSourceTypes.Body | /*FrameSourceTypes.Color |*/ FrameSourceTypes.BodyIndex | FrameSourceTypes.Depth);
+             FrameSourceTypes.Body | FrameSourceTypes.Color | FrameSourceTypes.BodyIndex | FrameSourceTypes.Depth);
             this.multiSourceFrameReader.MultiSourceFrameArrived +=
             this.Reader_MultiSourceFrameArrived;
 
@@ -87,7 +87,7 @@ namespace ReIdentificator
                     }
                     if (bodyFrame != null && colorFrame != null)
                     {
-                        //processImage
+                        imageProcessor.processColorFrame(colorFrame, bodyFrame);
                     }
                     if (bodyIndexFrame != null && depthFrame != null && bodyFrame != null && skipFrameTicker % 15 == 0)
                     {

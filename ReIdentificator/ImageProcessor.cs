@@ -19,8 +19,8 @@ namespace ReIdentificator
         private double[,] currColorToView = new double[6, 2] { {  - 1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 } };
         private KinectSensor kinect;
         private Comparer comparer;
-        private ColorFrameReader colorFrameReader = null;
         private byte[] colorPixels;
+        private Body[] bodies = null;
         private WriteableBitmap colorBitmap;
         private MainWindow mainWindow;
         private Dictionary<ulong, List<byte[]>[]> colors = new Dictionary<ulong, List<byte[]>[]>();
@@ -30,9 +30,7 @@ namespace ReIdentificator
             this.kinect = kinect;
             this.comparer = comparer;
             this.mainWindow = mainWindow;
-
-            this.colorFrameReader = this.kinect.ColorFrameSource.OpenReader();
-            this.colorFrameReader.FrameArrived += this.Reader_ColorFrameArrived;
+            this.bodies = new Body[this.kinect.BodyFrameSource.BodyCount];
 
             mainWindow.BodyLeftView += HandleBodyLeftViewEvent;
         }
@@ -61,32 +59,22 @@ namespace ReIdentificator
             return asarray;
         }
 
-        private void Reader_ColorFrameArrived(object sender, ColorFrameArrivedEventArgs e)
+        public void processColorFrame(ColorFrame colorFrame, BodyFrame bodyFrame)
         {
-            using (ColorFrame colorFrame = e.FrameReference.AcquireFrame())
-            {
-                if (colorFrame != null)
-                {
-                    this.colorPixels = new byte[this.kinect.ColorFrameSource.FrameDescription.LengthInPixels * 4];
-                    colorFrame.CopyConvertedFrameDataToArray(this.colorPixels, Microsoft.Kinect.ColorImageFormat.Bgra);
-                    this.colorBitmap = new WriteableBitmap(this.kinect.ColorFrameSource.FrameDescription.Width, this.kinect.ColorFrameSource.FrameDescription.Height, 96.0, 96.0, PixelFormats.Bgr32, null);
+            this.colorPixels = new byte[this.kinect.ColorFrameSource.FrameDescription.LengthInPixels * 4];
+            colorFrame.CopyConvertedFrameDataToArray(this.colorPixels, Microsoft.Kinect.ColorImageFormat.Bgra);
+            this.colorBitmap = new WriteableBitmap(this.kinect.ColorFrameSource.FrameDescription.Width, this.kinect.ColorFrameSource.FrameDescription.Height, 96.0, 96.0, PixelFormats.Bgr32, null);
 
-                    // Write the pixel data into our bitmap
-                    this.colorBitmap.WritePixels(
-                        new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight),
-                        this.colorPixels,
-                        this.colorBitmap.PixelWidth * sizeof(int),
-                        0);
+            // Write the pixel data into our bitmap
+            this.colorBitmap.WritePixels(
+                new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight),
+                this.colorPixels,
+                this.colorBitmap.PixelWidth * sizeof(int),
+                0);
 
-                    //mainWindow.FrameDisplayImage.Source = this.colorBitmap;
-
-                    Body[] bodies = this.mainWindow.getBodyProcessor().getBodies();
-                    if (bodies != null)
-                    {
-                        GetColorOfBodyParts(jointTypesToTrack, bodies);
-                    }
-                }
-            }
+            //mainWindow.FrameDisplayImage.Source = this.colorBitmap;
+            bodyFrame.GetAndRefreshBodyData(this.bodies);
+            GetColorOfBodyParts(jointTypesToTrack, bodies);
         }
 
         byte[] averageColor(List<byte[]> colors)
