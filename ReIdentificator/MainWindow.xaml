@@ -10,37 +10,7 @@
         <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical">
             <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
                 <Image x:Name="FrameDisplayImage" Stretch="None" Width="570" Height="512" MinWidth="5"/>
-                <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical">
-                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock>1</TextBlock>
-                        <Canvas x:Name="ColorBoxFirstJoint1" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                        <Canvas x:Name="ColorBoxSecondJoint1" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock>2</TextBlock>
-                        <Canvas x:Name="ColorBoxFirstJoint2" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                        <Canvas x:Name="ColorBoxSecondJoint2" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock>3</TextBlock>
-                        <Canvas x:Name="ColorBoxFirstJoint3" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                        <Canvas x:Name="ColorBoxSecondJoint3" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock>4</TextBlock>
-                        <Canvas x:Name="ColorBoxFirstJoint4" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                        <Canvas x:Name="ColorBoxSecondJoint4" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock>5</TextBlock>
-                        <Canvas x:Name="ColorBoxFirstJoint5" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                        <Canvas x:Name="ColorBoxSecondJoint5" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock>6</TextBlock>
-                        <Canvas x:Name="ColorBoxFirstJoint6" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                        <Canvas x:Name="ColorBoxSecondJoint6" Height="80" Width="80" Background="LightGray" Margin="5" Top="0" Left="0"/>
-                    </StackPanel>
+                <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" x:Name="userOutput">
                 </StackPanel>
             </StackPanel>
             <TextBox x:Name="LoggingBox" HorizontalAlignment="Left" Height="261" Margin="10,10,10,10" TextWrapping="Wrap" VerticalAlignment="Top" Width="500"/>

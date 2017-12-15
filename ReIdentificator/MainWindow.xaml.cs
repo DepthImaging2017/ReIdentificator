@@ -6,6 +6,8 @@ using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using System.Windows.Media.Imaging;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace ReIdentificator
 {
@@ -126,9 +128,67 @@ namespace ReIdentificator
         {
             BodyLeftView?.Invoke(this, e);
         }
+        public void StackPanelInit(int numberOfJoints)
+        {
+            Thickness myMargin = new Thickness();
+            myMargin.Bottom = 5;
+            myMargin.Left = 0;
+            myMargin.Right = 5;
+            myMargin.Top = 0;
+            StackPanel[] stackPanelArray = new StackPanel[6];
+            for(int i = 0; i < stackPanelArray.Length; i++)
+            {
+                TextBlock number = new TextBlock();
+                number.Text = ""+(i+1);
+                StackPanel myStackPanel = new StackPanel();
+                stackPanelArray[i] = myStackPanel;
+                myStackPanel.Orientation = Orientation.Horizontal;
+                myStackPanel.Name = "StackPanel" + i;
+                stackPanelArray[i].Children.Add(number);
+                for (int j = 0; j < numberOfJoints; j++)
+                {
+                    Canvas colorField = new Canvas();
+                    colorField.Height = 80;
+                    colorField.Width = 80;
+                    colorField.Background = Brushes.LightGray;
+                    colorField.Margin = myMargin;
+                    colorField.Name = "JointNumber" + j;
+                    stackPanelArray[i].Children.Add(colorField);
+                }
+                userOutput.Children.Add(stackPanelArray[i]);
+            }
+        }
+        public void updatePanel(byte[,] colors, double fieldToShow)
+        {
+            userOutput.Children.RemoveAt((int)fieldToShow);
+            Thickness myMargin = new Thickness();
+            myMargin.Bottom = 5;
+            myMargin.Left = 0;
+            myMargin.Right = 5;
+            myMargin.Top = 0;
+            StackPanel stackPanel = new StackPanel();
+            TextBlock number = new TextBlock();
+            number.Text = "" + (fieldToShow+1);
+            StackPanel myStackPanel = new StackPanel();
+            myStackPanel.Orientation = Orientation.Horizontal;
+            myStackPanel.Name = "StackPanel" + fieldToShow;
+            myStackPanel.Children.Add(number);
+            for (int j = 0; j < colors.GetLength(0); j++)
+            {
+                Canvas colorField = new Canvas();
+                colorField.Height = 80;
+                colorField.Width = 80;
+                colorField.Background = new SolidColorBrush(Color.FromRgb(colors[j, 0], colors[j, 1], colors[j, 2]));
+                colorField.Margin = myMargin;
+                colorField.Name = "JointNumber" + j;
+                myStackPanel.Children.Add(colorField);
+            }
+            userOutput.Children.Insert((int)fieldToShow, myStackPanel);
+        }
     }
 
-    public class LeftViewEventArgs : EventArgs
+
+public class LeftViewEventArgs : EventArgs
     {
         private ulong trackingId;
         public LeftViewEventArgs(ulong id)
