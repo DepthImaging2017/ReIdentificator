@@ -91,11 +91,13 @@ namespace ReIdentificator
             int length = 0;
 
             colors.ForEach(color => {
-                red += (int)Math.Pow(color[0], 2);
-                green += (int)Math.Pow(color[1], 2);
-                blue += (int)Math.Pow(color[2], 2);
-                opacity += (int)Math.Pow(color[3], 2);
-                length++;
+                if(color[3] != 0) {
+                    red += (int)Math.Pow(color[0], 2);
+                    green += (int)Math.Pow(color[1], 2);
+                    blue += (int)Math.Pow(color[2], 2);
+                    opacity += (int)Math.Pow(color[3], 2);
+                    length++;
+                }
             });
 
             byte[] asarray = {
@@ -243,10 +245,14 @@ namespace ReIdentificator
                  {
                    if (blueTemp > preColors[2] - eachError * 1.5 && blueTemp < preColors[2] + eachError * 1.5)
                    {
-                     red += redTemp;
-                     green += greenTemp;
-                     blue += blueTemp;
-                     length++;
+                     if(color[3] != 0)
+                     {
+                        red += redTemp;
+                        green += greenTemp;
+                        blue += blueTemp;
+                        length++;
+                     }
+
                    }
                  }
                }
@@ -301,7 +307,6 @@ namespace ReIdentificator
                 }
                 mainWindow.printLog("average color of joint #"+(i+1)+" of person with id " + e.TrackingId + ": " + avgColor[0] + ", " + avgColor[1] + ", " + avgColor[2] + ", " + avgColor[3]);
             }
-
             mainWindow.updatePanel(outputColors, fieldToShow);
         }
     }
