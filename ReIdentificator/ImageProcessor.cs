@@ -80,6 +80,9 @@ namespace ReIdentificator
             //mainWindow.FrameDisplayImage.Source = this.colorBitmap;
             bodyFrame.GetAndRefreshBodyData(this.bodies);
             GetColorOfBodyParts(jointTypesToTrack, bodies);
+            //new function here
+            JointType[] betweenTheseTwoRight = { JointType.ElbowRight, JointType.HandRight };
+            Watchinator(betweenTheseTwoRight);
         }
 
         byte[] averageColor(List<byte[]> colors)
@@ -308,6 +311,115 @@ namespace ReIdentificator
                 mainWindow.printLog("average color of joint #"+(i+1)+" of person with id " + e.TrackingId + ": " + avgColor[0] + ", " + avgColor[1] + ", " + avgColor[2] + ", " + avgColor[3]);
             }
             mainWindow.updatePanel(outputColors, fieldToShow);
+        }
+
+        public void Watchinator(JointType[] betweenTheseTwo)
+        {
+            for (int bodyIndex = 0; bodyIndex < bodies.Length; bodyIndex++)
+            {
+                if (getColorBetween(betweenTheseTwo, bodyIndex).GetLength(0) != 0)
+                {
+                    byte[][] betweenColors = getColorBetween(betweenTheseTwo, bodyIndex);
+                    Areainator(betweenColors);
+                }
+            }
+        }
+
+        public byte[][] getColorBetween(JointType[] betweenTheseTwo, int bodyIndex)
+        {
+                Joint bodyPart1 = bodies[bodyIndex].Joints[betweenTheseTwo[0]];
+                Joint bodyPart2 = bodies[bodyIndex].Joints[betweenTheseTwo[1]];
+                ColorSpacePoint colorPoint1 = kinect.CoordinateMapper.MapCameraPointToColorSpace(bodyPart1.Position);
+                ColorSpacePoint colorPoint2 = kinect.CoordinateMapper.MapCameraPointToColorSpace(bodyPart2.Position);
+                if ((between(colorPoint1.X, 0, 1920) && between(colorPoint1.Y, 0, 1080)) && (between(colorPoint2.X, 0, 1920) && between(colorPoint2.Y, 0, 1080)))
+                {
+                    float gradient = Math.Abs((colorPoint2.Y - colorPoint1.Y) / (colorPoint2.X - colorPoint1.X));
+                    float yAxisSection = colorPoint2.Y - colorPoint2.X * gradient;
+                    if(colorPoint1.X > colorPoint2.X)
+                    {
+                        float x = colorPoint1.X;
+                        colorPoint1.X = colorPoint2.X;
+                        colorPoint2.X = x;
+                    }
+                byte[][] betweenColors = new byte[(int) (colorPoint2.X - colorPoint1.X)][];
+                for (int i = 0; i < betweenColors.GetLength(0); i++)
+                    {
+                        ColorSpacePoint inBetween = new ColorSpacePoint();
+                        inBetween.Y = ((colorPoint1.X + i) * gradient) + yAxisSection;
+                        inBetween.X = (inBetween.Y - yAxisSection) / gradient;
+                        // calculate pixel index of joint coordinate
+                        int pixelIndex = (int)Math.Floor(inBetween.Y);
+                        pixelIndex *= 1920;
+                        pixelIndex += (int)Math.Floor(inBetween.X);
+                        pixelIndex *= 4;
+
+                        // extract color components
+                        byte red = colorPixels[pixelIndex + 2];
+                        byte green = colorPixels[pixelIndex + 1];
+                        byte blue = colorPixels[pixelIndex];
+                        byte opacity = colorPixels[pixelIndex + 3];
+
+                        byte[] asarray = { red, green, blue, opacity };
+                        betweenColors[i] = asarray;
+                    }
+                return betweenColors;
+                }
+                else
+                {
+                byte[][] betweenColors = new byte[0][];
+                return betweenColors;
+                }
+        }
+
+        public int findBreakInColors(byte[][] colors, int[] preColors, double intError, int start)
+        {
+            start++;
+            double error = intError;
+            int overallError = (int)(error * 195075);
+            int eachError = (int)(error * 65025);
+            for(int i = start; i < colors.GetLength(0); i++)
+            {
+                //int opacityTemp = 0;
+                int redTemp = (int)Math.Pow(colors[i][0], 2);
+                int greenTemp = (int)Math.Pow(colors[i][1], 2);
+                int blueTemp = (int)Math.Pow(colors[i][2], 2);
+                //opacityTemp += (int)Math.Pow(color[3], 2);
+                int comparison = redTemp + greenTemp + blueTemp; //+opacityTemp
+                if (comparison < preColors[3] - overallError || comparison > preColors[3] + overallError)
+                {
+                    return i;
+                }
+                if (redTemp < preColors[0] - eachError * 1.5 || redTemp > preColors[0] + eachError * 1.5)
+                {
+                    return i;
+                }
+                if (greenTemp < preColors[1] - eachError * 1.5 || greenTemp > preColors[1] + eachError * 1.5)
+                {
+                    return i;
+                }
+                if (blueTemp < preColors[2] - eachError * 1.5 || blueTemp > preColors[2] + eachError * 1.5)
+                {
+                    return i;
+                }
+            }
+            return colors.GetLength(0);
+        }
+
+        public void Areainator(byte[][] colors)
+        {
+            int start = -1;
+            List<byte[]> colorList = colors.ToList<byte[]>();
+            byte[] avgColor = averageColor(colorList);
+            List<int> haha = new List<int>();
+            haha.Add(0);
+            int numberOfAreas = 0;
+            for (int i = 0;  start < colors.GetLength(0); i++)
+            {
+                start = findBreakInColors(colors, IndicatorColor(avgColor), 0.35, start);
+                haha.Add(start);
+                numberOfAreas++;
+            }
+            Debug.WriteLine("Number Of Areas: " + numberOfAreas);
         }
     }
 }
