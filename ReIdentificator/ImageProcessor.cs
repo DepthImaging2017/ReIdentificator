@@ -25,6 +25,7 @@ namespace ReIdentificator
         private WriteableBitmap colorBitmap;
         private MainWindow mainWindow;
         private Dictionary<ulong, List<byte[]>[]> colors = new Dictionary<ulong, List<byte[]>[]>();
+        private Dictionary<ulong, List<List<int>>> areas = new Dictionary<ulong, List<List<int>>>();
 
         public ImageProcessor(KinectSensor kinect, Comparer comparer, MainWindow mainWindow)
         {
@@ -47,7 +48,7 @@ namespace ReIdentificator
             pixelIndex *= 1920;
             pixelIndex += (int)Math.Floor(colorPoint.X);
             pixelIndex *= 4;
-
+            if(((pixelIndex + 2) < colorPixels.GetLength(0)) && (pixelIndex > 0)) {
             // extract color components
             byte red = colorPixels[pixelIndex + 2];
             byte green = colorPixels[pixelIndex + 1];
@@ -56,6 +57,11 @@ namespace ReIdentificator
 
             byte[] asarray = { red, green, blue, opacity };
             return asarray;
+                }else
+            {
+                byte[] asarray = { 0, 0, 0, 0};
+                return asarray;
+            }
             }
             else
             {
@@ -81,8 +87,8 @@ namespace ReIdentificator
             bodyFrame.GetAndRefreshBodyData(this.bodies);
             GetColorOfBodyParts(jointTypesToTrack, bodies);
             //new function here
-            JointType[] betweenTheseTwoRight = { JointType.ElbowRight, JointType.HandRight };
-            Watchinator(betweenTheseTwoRight);
+            JointType[] betweenTheseTwoRight = { JointType.ElbowLeft, JointType.HandLeft };
+            Watchinator(betweenTheseTwoRight, bodies);
         }
 
         byte[] averageColor(List<byte[]> colors)
@@ -301,7 +307,7 @@ namespace ReIdentificator
         public void userOutput(LeftViewEventArgs e, double fieldToShow)
         {
             byte[,] outputColors = new byte[this.colors[e.TrackingId].Length, 4];
-            for(int i = 0; i < this.colors[e.TrackingId].Length; i++)
+            for (int i = 0; i < this.colors[e.TrackingId].Length; i++)
             {
                 byte[] avgColor = averageColor(this.colors[e.TrackingId][i]);
                 for(int j = 0; j < outputColors.GetLength(1)-1; j++)
@@ -310,19 +316,47 @@ namespace ReIdentificator
                 }
                 mainWindow.printLog("average color of joint #"+(i+1)+" of person with id " + e.TrackingId + ": " + avgColor[0] + ", " + avgColor[1] + ", " + avgColor[2] + ", " + avgColor[3]);
             }
+            int diffentAreas = WatchinatorAvg(e);
+            mainWindow.printLog("average areas of person with id " + e.TrackingId + ": " + diffentAreas);
             mainWindow.updatePanel(outputColors, fieldToShow);
         }
 
-        public void Watchinator(JointType[] betweenTheseTwo)
+        public void Watchinator(JointType[] betweenTheseTwo, Body[] bodies)
         {
             for (int bodyIndex = 0; bodyIndex < bodies.Length; bodyIndex++)
             {
-                if (getColorBetween(betweenTheseTwo, bodyIndex).GetLength(0) != 0)
+                if (bodies[bodyIndex] != null && bodies[bodyIndex].IsTracked)
                 {
-                    byte[][] betweenColors = getColorBetween(betweenTheseTwo, bodyIndex);
-                    Areainator(betweenColors);
+                    List<int> differentAreas = new List<int>();
+                    // save in this body's color timeseries
+                    if (!this.areas.ContainsKey(bodies[bodyIndex].TrackingId))
+                    {
+                        this.areas[bodies[bodyIndex].TrackingId] = new List<List<int>>();
+                    }
+                    if (getColorBetween(betweenTheseTwo, bodyIndex).GetLength(0) != 0)
+                    {
+                        byte[][] betweenColors = getColorBetween(betweenTheseTwo, bodyIndex);
+                        differentAreas.Add(Areainator(betweenColors));
+                        this.areas[bodies[bodyIndex].TrackingId].Add(differentAreas);
+                    }
                 }
             }
+        }
+
+        public int WatchinatorAvg(LeftViewEventArgs e)
+        {
+            int diffentAreas = 0;
+            int diff = 0;
+            for (int i = 0; i < this.areas[e.TrackingId].Count; i++)
+            {
+                for (int j = 0; j < this.areas[e.TrackingId][i].Count; j++)
+                {
+                    diffentAreas += this.areas[e.TrackingId][i][j];
+                    diff++;
+                }
+            }
+            diffentAreas = diffentAreas / diff;
+            return diffentAreas;
         }
 
         public byte[][] getColorBetween(JointType[] betweenTheseTwo, int bodyIndex)
@@ -352,7 +386,7 @@ namespace ReIdentificator
                         pixelIndex *= 1920;
                         pixelIndex += (int)Math.Floor(inBetween.X);
                         pixelIndex *= 4;
-
+                        if(((pixelIndex + 2) < colorPixels.GetLength(0)) && (pixelIndex > 0)) {
                         // extract color components
                         byte red = colorPixels[pixelIndex + 2];
                         byte green = colorPixels[pixelIndex + 1];
@@ -362,6 +396,11 @@ namespace ReIdentificator
                         byte[] asarray = { red, green, blue, opacity };
                         betweenColors[i] = asarray;
                     }
+                    else
+                    {
+                        betweenColors = new byte[0][];
+                    }
+                }
                 return betweenColors;
                 }
                 else
@@ -387,39 +426,40 @@ namespace ReIdentificator
                 int comparison = redTemp + greenTemp + blueTemp; //+opacityTemp
                 if (comparison < preColors[3] - overallError || comparison > preColors[3] + overallError)
                 {
-                    return i;
-                }
-                if (redTemp < preColors[0] - eachError * 1.5 || redTemp > preColors[0] + eachError * 1.5)
-                {
-                    return i;
-                }
-                if (greenTemp < preColors[1] - eachError * 1.5 || greenTemp > preColors[1] + eachError * 1.5)
-                {
-                    return i;
-                }
-                if (blueTemp < preColors[2] - eachError * 1.5 || blueTemp > preColors[2] + eachError * 1.5)
-                {
-                    return i;
+                    if (redTemp < preColors[0] - eachError * 1.5 || redTemp > preColors[0] + eachError * 1.5)
+                    {
+                      if (greenTemp < preColors[1] - eachError * 1.5 || greenTemp > preColors[1] + eachError * 1.5)
+                      {
+                        if (blueTemp < preColors[2] - eachError * 1.5 || blueTemp > preColors[2] + eachError * 1.5)
+                        {
+                            return i;
+                        }
+                      }
+                    }
                 }
             }
             return colors.GetLength(0);
         }
 
-        public void Areainator(byte[][] colors)
+        public int Areainator(byte[][] colors)
         {
             int start = -1;
             List<byte[]> colorList = colors.ToList<byte[]>();
             byte[] avgColor = averageColor(colorList);
-            List<int> haha = new List<int>();
-            haha.Add(0);
+            List<int> differentAreas = new List<int>();
+            differentAreas.Add(0);
             int numberOfAreas = 0;
             for (int i = 0;  start < colors.GetLength(0); i++)
             {
-                start = findBreakInColors(colors, IndicatorColor(avgColor), 0.35, start);
-                haha.Add(start);
+                start = findBreakInColors(colors, IndicatorColor(avgColor), 0.2, start);
+                differentAreas.Add(start);
                 numberOfAreas++;
             }
-            Debug.WriteLine("Number Of Areas: " + numberOfAreas);
+            if(numberOfAreas != 1)
+            {
+                Debug.WriteLine("Number Of Areas: " + numberOfAreas);
+            }
+            return numberOfAreas;
         }
     }
 }
