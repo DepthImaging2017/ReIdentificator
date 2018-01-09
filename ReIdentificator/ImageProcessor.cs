@@ -449,11 +449,36 @@ namespace ReIdentificator
             List<int> differentAreas = new List<int>();
             differentAreas.Add(0);
             int numberOfAreas = 0;
-            for (int i = 0;  start < colors.GetLength(0); i++)
+            for (int i = 0; start < colors.GetLength(0); i++)
             {
-                start = findBreakInColors(colors, IndicatorColor(avgColor), 0.2, start);
-                differentAreas.Add(start);
-                numberOfAreas++;
+                //keine Breiche kleiner als 2% der Länge
+                if ((findBreakInColors(colors, IndicatorColor(avgColor), 0.2, start) - differentAreas[differentAreas.Count-1]) > (colors.GetLength(0) * 0.02))
+                {
+                    start = findBreakInColors(colors, IndicatorColor(avgColor), 0.2, start);
+                    differentAreas.Add(start);
+                    numberOfAreas++;
+                }
+                start++;
+            }
+            //vergleich der Bereiche
+            for(int i = 0; i < differentAreas.Count-2; i++)
+            {
+                int startI = i;
+                int mid = differentAreas[i+1];
+                int end = differentAreas[i+2];
+                List<byte[]> colorListInBetween1 = new List<byte[]>();
+                List<byte[]> colorListInBetween2 = new List<byte[]>();
+                for (int j = startI; j < mid; j++)
+                {
+                    colorListInBetween1.Add(colorList[j]);
+                }
+                for (int j = mid; j < end; j++)
+                {
+                    colorListInBetween2.Add(colorList[j]);
+                }
+                byte[] avgColorInBetween1 = averageColor(colorListInBetween1);
+                byte[] avgColorInBetween2 = averageColor(colorListInBetween2);
+                //Farben verlgeichen, ähnliche Bereichestreichen(if true, numberOfAreas--
             }
             if(numberOfAreas != 1)
             {
