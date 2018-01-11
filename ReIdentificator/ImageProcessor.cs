@@ -316,7 +316,8 @@ namespace ReIdentificator
                 }
                 mainWindow.printLog("average color of joint #"+(i+1)+" of person with id " + e.TrackingId + ": " + avgColor[0] + ", " + avgColor[1] + ", " + avgColor[2] + ", " + avgColor[3]);
             }
-            int diffentAreas = WatchinatorAvg(e);
+            float diffentAreas = WatchinatorAvg(e);
+            Debug.WriteLine(diffentAreas);
             mainWindow.printLog("average areas of person with id " + e.TrackingId + ": " + diffentAreas);
             mainWindow.updatePanel(outputColors, fieldToShow);
         }
@@ -343,9 +344,9 @@ namespace ReIdentificator
             }
         }
 
-        public int WatchinatorAvg(LeftViewEventArgs e)
+        public float WatchinatorAvg(LeftViewEventArgs e)
         {
-            int diffentAreas = 0;
+            float diffentAreas = 0;
             int diff = 0;
             for (int i = 0; i < this.areas[e.TrackingId].Count; i++)
             {
@@ -460,12 +461,17 @@ namespace ReIdentificator
                 }
                 start++;
             }
-            //vergleich der Bereiche
-            for(int i = 0; i < differentAreas.Count-2; i++)
+            numberOfAreas = Comparer(numberOfAreas, differentAreas, colorList);
+            return numberOfAreas;
+        }
+
+        public int Comparer(int numberOfAreas, List<int> differentAreas, List<byte[]> colorList)
+        {
+            for (int i = 0; i < differentAreas.Count - 2; i++)
             {
                 int startI = i;
-                int mid = differentAreas[i+1];
-                int end = differentAreas[i+2];
+                int mid = differentAreas[i + 1];
+                int end = differentAreas[i + 2];
                 List<byte[]> colorListInBetween1 = new List<byte[]>();
                 List<byte[]> colorListInBetween2 = new List<byte[]>();
                 for (int j = startI; j < mid; j++)
@@ -478,11 +484,50 @@ namespace ReIdentificator
                 }
                 byte[] avgColorInBetween1 = averageColor(colorListInBetween1);
                 byte[] avgColorInBetween2 = averageColor(colorListInBetween2);
-                //Farben verlgeichen, ähnliche Bereichestreichen(if true, numberOfAreas--
-            }
-            if(numberOfAreas != 1)
-            {
-                Debug.WriteLine("Number Of Areas: " + numberOfAreas);
+                if (Math.Abs((int)Math.Pow(avgColorInBetween1[0], 2) - (int)Math.Pow(avgColorInBetween2[0], 2)) > Math.Pow(255, 2) * 0.2)
+                {
+                    if (Math.Abs((int)Math.Pow(avgColorInBetween1[1], 2) - (int)Math.Pow(avgColorInBetween2[1], 2)) > Math.Pow(255, 2) * 0.15)
+                    {
+                        if (Math.Abs((int)Math.Pow(avgColorInBetween1[2], 2) - (int)Math.Pow(avgColorInBetween2[2], 2)) > Math.Pow(255, 2) * 0.15)
+                        {
+                            if (Math.Abs((int)Math.Pow(avgColorInBetween1[3], 2) - (int)Math.Pow(avgColorInBetween2[3], 2)) > Math.Pow(255, 2) * 0.15)
+                            {
+                            }
+                            else
+                            {
+                                differentAreas.Remove(mid);
+                                numberOfAreas--;
+                                i--;
+                                numberOfAreas = Comparer(numberOfAreas, differentAreas, colorList);
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            differentAreas.Remove(mid);
+                            numberOfAreas--;
+                            i--;
+                            numberOfAreas = Comparer(numberOfAreas, differentAreas, colorList);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        differentAreas.Remove(mid);
+                        numberOfAreas--;
+                        i--;
+                        numberOfAreas = Comparer(numberOfAreas, differentAreas, colorList);
+                        break;
+                    }
+                }
+                else
+                {
+                    differentAreas.Remove(mid);
+                    numberOfAreas--;
+                    i--;
+                    numberOfAreas = Comparer(numberOfAreas, differentAreas, colorList);
+                    break;
+                }
             }
             return numberOfAreas;
         }
