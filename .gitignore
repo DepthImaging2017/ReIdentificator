@@ -1,5 +1,5 @@
 # Manually inserted ignores
-ReIdentificator/data/*
+data/*
 
 # User-specific files
 *.suo

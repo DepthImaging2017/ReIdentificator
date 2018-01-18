@@ -8,6 +8,7 @@ using MongoDB.Bson;
 using System.Windows.Media.Imaging;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Reflection;
 
 namespace ReIdentificator
 {
@@ -22,7 +23,7 @@ namespace ReIdentificator
         private Database db;
         private WriteableBitmap bitmap = null;
         private int skipFrameTicker = 0;
-        private List<object> currentTrackingIds;
+        private List<dataForComparison> dataForComparison_list = new List<dataForComparison>();
 
         public event EventHandler<LeftViewEventArgs> BodyLeftView;
 
@@ -47,14 +48,50 @@ namespace ReIdentificator
 
             this.db = new Database("mongodb://localhost:27017", "depthImaging", "individuals");
         }
-        //public void startComparison(ulong trackingId, object data)
-        //{
-        //    if (!currentTrackingIds.Exists(element => element == trackingId))
-        //    {
-        //        currentTrackingIds.Add(new List<object> { });
-        //    }
+        public void startComparison(ulong trackingId, object data)
+        {
+            int numberOfProcessors = 2;
 
-        //}
+            if (!dataForComparison_list.Exists(element => element.TrackingId == trackingId))
+            {
+                dataForComparison_list.Add(new dataForComparison(trackingId));
+            }
+            dataForComparison currentComparisonData = dataForComparison_list.Find(element => element.TrackingId == trackingId);
+            currentComparisonData.processorData.Add(data);
+            if (currentComparisonData.processorData.Count == numberOfProcessors)
+            {
+                Individual idv = new Individual();
+                for (int i = 0; i < currentComparisonData.processorData.Count; i++)
+                {
+                    PropertyInfo[] properties = currentComparisonData.processorData[i].GetType().GetProperties();
+                    foreach (PropertyInfo pi in properties)
+                    {
+                        if (idv.GetType().GetProperty(pi.Name) != null)
+                        {
+                            idv.GetType().GetProperty(pi.Name).SetValue(idv, pi.GetValue(currentComparisonData.processorData[i], null));
+                        }
+                    }
+
+                }
+                db.GetAllEntries((result) =>
+                {
+                    bool reÌdentified = comparer.compare(idv, result);
+                    if (!reÌdentified)
+                    {
+                        printLog("Person that left the frame is not reidentified");
+                        db.AddEntry(idv, null);
+                    }
+                    else
+                    {
+                        printLog("Person that left the frame is reidentified!");
+                    }
+                    dataForComparison_list.Remove(currentComparisonData);
+
+                });
+
+            }
+
+        }
 
         public BodyProcessor getBodyProcessor()
         {
@@ -197,7 +234,7 @@ namespace ReIdentificator
     }
 
 
-public class LeftViewEventArgs : EventArgs
+    public class LeftViewEventArgs : EventArgs
     {
         private ulong trackingId;
         public LeftViewEventArgs(ulong id)
@@ -209,6 +246,15 @@ public class LeftViewEventArgs : EventArgs
         {
             get { return trackingId; }
             set { trackingId = value; }
+        }
+    }
+    public class dataForComparison
+    {
+        public ulong TrackingId { get; set; }
+        public List<object> processorData { get; set; } = new List<object>();
+        public dataForComparison(ulong trackingId)
+        {
+            this.TrackingId = trackingId;
         }
     }
 }

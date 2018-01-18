@@ -29,7 +29,6 @@ namespace ReIdentificator
 
         public void processBodyIndexFrame(BodyIndexFrame bodyIndexFrame, DepthFrame depthFrame, BodyFrame bodyFrame)
         {
-            Debug.WriteLine("Draaaa");
             byte[] shapeToBeDrawn = GetEmptyByteArrayForDrawing(depthFrame);
 
             bodyFrame.GetAndRefreshBodyData(this.bodies);
@@ -150,7 +149,6 @@ namespace ReIdentificator
                         double bodywidth = Util.distanceBetweenSpacePoints(shoulderRightPoint, shoulderLeftPoint);
                         if (bodywidth > 0)
                             shape.bodyWidth_list.Add(bodywidth);
-                        Debug.WriteLine(bodywidth);
                         /*
                         *  for drawing:
                         */
@@ -179,7 +177,9 @@ namespace ReIdentificator
             {
                 shape.bodyWidth = Util.trimmedMean(shape.bodyWidth_list, trimmedMeanPercentage);
                 mainWindow.printLog("Body width: " + shape.bodyWidth);
+                mainWindow.startComparison(shape.TrackingId, shape);
             }
+            shapesToProcess.Remove(shape);
         }
         private byte[] GetEmptyByteArrayForDrawing(DepthFrame depthFrame)
         {

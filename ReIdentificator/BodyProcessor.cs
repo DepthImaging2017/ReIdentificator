@@ -133,7 +133,9 @@ namespace ReIdentificator
                 _body.spineMidToLeftShoulder = Util.trimmedMean(_body.spineMidToLeftShoulder_list, trimmedMeanPercentage);
                 _body.spineMidToRightShoulder = Util.trimmedMean(_body.spineMidToRightShoulder_list, trimmedMeanPercentage);
                 mainWindow.printLog("body parameters: " + _body.height + " - " + _body.neckToSpineMid + " - " + _body.spineMidToSpineBase + " - " + _body.neckToLeftShoulder + " - " + _body.neckToRightShoulder + " - " + _body.leftHipToSpineBase + " - " + _body.rightHipToSpineBase + " - " + _body.spineMidToLeftShoulder + " - " + _body.spineMidToRightShoulder);
+                mainWindow.startComparison(_body.TrackingId, _body);
             }
+            
         }
     }
 

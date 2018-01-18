@@ -10,18 +10,19 @@ namespace ReIdentificator
 {
     public class Comparer
     {
-        
+        private readonly int minimumSimiliarProperties = 5;
+
         public Comparer()
         {
             
         }
 
-        public bool Compare(Individual current, List<Individual> all)
+        public bool compare(Individual current, List<Individual> all)
         {
             MatcherObject matcher = new MatcherObject();
-            // iterate over each object in all
             foreach(var person in all)
             {
+                
                 matcher.face_age = (current.face_age < (person.face_age + 2) && (current.face_age > person.face_age - 2));
                 matcher.face_gender = (current.face_gender == person.face_gender);
                 matcher.face_hair_bald = (current.face_hair_bald < (person.face_hair_bald + 10) && (current.face_hair_bald > person.face_hair_bald - 10));
@@ -37,18 +38,19 @@ namespace ReIdentificator
                 matcher.image_areacount_legright = (current.image_areacount_legright < (person.image_areacount_legright + 10) && (current.image_areacount_legright > person.image_areacount_legright - 10));
                 matcher.image_wears_watch = (current.image_wears_watch == person.image_wears_watch);
                 matcher.image_wears_shirt = (current.image_wears_shirt == person.image_wears_shirt);
-                matcher.image_wears_shorts = (current.image_wears_shorts == person.image_wears_shorts);
+                matcher.image_wears_shorts = (current.image_wears_shorts == person.image_wears_shorts);                
 
-                matcher.height = (current.height < (person.height + 0.15) && (current.height > person.height - 0.15));
-                matcher.torsoHeight = (current.torsoHeight < (person.torsoHeight + 0.08) && (current.torsoHeight > person.torsoHeight - 0.08));
-                matcher.neckToSpineMid = (current.neckToSpineMid < (person.neckToSpineMid + 0.05) && (current.neckToSpineMid > person.neckToSpineMid - 0.05));
-                matcher.neckToLeftShoulder = (current.neckToLeftShoulder < (person.neckToLeftShoulder + 0.03) && (current.neckToLeftShoulder > person.neckToLeftShoulder - 0.03));
-                matcher.neckToRightShoulder = (current.neckToRightShoulder < (person.neckToRightShoulder + 0.03) && (current.neckToRightShoulder > person.neckToRightShoulder - 0.03));
-                matcher.leftHipToSpineBase = (current.leftHipToSpineBase < (person.leftHipToSpineBase + 0.025) && (current.leftHipToSpineBase > person.leftHipToSpineBase - 0.025));
-                matcher.rightHipToSpineBase = (current.rightHipToSpineBase < (person.rightHipToSpineBase + 0.025) && (current.rightHipToSpineBase > person.rightHipToSpineBase - 0.025));
-                matcher.spineMidToLeftShoulder = (current.spineMidToLeftShoulder < (person.spineMidToLeftShoulder + 0.03) && (current.spineMidToLeftShoulder > person.spineMidToLeftShoulder - 0.03));
-                matcher.spineMidToRightShoulder = (current.spineMidToRightShoulder < (person.spineMidToRightShoulder + 0.03) && (current.spineMidToRightShoulder > person.spineMidToRightShoulder - 0.03));
-                matcher.bodyWidth = (current.bodyWidth < (person.bodyWidth + 0.02) && (current.bodyWidth > person.bodyWidth - 0.2));
+                matcher.height = (current.height < (person.height + 0.05) && (current.height > person.height - 0.05));
+                matcher.torsoHeight = (current.torsoHeight < (person.torsoHeight + 0.06) && (current.torsoHeight > person.torsoHeight - 0.06));
+                matcher.neckToSpineMid = (current.neckToSpineMid < (person.neckToSpineMid + 0.04) && (current.neckToSpineMid > person.neckToSpineMid - 0.04));
+                matcher.neckToLeftShoulder = (current.neckToLeftShoulder < (person.neckToLeftShoulder + 0.02) && (current.neckToLeftShoulder > person.neckToLeftShoulder - 0.02));
+                matcher.neckToRightShoulder = (current.neckToRightShoulder < (person.neckToRightShoulder + 0.02) && (current.neckToRightShoulder > person.neckToRightShoulder - 0.02));
+                matcher.leftHipToSpineBase = (current.leftHipToSpineBase < (person.leftHipToSpineBase + 0.01) && (current.leftHipToSpineBase > person.leftHipToSpineBase - 0.01));
+                matcher.rightHipToSpineBase = (current.rightHipToSpineBase < (person.rightHipToSpineBase + 0.01) && (current.rightHipToSpineBase > person.rightHipToSpineBase - 0.01));
+                matcher.spineMidToLeftShoulder = (current.spineMidToLeftShoulder < (person.spineMidToLeftShoulder + 0.02) && (current.spineMidToLeftShoulder > person.spineMidToLeftShoulder - 0.02));
+                matcher.spineMidToRightShoulder = (current.spineMidToRightShoulder < (person.spineMidToRightShoulder + 0.02) && (current.spineMidToRightShoulder > person.spineMidToRightShoulder - 0.02));
+
+                matcher.bodyWidth = (current.bodyWidth < (person.bodyWidth + 0.02) && (current.bodyWidth > person.bodyWidth - 0.1));
 
                 int count = 0;
                 PropertyInfo[] properties = matcher.GetType().GetProperties();
@@ -58,15 +60,14 @@ namespace ReIdentificator
                     if (val) count++;
                     Debug.WriteLine(pi.Name + " " + val);
                 }
-                if(count >= 10)
+                if(count >= minimumSimiliarProperties)
                 {
                     return true;
                 }
             }
             return false;
 
-        }
-
+        } 
 
     }
 

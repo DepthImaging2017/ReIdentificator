@@ -30,8 +30,8 @@ namespace ReIdentificator
             var collection = _database.GetCollection<Individual>(_collectionName);
             await collection.InsertOneAsync(obj);
             Debug.WriteLine("Inserted Document");
-            Debug.WriteLine(obj.ID);
-            callback(obj.ID);
+            //Debug.WriteLine(obj.ID);
+            //callback(obj.ID);
         }
 
         public async void UpdateEntry(string id, string key, float val, Action<Individual> callback)
