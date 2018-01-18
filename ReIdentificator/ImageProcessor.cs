@@ -461,12 +461,17 @@ namespace ReIdentificator
                 }
                 start++;
             }
-            numberOfAreas = Comparer(numberOfAreas, differentAreas, colorList);
+            if (numberOfAreas > 1)
+            {
+                Debug.WriteLine("Area:" + numberOfAreas);
+                numberOfAreas = Comparer(numberOfAreas, differentAreas, colorList);
+            }
             return numberOfAreas;
         }
 
         public int Comparer(int numberOfAreas, List<int> differentAreas, List<byte[]> colorList)
         {
+            Debug.WriteLine("Comparer Start " + numberOfAreas);
             for (int i = 0; i < differentAreas.Count - 2; i++)
             {
                 int startI = i;
@@ -484,50 +489,52 @@ namespace ReIdentificator
                 }
                 byte[] avgColorInBetween1 = averageColor(colorListInBetween1);
                 byte[] avgColorInBetween2 = averageColor(colorListInBetween2);
-                if (Math.Abs((int)Math.Pow(avgColorInBetween1[0], 2) - (int)Math.Pow(avgColorInBetween2[0], 2)) > Math.Pow(255, 2) * 0.2)
+                if (Math.Abs((int)Math.Pow(avgColorInBetween1[0], 2) - (int)Math.Pow(avgColorInBetween2[1], 2)) > Math.Pow(255, 2) * 0.15)
                 {
-                    if (Math.Abs((int)Math.Pow(avgColorInBetween1[1], 2) - (int)Math.Pow(avgColorInBetween2[1], 2)) > Math.Pow(255, 2) * 0.15)
+                    if (Math.Abs((int)Math.Pow(avgColorInBetween1[1], 2) - (int)Math.Pow(avgColorInBetween2[2], 2)) > Math.Pow(255, 2) * 0.15)
                     {
-                        if (Math.Abs((int)Math.Pow(avgColorInBetween1[2], 2) - (int)Math.Pow(avgColorInBetween2[2], 2)) > Math.Pow(255, 2) * 0.15)
+                        if (Math.Abs((int)Math.Pow(avgColorInBetween1[2], 2) - (int)Math.Pow(avgColorInBetween2[3], 2)) > Math.Pow(255, 2) * 0.15)
                         {
-                            if (Math.Abs((int)Math.Pow(avgColorInBetween1[3], 2) - (int)Math.Pow(avgColorInBetween2[3], 2)) > Math.Pow(255, 2) * 0.15)
-                            {
-                            }
-                            else
-                            {
-                                differentAreas.Remove(mid);
-                                numberOfAreas--;
-                                i--;
-                                numberOfAreas = Comparer(numberOfAreas, differentAreas, colorList);
-                                break;
-                            }
                         }
                         else
                         {
+                            Debug.WriteLine("2");
                             differentAreas.Remove(mid);
                             numberOfAreas--;
-                            i--;
-                            numberOfAreas = Comparer(numberOfAreas, differentAreas, colorList);
+                            if(numberOfAreas > 1)
+                            {
+                                numberOfAreas = Comparer(numberOfAreas, differentAreas, colorList);
+                            }
                             break;
                         }
                     }
                     else
                     {
+                        Debug.WriteLine("1");
                         differentAreas.Remove(mid);
                         numberOfAreas--;
-                        i--;
-                        numberOfAreas = Comparer(numberOfAreas, differentAreas, colorList);
-                        break;
+                        if (numberOfAreas > 1)
+                        {
+                            numberOfAreas = Comparer(numberOfAreas, differentAreas, colorList);
+                        }
+                    break;
                     }
                 }
                 else
                 {
+                    Debug.WriteLine("0");
                     differentAreas.Remove(mid);
                     numberOfAreas--;
-                    i--;
-                    numberOfAreas = Comparer(numberOfAreas, differentAreas, colorList);
-                    break;
+                    if (numberOfAreas > 1)
+                    {
+                        numberOfAreas = Comparer(numberOfAreas, differentAreas, colorList);
+                    }
+                break;
                 }
+            }
+            if(numberOfAreas > 1)
+            {
+                Debug.WriteLine("Comparer:" + numberOfAreas);
             }
             return numberOfAreas;
         }
