@@ -22,6 +22,7 @@ namespace ReIdentificator
         private Database db;
         private WriteableBitmap bitmap = null;
         private int skipFrameTicker = 0;
+        private List<object> currentTrackingIds;
 
         public event EventHandler<LeftViewEventArgs> BodyLeftView;
 
@@ -46,6 +47,14 @@ namespace ReIdentificator
 
             this.db = new Database("mongodb://localhost:27017", "depthImaging", "individuals");
         }
+        //public void startComparison(ulong trackingId, object data)
+        //{
+        //    if (!currentTrackingIds.Exists(element => element == trackingId))
+        //    {
+        //        currentTrackingIds.Add(new List<object> { });
+        //    }
+
+        //}
 
         public BodyProcessor getBodyProcessor()
         {

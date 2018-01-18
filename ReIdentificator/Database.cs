@@ -81,94 +81,73 @@ namespace ReIdentificator
         }
     }
 
-    public class JointsData
-    {
-        [BsonElement("spineBase")]
-        public float[] SpineBase { get; set; }
-        [BsonElement("spineMid")]
-        public float[] SpineMid { get; set; }
-        [BsonElement("neck")]
-        public float[] Neck { get; set; }
-        [BsonElement("head")]
-        public float[] Head { get; set; }
-        [BsonElement("shoulderLeft")]
-        public float[] ShoulderLeft { get; set; }
-        [BsonElement("elbowLeft")]
-        public float[] ElbowLeft { get; set; }
-        [BsonElement("wristLeft")]
-        public float[] WristLeft { get; set; }
-        [BsonElement("handLeft")]
-        public float[] HandLeft { get; set; }
-        [BsonElement("shoulderRight")]
-        public float[] ShoulderRight { get; set; }
-        [BsonElement("wristRight")]
-        public float[] WristRight { get; set; }
-        [BsonElement("handRight")]
-        public float[] HandRight { get; set; }
-        [BsonElement("hipLeft")]
-        public float[] HipLeft { get; set; }
-        [BsonElement("kneeLeft")]
-        public float[] KneeLeft { get; set; }
-        [BsonElement("footLeft")]
-        public float[] FootLeft { get; set; }
-        [BsonElement("hipRight")]
-        public float[] HipRight { get; set; }
-        [BsonElement("kneeRight")]
-        public float[] KneeRight { get; set; }
-        [BsonElement("footRight")]
-        public float[] FootRight { get; set; }
-        [BsonElement("spineShoulder")]
-        public float[] SpineShoulder { get; set; }
-        [BsonElement("handTipLeft")]
-        public float[] HandTipLeft { get; set; }
-        [BsonElement("thumbLeft")]
-        public float[] ThumbLeft { get; set; }
-        [BsonElement("handTipRight")]
-        public float[] HandTipRight { get; set; }
-        [BsonElement("thumbRight")]
-        public float[] ThumbRight { get; set; }
-    }
-
     public class Individual
     {
         [BsonId]
         public ObjectId ID {get; set;}
-        [BsonElement("x")]
-        public float X { get; set; }
-        [BsonElement("y")]
-        public float Y { get; set; }
-        [BsonElement("height")]
-        public float Height { get; set; }
-        [BsonElement("isHappy")]
-        public string Is_Happy { get; set; }
-        [BsonElement("isWearingGlasses")]
-        public string Is_Wearing_Glasses { get; set; }
-        [BsonElement("isMouthOpen")]
-        public string Is_Mouth_Open { get; set; }
-        [BsonElement("isMouthMoved")]
-        public string Is_Mouth_Moved { get; set; }
-        [BsonElement("pitch")]
-        public float Pitch { get; set; }
-        [BsonElement("yaw")]
-        public float Yaw { get; set; }
-        [BsonElement("roll")]
-        public float Roll { get; set; }
-        [BsonElement("leftArmLength")]
-        public float Left_Arm_Length { get; set; }
-        [BsonElement("rightArmLength")]
-        public float Right_Arm_Length { get; set; }
-        [BsonElement("shouldersLength")]
-        public float Shoulders_Length { get; set; }
-        [BsonElement("leftLegLength")]
-        public float Left_Leg_Length { get; set; }
-        [BsonElement("rightLegLength")]
-        public float Right_Leg_Length { get; set; }
-        [BsonElement("bodyLength")]
-        public float Body_Length { get; set; }
-        [BsonElement("bodyAngle")]
-        public float Body_Angle { get; set; }
-        [BsonElement("posture")]
-        public string Posture { get; set; }
-        public JointsData Joints_Data { get; set; }
-    }
+        [BsonElement("face_age")]
+        public float face_age { get; set; }
+        [BsonElement("face_gender")]
+        public bool face_gender { get; set; }
+        [BsonElement("face_hair_bald")]
+        public int face_hair_bald { get; set; }
+        [BsonElement("face_hair_blonde")]
+        public int face_hair_blonde { get; set; }
+        [BsonElement("face_hair_black")]
+        public int face_hair_black { get; set; }
+        [BsonElement("face_hair_brown")]
+        public int face_hair_brown { get; set; }
+        [BsonElement("face_hair_red")]
+        public int face_hair_red { get; set; }
+        [BsonElement("face_glasses")]
+        public string face_glasses { get; set; }
+
+        [BsonElement("image_color_shoulderleft")]
+        public int image_color_shoulderleft { get; set; }
+        [BsonElement("image_color_shoulderright")]
+        public int image_color_shoulderright { get; set; }
+        [BsonElement("image_color_torso")]
+        public int image_color_torso { get; set; }
+        [BsonElement("image_color_shoulderhistogram")]
+        public int[] image_color_shoulderhistogram { get; set; }
+        [BsonElement("image_color_spinehistogram")]
+        public int[] image_color_spinehistogram { get; set; }
+        [BsonElement("image_areacount_armleft")]
+        public int image_areacount_armleft { get; set; }
+        [BsonElement("image_areacount_armright")]
+        public int image_areacount_armright { get; set; }
+        [BsonElement("image_areacount_legleft")]
+        public int image_areacount_legleft { get; set; }
+        [BsonElement("image_areacount_legright")]
+        public int image_areacount_legright { get; set; }
+        [BsonElement("image_wears_watch")]
+        public bool image_wears_watch { get; set; }
+        [BsonElement("image_wears_shorts")]
+        public bool image_wears_shorts { get; set; }
+        [BsonElement("image_wears_shirt")]
+        public bool image_wears_shirt { get; set; }
+
+        [BsonElement("height")] 
+        public double height { get; set; }
+        [BsonElement("torsoHeight")]
+        public double torsoHeight { get; set; }
+        [BsonElement("neckToSpineMid")]
+        public double neckToSpineMid { get; set; }
+        [BsonElement("spineMidToSpineBase")]
+        public double spineMidToSpineBase { get; set; }
+        [BsonElement("neckToLeftShoulder")]
+        public double neckToLeftShoulder { get; set; }
+        [BsonElement("neckToRightShoulder")]
+        public double neckToRightShoulder { get; set; }
+        [BsonElement("leftHipToSpineBase")]
+        public double leftHipToSpineBase { get; set; }
+        [BsonElement("rightHipToSpineBase")]
+        public double rightHipToSpineBase { get; set; }
+        [BsonElement("spineMidToLeftShoulder")]
+        public double spineMidToLeftShoulder { get; set; }
+        [BsonElement("spineMidToRightShoulder")]
+        public double spineMidToRightShoulder { get; set; }
+        [BsonElement("bodyWidth")]
+        public double bodyWidth { get; set; }
+        }
 }
