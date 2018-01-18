@@ -77,7 +77,7 @@ namespace ReIdentificator
                 this.colorBitmap.PixelWidth * sizeof(int),
                 0);
 
-            //mainWindow.FrameDisplayImage.Source = this.colorBitmap;
+            mainWindow.FrameDisplayImage.Source = this.colorBitmap;
             bodyFrame.GetAndRefreshBodyData(this.bodies);
             GetColorOfBodyParts(jointTypesToTrack, bodies);
         }
