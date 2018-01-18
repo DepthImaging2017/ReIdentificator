@@ -61,14 +61,14 @@ namespace ReIdentificator
             return this.bodyProcessor;
         }
 
-        public void RenderPixelArray(byte[] pixels)
+        public void RenderPixelArray(byte[] pixels, Image targetImage)
         {
            int stride = bitmap.PixelWidth;
            bitmap.WritePixels(
                new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight),
                pixels, stride, 0);
 
-           FrameDisplayImage.Source = bitmap;
+            targetImage.Source = bitmap;
         }
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
