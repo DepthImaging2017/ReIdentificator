@@ -391,9 +391,14 @@ namespace ReIdentificator
         public void processFace(FaceProcessor_face _Face,Face[] faces)
         {
             HairColor[] hairColors = this.faces[0].FaceAttributes.Hair.HairColor;
-
-            _Face.face_age =this.faces[0].FaceAttributes.Age;
-            _Face.face_hair_bald = hairColors[3].Confidence;
+            _Face.face_age = this.faces[0].FaceAttributes.Age;
+            _Face.face_gender = this.faces[0].FaceAttributes.Gender;
+            _Face.face_hair_bald = this.faces[0].FaceAttributes.Hair.Bald;
+            _Face.face_hair_blonde = hairColors[3].Confidence;
+            _Face.face_hair_black = hairColors[6].Confidence;
+            _Face.face_hair_brown = hairColors[4].Confidence;
+            _Face.face_hair_red = hairColors[5].Confidence;
+            _Face.face_hair_glasses = this.faces[0].FaceAttributes.Glasses.ToString();
 
         }
 
@@ -903,8 +908,8 @@ namespace ReIdentificator
         public ulong TrackingId { get; set; }
         public double face_age { get; set; }
         public List<double> face_age_list { get; set; } = new List<double>();
-        public bool gender { get; set; } // -1 if not detected properly
-        public List<bool> gender_list { get; set; } = new List<bool>();
+        public string face_gender { get; set; } // -1 if not detected properly
+        public List<string> face_gender_list { get; set; } = new List<string>();
         public double face_hair_bald { get; set; }
         public List<double> face_hair_bald_list { get; set; } = new List<double>();
         public double face_hair_blonde{ get; set; }

@@ -86,19 +86,19 @@ namespace ReIdentificator
         [BsonId]
         public ObjectId ID {get; set;}
         [BsonElement("face_age")]
-        public float face_age { get; set; }
+        public double face_age { get; set; }
         [BsonElement("face_gender")]
-        public bool face_gender { get; set; }
+        public string face_gender { get; set; }
         [BsonElement("face_hair_bald")]
-        public int face_hair_bald { get; set; }
+        public double face_hair_bald { get; set; }
         [BsonElement("face_hair_blonde")]
-        public int face_hair_blonde { get; set; }
+        public double face_hair_blonde { get; set; }
         [BsonElement("face_hair_black")]
-        public int face_hair_black { get; set; }
+        public double face_hair_black { get; set; }
         [BsonElement("face_hair_brown")]
-        public int face_hair_brown { get; set; }
+        public double face_hair_brown { get; set; }
         [BsonElement("face_hair_red")]
-        public int face_hair_red { get; set; }
+        public double face_hair_red { get; set; }
         [BsonElement("face_glasses")]
         public string face_glasses { get; set; }
 
