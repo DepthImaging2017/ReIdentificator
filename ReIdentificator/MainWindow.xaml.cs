@@ -18,6 +18,8 @@ namespace ReIdentificator
         private BodyProcessor bodyProcessor;
         private ShapeProcessor shapeProcessor;
         private ImageProcessor imageProcessor;
+        private FaceAPI faceAPI;
+
         private Comparer comparer;
         private MultiSourceFrameReader multiSourceFrameReader = null;
         private Database db;
@@ -36,6 +38,7 @@ namespace ReIdentificator
             this.bodyProcessor = new BodyProcessor(this, this.kinect, this.comparer);
             this.shapeProcessor = new ShapeProcessor(this, this.kinect, this.comparer);
             this.imageProcessor = new ImageProcessor(this.kinect, this.comparer, this);
+            this.faceAPI = new FaceAPI(this.kinect, this.comparer, this);
 
             this.bitmap = new WriteableBitmap(kinect.DepthFrameSource.FrameDescription.Width,
             kinect.DepthFrameSource.FrameDescription.Height, 96, 96, System.Windows.Media.PixelFormats.Gray8, null);
@@ -140,6 +143,8 @@ namespace ReIdentificator
                     if (bodyIndexFrame != null && depthFrame != null && bodyFrame != null && skipFrameTicker % 15 == 0)
                     {
                        shapeProcessor.processBodyIndexFrame(bodyIndexFrame, depthFrame, bodyFrame);
+                       faceAPI.nui_ColorFrameReady(colorFrame, bodyFrame);
+
                     }
                 }
                 finally
@@ -159,7 +164,10 @@ namespace ReIdentificator
                 }
             }
         }
-
+        public void FacePhoto_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            faceAPI.FacePhoto_MouseMove1(sender, e);
+        }
         public void printLog(string logtext)
         {
             LoggingBox.AppendText("\n" + logtext);

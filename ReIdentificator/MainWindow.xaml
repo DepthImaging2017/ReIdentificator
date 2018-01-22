@@ -5,18 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ReIdentificator"
         mc:Ignorable="d"
-        Title="Output" Height="565.061" Width="1880.451">
+        Title="Output" Height="565.061" Width="1600.451">
     <Grid Name="gdmain">
         <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical">
             <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
                 <Image x:Name="FrameDisplayImage" Stretch="None" Width="570" Height="512" MinWidth="5"/>
                 <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" x:Name="userOutput">
                 </StackPanel>
-                <TextBox x:Name="LoggingBox" HorizontalAlignment="Left" Height="261" Margin="10,10,10,10" TextWrapping="Wrap" VerticalAlignment="Top" Width="500"/>
+                <StackPanel Height="533">
+                    <TextBox x:Name="LoggingBox" HorizontalAlignment="Left" Height="250" Margin="10,10,10,10" TextWrapping="Wrap" VerticalAlignment="Top" Width="500"/>
+                    <Image x:Name="FacePhoto" Height="125" Width="507"/>
+                    <Image x:Name="FacePhoto2" Height="125" Width="512"/>
+                </StackPanel>
             </StackPanel>
-            
         </StackPanel>
-        
-        
     </Grid>
 </Window>
