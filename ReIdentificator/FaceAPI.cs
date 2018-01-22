@@ -44,6 +44,7 @@ namespace ReIdentificator
         private Dictionary<ulong, Boolean> trackedBodies = new Dictionary<ulong, bool>();
         private readonly IFaceServiceClient faceServiceClient =
             new FaceServiceClient("21f520d419c34834b5b955354b524026", "https://westcentralus.api.cognitive.microsoft.com/face/v1.0");
+        private List<FaceProcessor_face> facesToProcess= new List<FaceProcessor_face>();
 
         private FaceFrameReader _faceReader = null;
         private BodyFrameReader _bodyReader = null;
@@ -150,7 +151,17 @@ namespace ReIdentificator
 
         private void SaveImage(BitmapSource image, int i)
         {
-            FileStream stream = new FileStream(String.Format(@"C:\Users\Eric\Desktop\TEST\TEST{0}.jpg", counti), FileMode.Create);
+
+            string currentDir = Environment.CurrentDirectory;
+
+            string subPath = currentDir + @"\Test"; // your code goes here
+
+            bool exists = System.IO.Directory.Exists(subPath);
+
+            if (!exists)
+                System.IO.Directory.CreateDirectory(subPath);
+
+            FileStream stream = new FileStream(String.Format(subPath+@"\Test{0}.jpg",counti), FileMode.Create);
             JpegBitmapEncoder encoder = new JpegBitmapEncoder();
 
             encoder.FlipHorizontal = false;
@@ -158,12 +169,11 @@ namespace ReIdentificator
             encoder.QualityLevel = 30;
             encoder.Frames.Add(BitmapFrame.Create(image));
             encoder.Save(stream);
-            mainWindow.printLog("Saved Stream.");
 
             stream.Close();
         }
 
-
+        
         //Call this method after you created your image in the eventhandlers (e.g.)
         
         /// <summary>
@@ -176,7 +186,6 @@ namespace ReIdentificator
             if (IsFaceInFrame() == true && ContainsKeyValue()==true)
             {
 
-                mainWindow.printLog("Neues Gesicht erkannt - Warten auf API");
                 // 32-bit per pixel, RGBA image
                 //PlanarImage Image = e.ImageFrame.Image;
                 this.colorPixels = new byte[this.kinect.ColorFrameSource.FrameDescription.LengthInPixels * 4];
@@ -300,94 +309,6 @@ namespace ReIdentificator
         }
 
 
-        public async void BrowseButton_Click1(object sender, RoutedEventArgs e)
-        {
-            // Get the image file to scan from the user.
-            // var openDlg = new Microsoft.Win32.OpenFileDialog();
-
-            //openDlg.Filter = "JPEG Image(*.jpg)|*.jpg";
-            //bool? result = openDlg.ShowDialog(this.mainWindow);
-
-            // Return if canceled.
-            // if (!(bool)result)
-            //{
-            //   return;
-            //}
-
-            mainWindow.printLog("Face build");
-
-            // Display the image file.
-            string filePath = @"C:\Users\Eric\Desktop\TEST\TEST.jpg";
-
-            Uri fileUri = new Uri(filePath);
-            BitmapImage bitmapSource = new BitmapImage();
-
-            bitmapSource.BeginInit();
-            bitmapSource.CacheOption = BitmapCacheOption.None;
-            bitmapSource.UriSource = fileUri;
-            bitmapSource.EndInit();
-
-            mainWindow.FacePhoto.Source = bitmapSource;
-            
-
-            // Detect any faces in the image.
-            mainWindow.Title = "Detecting...";
-            faces = await UploadAndDetectFaces(filePath);
-            mainWindow.Title = String.Format("Detection Finished. {0} face(s) detected", faces.Length);
-
-            if (faces.Length > 0)
-            {
-                // Prepare to draw rectangles around the faces.
-                DrawingVisual visual = new DrawingVisual();
-                DrawingContext drawingContext = visual.RenderOpen();
-                drawingContext.DrawImage(bitmapSource,
-                    new Rect(0, 0, bitmapSource.Width, bitmapSource.Height));
-                double dpi = bitmapSource.DpiX;
-                resizeFactor = 96 / dpi;
-                faceDescriptions = new String[faces.Length];
-                alreadyPrinted = new bool[faces.Length];
-
-                for (int i = 0; i < faces.Length; ++i)
-                {
-                    Face face = faces[i];
-
-                    // Draw a rectangle on the face.
-                    drawingContext.DrawRectangle(
-                        System.Windows.Media.Brushes.Transparent,
-                        new System.Windows.Media.Pen(System.Windows.Media.Brushes.Red, 2),
-                        new Rect(
-                            face.FaceRectangle.Left * resizeFactor,
-                            face.FaceRectangle.Top * resizeFactor,
-                            face.FaceRectangle.Width * resizeFactor,
-                            face.FaceRectangle.Height * resizeFactor
-                            )
-                    );
-
-
-
-                    // Store the face description.
-                    faceDescriptions[i] = FaceDescription(face);
-                    alreadyPrinted[i] = false;
-                }
-
-                drawingContext.Close();
-
-                // Display the image with the rectangle around the face.
-                RenderTargetBitmap faceWithRectBitmap = new RenderTargetBitmap(
-                    (int)(bitmapSource.PixelWidth * resizeFactor),
-                    (int)(bitmapSource.PixelHeight * resizeFactor),
-                    96,
-                    96,
-                    PixelFormats.Pbgra32);
-
-                faceWithRectBitmap.Render(visual);
-               mainWindow.FacePhoto.Source = faceWithRectBitmap;
-
-                // Set the status bar text.
-               // mainWindow.faceDescriptionStatusBar.Text = "Place the mouse pointer over a face to see the face description.";
-            }
-        }
-
         public void processFace(FaceProcessor_face _Face,Face[] faces)
         {
             HairColor[] hairColors = this.faces[0].FaceAttributes.Hair.HairColor;
@@ -405,20 +326,14 @@ namespace ReIdentificator
 
         public async void BrowseButton_Click2(int counti)
         {
-            // Get the image file to scan from the user.
-            // var openDlg = new Microsoft.Win32.OpenFileDialog();
 
-            //openDlg.Filter = "JPEG Image(*.jpg)|*.jpg";
-            //bool? result = openDlg.ShowDialog(this.mainWindow);
-
-            // Return if canceled.
-            // if (!(bool)result)
-            //{
-            //   return;
-            //}
 
             // Display the image file.
-            string filePath = String.Format(@"C:\Users\Eric\Desktop\TEST\TEST{0}.jpg", counti);
+            string currentDir = Environment.CurrentDirectory;
+
+            string subPath = currentDir + @"\Test"; // your code goes here
+
+            string filePath = String.Format(subPath + @"\Test{0}.jpg", counti);
 
             Uri fileUri = new Uri(filePath);
             BitmapImage bitmapSource = new BitmapImage();
@@ -468,6 +383,7 @@ namespace ReIdentificator
 
                     // Store the face description.
                     faceDescriptions[i] = FaceDescription(face);
+
                     alreadyPrinted[i] = false;
                 }
 
@@ -519,7 +435,6 @@ namespace ReIdentificator
                     if (alreadyPrinted[i]) {
                         return;
                     }
-                    mainWindow.printLog(faceDescriptions[i]);
                     mouseOverFace = true;
                     alreadyPrinted[i] = true;
                     break;
@@ -536,8 +451,6 @@ namespace ReIdentificator
         private async Task<Face[]> UploadAndDetectFaces(string imageFilePath)
         {
 
-            mainWindow.printLog("Face build");
-
             // The list of Face attributes to return.
             IEnumerable<FaceAttributeType> faceAttributes =
                 new FaceAttributeType[] { FaceAttributeType.Gender, FaceAttributeType.Age, FaceAttributeType.Smile, FaceAttributeType.Emotion, FaceAttributeType.Glasses, FaceAttributeType.Hair };
@@ -549,12 +462,9 @@ namespace ReIdentificator
                 {
 
 
-
-
                     Face[] faces = await faceServiceClient.DetectAsync(imageFileStream, returnFaceId: true, returnFaceLandmarks: false, returnFaceAttributes: faceAttributes);
-                    HairColor[] hairColors = faces[0].FaceAttributes.Hair.HairColor;
+                    mainWindow.printLog(FaceDescription(faces[0]));
 
-                    mainWindow.printLog(hairColors[0].Confidence + "");
                     return faces;
 
                 }
@@ -907,21 +817,13 @@ namespace ReIdentificator
 
         public ulong TrackingId { get; set; }
         public double face_age { get; set; }
-        public List<double> face_age_list { get; set; } = new List<double>();
         public string face_gender { get; set; } // -1 if not detected properly
-        public List<string> face_gender_list { get; set; } = new List<string>();
         public double face_hair_bald { get; set; }
-        public List<double> face_hair_bald_list { get; set; } = new List<double>();
         public double face_hair_blonde{ get; set; }
-        public List<double> face_hair_blonde_list { get; set; } = new List<double>();
         public double face_hair_black { get; set; }
-        public List<double> face_hair_black_list { get; set; } = new List<double>();
         public double face_hair_brown{ get; set; }
-        public List<double> face_hair_brown_list { get; set; } = new List<double>();
         public double face_hair_red { get; set; }
-        public List<double> face_hair_red_list { get; set; } = new List<double>();
         public string face_hair_glasses { get; set; }
-        public List<string> face_hair_glasses_list { get; set; } = new List<string>();
 
 
 
