@@ -312,14 +312,8 @@ namespace ReIdentificator
 
         private void processFace(FaceProcessor_face _face, Face face)
         {
-            if (face.FaceAttributes.Gender == "male")
-            {
-                _face.face_gender = true;
-            }
-            else
-            {
-                _face.face_gender = false;
-            }
+            
+            _face.face_gender = face.FaceAttributes.Gender;    
             _face.face_age = face.FaceAttributes.Age;
             _face.face_hair_bald = face.FaceAttributes.Hair.Bald * 100;
             HairColor[] hairColors = face.FaceAttributes.Hair.HairColor;
@@ -855,7 +849,7 @@ namespace ReIdentificator
     class FaceProcessor_face
     {
         public ulong TrackingId { get; set; }
-        public bool face_gender { get; set; } // -1 if not detected properly
+        public string face_gender { get; set; } // -1 if not detected properly
         public double face_age { get; set; }
         public double face_hair_bald { get; set; }
         public double face_hair_blonde { get; set; }
