@@ -34,10 +34,11 @@ namespace ReIdentificator
             InitializeComponent();
             this.kinect = KinectSensor.GetDefault();
             this.kinect.Open();
-            this.comparer = new Comparer();
+            this.db = new Database("mongodb://localhost:27017", "depthImaging", "individuals");
+            this.comparer = new Comparer(this.db, this);
             this.bodyProcessor = new BodyProcessor(this, this.kinect, this.comparer);
             this.shapeProcessor = new ShapeProcessor(this, this.kinect, this.comparer);
-            this.imageProcessor = new ImageProcessor(this.kinect, this.comparer, this);
+            //this.imageProcessor = new ImageProcessor(this.kinect, this.comparer, this);
             this.faceAPI = new FaceAPI(this.kinect, this.comparer, this);
 
             this.bitmap = new WriteableBitmap(kinect.DepthFrameSource.FrameDescription.Width,
@@ -45,12 +46,9 @@ namespace ReIdentificator
             //FrameDisplayImage.Source = bitmap;
             this.multiSourceFrameReader =
             this.kinect.OpenMultiSourceFrameReader(
-             FrameSourceTypes.Body | FrameSourceTypes.Color | FrameSourceTypes.BodyIndex | FrameSourceTypes.Depth);
+             FrameSourceTypes.Body /*| FrameSourceTypes.Color*/ | FrameSourceTypes.BodyIndex | FrameSourceTypes.Depth);
             this.multiSourceFrameReader.MultiSourceFrameArrived +=
             this.Reader_MultiSourceFrameArrived;
-
-            this.db = new Database("mongodb://localhost:27017", "depthImaging", "individuals");
-            
         }
         public void startComparison(ulong trackingId, object data)
         {
@@ -80,16 +78,17 @@ namespace ReIdentificator
                 }
                 db.GetAllEntries((result) =>
                 {
-                    bool reÌdentified = comparer.compare(idv, result);
-                    if (!reÌdentified)
-                    {
-                        printLog("Person that left the frame is not reidentified");
-                        db.AddEntry(idv, null);
-                    }
-                    else
-                    {
-                        printLog("Person that left the frame is reidentified!");
-                    }
+                    comparer.compare(idv, result);
+                    //bool reÌdentified = comparer.compare(idv, result);
+                    //if (!reÌdentified)
+                    //{
+                    //    printLog("Person that left the frame is not reidentified");
+                    //    db.AddEntry(idv, null);
+                    //}
+                    //else
+                    //{
+                    //    printLog("Person that left the frame is reidentified!");
+                    //}
                     dataForComparison_list.Remove(currentComparisonData);
 
                 });

@@ -11,13 +11,16 @@ namespace ReIdentificator
     public class Comparer
     {
         private readonly int minimumSimiliarProperties = 5;
+        private Database db;
+        private MainWindow main;
 
-        public Comparer()
+        public Comparer(Database db, MainWindow main)
         {
-            
+            this.db = db;
+            this.main = main;
         }
 
-        public bool compare(Individual current, List<Individual> all)
+        public void compare(Individual current, List<Individual> all)
         {
             MatcherObject matcher = new MatcherObject();
             foreach(var person in all)
@@ -62,10 +65,22 @@ namespace ReIdentificator
                 }
                 if(count >= minimumSimiliarProperties)
                 {
-                    return true;
+                    String times = "";
+                    foreach(DateTime tm in person.timestamps)
+                    {
+                        times += ", " + tm.ToString();
+                    }
+                    main.printLog("Person was already here at" + times);
+                    DateTime time = DateTime.Now;
+                    person.timestamps.Add(time);
+                    db.UpdateEntry(person.ID.ToString(), "timestamps", person.timestamps, null);
+                    main.printLog("Person that left the frame is reidentified!");
+                    return;
                 }
             }
-            return false;
+            db.AddEntry(current, null);
+            main.printLog("Person that left the frame NOT reidentified!");
+            return;
 
         } 
 
