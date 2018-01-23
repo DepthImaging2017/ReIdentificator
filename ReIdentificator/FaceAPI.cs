@@ -336,7 +336,7 @@ namespace ReIdentificator
                 {
                     _face.face_hair_red = hairColor.Confidence * 100;
                 }
-                _face.face_glasses = face.FaceAttributes.Glasses;
+                 _face.face_glasses = face.FaceAttributes.Glasses.ToString();
                 mainWindow.printLog("body parameters: " + _face.face_gender + " - " + _face.face_age + " - " + _face.face_hair_bald + " - " + _face.face_hair_blonde + " - " + _face.face_hair_black + " - " + _face.face_hair_brown + " - " + _face.face_hair_red + " - " + _face.face_glasses);
                 //mainWindow.startComparison(_body.TrackingId, _body);
 
@@ -859,7 +859,7 @@ namespace ReIdentificator
         public double face_hair_black { get; set; }
         public double face_hair_brown { get; set; }
         public double face_hair_red { get; set; }
-        public Glasses face_glasses { get; set; }
+        public string face_glasses { get; set; }
 
         public FaceProcessor_face(ulong trackingId)
         {
