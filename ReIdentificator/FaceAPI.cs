@@ -386,7 +386,7 @@ namespace ReIdentificator
                 faceDescriptions = new String[faces.Length];
                 alreadyPrinted = new bool[faces.Length];
 
-                for (int i = 0; i < faces.Length; ++i)
+                for (int i = 0; i < faces.Length; i++)
                 {
                     Face face = faces[i];
                     
@@ -585,8 +585,7 @@ namespace ReIdentificator
 
                     Joint head = bodies[bodyIndex].Joints[JointType.Head];
                     float[] positionOfHead = this.getPositionOfJoint(head);
-                    for (int k = 0; k < positionOfHead.Length; k++)
-                    {
+                  
                         Int32Rect faceRect = new Int32Rect((int)Math.Floor(positionOfHead[0]) - 100, (int)Math.Floor(positionOfHead[1]) - 100, 200, 200);
                         image.CopyPixels(faceRect, this.colorPixels, this.colorBitmap.PixelWidth * sizeof(int), 0);
 
@@ -598,7 +597,7 @@ namespace ReIdentificator
                         BrowseButton_Click2(counti, _face);
 
                         counti = counti + 1;
-                    }
+                    
                 }
             }
         }
