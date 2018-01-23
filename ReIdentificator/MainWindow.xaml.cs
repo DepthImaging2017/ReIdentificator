@@ -50,6 +50,7 @@ namespace ReIdentificator
             this.Reader_MultiSourceFrameArrived;
 
             this.db = new Database("mongodb://localhost:27017", "depthImaging", "individuals");
+            
         }
         public void startComparison(ulong trackingId, object data)
         {
@@ -71,6 +72,7 @@ namespace ReIdentificator
                     {
                         if (idv.GetType().GetProperty(pi.Name) != null)
                         {
+                            Debug.WriteLine("Hey");
                             idv.GetType().GetProperty(pi.Name).SetValue(idv, pi.GetValue(currentComparisonData.processorData[i], null));
                         }
                     }

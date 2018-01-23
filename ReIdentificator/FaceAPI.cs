@@ -461,10 +461,9 @@ namespace ReIdentificator
                 using (Stream imageFileStream = File.OpenRead(imageFilePath))
                 {
 
-
                     Face[] faces = await faceServiceClient.DetectAsync(imageFileStream, returnFaceId: true, returnFaceLandmarks: false, returnFaceAttributes: faceAttributes);
-                    mainWindow.printLog(FaceDescription(faces[0]));
-
+                    if(faces.Length != 0)         
+                        mainWindow.printLog(FaceDescription(faces[0]));
                     return faces;
 
                 }
@@ -687,7 +686,9 @@ namespace ReIdentificator
                       float[] positionOfHead = this.getPositionOfJoint(head);
                       for(int k = 0; k < positionOfHead.Length; k++)
                       {
+
                         Int32Rect faceRect = new Int32Rect((int)Math.Floor(positionOfHead[0])-100, (int)Math.Floor(positionOfHead[1])-100, 200, 200);
+                        //Wirft Fehler wenn sich Kopf zum Teil außerhalb des Bildbereiches befindet (Overflow)
                         image.CopyPixels(faceRect, this.colorPixels, this.colorBitmap.PixelWidth * sizeof(int), 0);
 
                         BitmapSource image2 = BitmapSource.Create(200, 200, 96, 96, PixelFormats.Bgr32, null, this.colorPixels, this.colorBitmap.PixelWidth * sizeof(int));
