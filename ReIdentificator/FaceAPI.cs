@@ -357,9 +357,12 @@ namespace ReIdentificator
             //{
             //   return;
             //}
+            string currentDir = Environment.CurrentDirectory;
+
+            string subPath = currentDir + @"\Test"; // your code goes here
 
             // Display the image file.
-            string filePath = String.Format(@"C:\Users\Benjamin Karic\Desktop\TEST\TEST{0}.jpg", counti);
+            string filePath = String.Format(subPath + @"\Test{0}.jpg", counti);
 
             Uri fileUri = new Uri(filePath);
             BitmapImage bitmapSource = new BitmapImage();
