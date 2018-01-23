@@ -336,11 +336,12 @@ namespace ReIdentificator
                 {
                     _face.face_hair_red = hairColor.Confidence * 100;
                 }
-                 _face.face_glasses = face.FaceAttributes.Glasses.ToString();
+                _face.face_glasses = face.FaceAttributes.Glasses.ToString();
+            }
                 mainWindow.printLog("body parameters: " + _face.face_gender + " - " + _face.face_age + " - " + _face.face_hair_bald + " - " + _face.face_hair_blonde + " - " + _face.face_hair_black + " - " + _face.face_hair_brown + " - " + _face.face_hair_red + " - " + _face.face_glasses);
                 //mainWindow.startComparison(_body.TrackingId, _body);
 
-            }
+            
         }
 
 
@@ -388,7 +389,7 @@ namespace ReIdentificator
                 for (int i = 0; i < faces.Length; ++i)
                 {
                     Face face = faces[i];
-
+                    
                     // Store the face description.
                     faceDescriptions[i] = FaceDescription(face);
                     alreadyPrinted[i] = false;
@@ -420,10 +421,9 @@ namespace ReIdentificator
             try
             {
                 using (Stream imageFileStream = File.OpenRead(imageFilePath))
-                {
-
-
+                { 
                     Face[] faces = await faceServiceClient.DetectAsync(imageFileStream, returnFaceId: true, returnFaceLandmarks: false, returnFaceAttributes: faceAttributes);
+                    
                     mainWindow.printLog(FaceDescription(faces[0]));
 
                     return faces;

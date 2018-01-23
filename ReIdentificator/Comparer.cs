@@ -10,7 +10,7 @@ namespace ReIdentificator
 {
     public class Comparer
     {
-        private readonly int minimumSimiliarProperties = 5;
+        private readonly int minimumSimiliarProperties = 50;
         private Database db;
         private MainWindow main;
 
