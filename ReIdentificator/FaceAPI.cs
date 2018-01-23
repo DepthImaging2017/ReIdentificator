@@ -73,6 +73,7 @@ namespace ReIdentificator
             this._faceReader = _faceSource.OpenReader();
             _faceReader.FrameArrived += FaceReader_FrameArrived;
             _bodies = new Body[kinect.BodyFrameSource.BodyCount];
+            mainWindow.BodyLeftView += HandleBodyLeftViewEvent;
         }
         /*Helper Functions that are needed to determine if there is a face in the frame
  */
@@ -309,31 +310,62 @@ namespace ReIdentificator
         }
 
 
-        public void processFace(FaceProcessor_face _Face,Face[] faces)
+        private void processFace(FaceProcessor_face _face, Face face)
         {
-            HairColor[] hairColors = this.faces[0].FaceAttributes.Hair.HairColor;
-            _Face.face_age = this.faces[0].FaceAttributes.Age;
-            _Face.face_gender = this.faces[0].FaceAttributes.Gender;
-            _Face.face_hair_bald = this.faces[0].FaceAttributes.Hair.Bald;
-            _Face.face_hair_blonde = hairColors[3].Confidence;
-            _Face.face_hair_black = hairColors[6].Confidence;
-            _Face.face_hair_brown = hairColors[4].Confidence;
-            _Face.face_hair_red = hairColors[5].Confidence;
-            _Face.face_hair_glasses = this.faces[0].FaceAttributes.Glasses.ToString();
+            if (face.FaceAttributes.Gender == "male")
+            {
+                _face.face_gender = true;
+            }
+            else
+            {
+                _face.face_gender = false;
+            }
+            _face.face_age = face.FaceAttributes.Age;
+            _face.face_hair_bald = face.FaceAttributes.Hair.Bald * 100;
+            HairColor[] hairColors = face.FaceAttributes.Hair.HairColor;
+            foreach (HairColor hairColor in hairColors)
+            {
+                Debug.WriteLine(hairColor.Color.ToString());
+                if (hairColor.Color.ToString() == "Blond")
+                {
+                    _face.face_hair_blonde = hairColor.Confidence * 100;
+                }
+                else if (hairColor.Color.ToString() == "Black")
+                {
+                    _face.face_hair_black = hairColor.Confidence * 100;
+                }
+                else if (hairColor.Color.ToString() == "Brown")
+                {
+                    _face.face_hair_brown = hairColor.Confidence * 100;
+                }
+                else if (hairColor.Color.ToString() == "Red")
+                {
+                    _face.face_hair_red = hairColor.Confidence * 100;
+                }
+                _face.face_glasses = face.FaceAttributes.Glasses;
+                mainWindow.printLog("body parameters: " + _face.face_gender + " - " + _face.face_age + " - " + _face.face_hair_bald + " - " + _face.face_hair_blonde + " - " + _face.face_hair_black + " - " + _face.face_hair_brown + " - " + _face.face_hair_red + " - " + _face.face_glasses);
+                //mainWindow.startComparison(_body.TrackingId, _body);
 
+            }
         }
 
 
-        public async void BrowseButton_Click2(int counti)
+        public async void BrowseButton_Click2(int counti, FaceProcessor_face _face)
         {
+            // Get the image file to scan from the user.
+            // var openDlg = new Microsoft.Win32.OpenFileDialog();
 
+            //openDlg.Filter = "JPEG Image(*.jpg)|*.jpg";
+            //bool? result = openDlg.ShowDialog(this.mainWindow);
+
+            // Return if canceled.
+            // if (!(bool)result)
+            //{
+            //   return;
+            //}
 
             // Display the image file.
-            string currentDir = Environment.CurrentDirectory;
-
-            string subPath = currentDir + @"\Test"; // your code goes here
-
-            string filePath = String.Format(subPath + @"\Test{0}.jpg", counti);
+            string filePath = String.Format(@"C:\Users\Benjamin Karic\Desktop\TEST\TEST{0}.jpg", counti);
 
             Uri fileUri = new Uri(filePath);
             BitmapImage bitmapSource = new BitmapImage();
@@ -383,8 +415,9 @@ namespace ReIdentificator
 
                     // Store the face description.
                     faceDescriptions[i] = FaceDescription(face);
-
                     alreadyPrinted[i] = false;
+
+                    processFace(_face, face);
                 }
 
                 drawingContext.Close();
@@ -400,6 +433,8 @@ namespace ReIdentificator
                 faceWithRectBitmap.Render(visual);
                 //mainWindow.FacePhoto.Source = faceWithRectBitmap;
 
+                // Set the status bar text.
+                //mainWindow.faceDescriptionStatusBar.Text = "Place the mouse pointer over a face to see the face description.";
             }
         }
 
@@ -671,23 +706,26 @@ namespace ReIdentificator
            return indicatorColor;
          }
 
-         void GetPositionOfHead(Body[] bodies)
-         {
-           for (int bodyIndex = 0; bodyIndex < bodies.Length; bodyIndex++)
-           {
+        void GetPositionOfHead(Body[] bodies)
+        {
+            for (int bodyIndex = 0; bodyIndex < bodies.Length; bodyIndex++)
+            {
+                Body body = bodies[bodyIndex];
+                if (bodies[bodyIndex] != null && body.IsTracked)
+                {
+                    // save in this body's color timeseries
+                    if (!this.faceData.ContainsKey(body.TrackingId))
+                    {
+                        this.faceData[body.TrackingId] = true;
+                        facesToProcess.Add(new FaceProcessor_face(body.TrackingId));
+                    }
+                    FaceProcessor_face _face = facesToProcess.Find(element => element.TrackingId == body.TrackingId);
 
-             if (bodies[bodyIndex] != null && bodies[bodyIndex].IsTracked)
-             {
-               // save in this body's color timeseries
-               if (!this.faceData.ContainsKey(bodies[bodyIndex].TrackingId))
-               {
-                 this.faceData[bodies[bodyIndex].TrackingId] = true;
-               }
-                      Joint head = bodies[bodyIndex].Joints[JointType.Head];
-                      float[] positionOfHead = this.getPositionOfJoint(head);
-                      for(int k = 0; k < positionOfHead.Length; k++)
-                      {
-                        Int32Rect faceRect = new Int32Rect((int)Math.Floor(positionOfHead[0])-100, (int)Math.Floor(positionOfHead[1])-100, 200, 200);
+                    Joint head = bodies[bodyIndex].Joints[JointType.Head];
+                    float[] positionOfHead = this.getPositionOfJoint(head);
+                    for (int k = 0; k < positionOfHead.Length; k++)
+                    {
+                        Int32Rect faceRect = new Int32Rect((int)Math.Floor(positionOfHead[0]) - 100, (int)Math.Floor(positionOfHead[1]) - 100, 200, 200);
                         image.CopyPixels(faceRect, this.colorPixels, this.colorBitmap.PixelWidth * sizeof(int), 0);
 
                         BitmapSource image2 = BitmapSource.Create(200, 200, 96, 96, PixelFormats.Bgr32, null, this.colorPixels, this.colorBitmap.PixelWidth * sizeof(int));
@@ -695,14 +733,15 @@ namespace ReIdentificator
                         mainWindow.FacePhoto.Source = image2;
 
                         SaveImage(image2, counti);
-                        BrowseButton_Click2(counti);
+                        BrowseButton_Click2(counti, _face);
+
                         counti = counti + 1;
                     }
-             }
-           }
-         }
+                }
+            }
+        }
 
-         byte[] PostAvgColor(List<byte[]> colors, int[] preColors, double intError)
+        byte[] PostAvgColor(List<byte[]> colors, int[] preColors, double intError)
          {
            //195075 == (255^2)*3
            double error = intError;
@@ -799,33 +838,31 @@ namespace ReIdentificator
             }
             mainWindow.updatePanel(outputColors, fieldToShow);
         }
+
+        private void HandleBodyLeftViewEvent(object sender, LeftViewEventArgs e)
+        {
+
+            FaceProcessor_face face = facesToProcess.Find(element => element.TrackingId == e.TrackingId);
+            if (face != null)
+            {
+                mainWindow.startComparison(face.TrackingId, face);
+            }
+            facesToProcess.Remove(face);
+        }
+
     }
 
     class FaceProcessor_face
     {
-
-        /* Values to store:
-         * face_age int
-         * face_gender boolean
-         * face_hair_bald int
-         * face_hair_blonde int
-         * face_hair_black int 
-         * face_hair_brown int
-         * face_hair_red int
-         * face_hair_glasses string
-         */
-
         public ulong TrackingId { get; set; }
+        public bool face_gender { get; set; } // -1 if not detected properly
         public double face_age { get; set; }
-        public string face_gender { get; set; } // -1 if not detected properly
         public double face_hair_bald { get; set; }
-        public double face_hair_blonde{ get; set; }
+        public double face_hair_blonde { get; set; }
         public double face_hair_black { get; set; }
-        public double face_hair_brown{ get; set; }
+        public double face_hair_brown { get; set; }
         public double face_hair_red { get; set; }
-        public string face_hair_glasses { get; set; }
-
-
+        public Glasses face_glasses { get; set; }
 
         public FaceProcessor_face(ulong trackingId)
         {
