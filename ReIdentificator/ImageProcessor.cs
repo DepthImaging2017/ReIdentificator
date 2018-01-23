@@ -479,7 +479,7 @@ namespace ReIdentificator
             }
             if (numberOfAreas > 1)
             {
-                Debug.WriteLine("Area:" + numberOfAreas);
+               // Debug.WriteLine("Area:" + numberOfAreas);
                 numberOfAreas = Comparer(numberOfAreas, differentAreas, colorList);
             }
             return numberOfAreas;
@@ -487,7 +487,7 @@ namespace ReIdentificator
 
         public int Comparer(int numberOfAreas, List<int> differentAreas, List<byte[]> colorList)
         {
-            Debug.WriteLine("Comparer Start " + numberOfAreas);
+            //Debug.WriteLine("Comparer Start " + numberOfAreas);
             for (int i = 0; i < differentAreas.Count - 2; i++)
             {
                 int startI = i;
@@ -526,7 +526,6 @@ namespace ReIdentificator
                     }
                     else
                     {
-                        Debug.WriteLine("1");
                         differentAreas.Remove(mid);
                         numberOfAreas--;
                         if (numberOfAreas > 1)
@@ -538,7 +537,6 @@ namespace ReIdentificator
                 }
                 else
                 {
-                    Debug.WriteLine("0");
                     differentAreas.Remove(mid);
                     numberOfAreas--;
                     if (numberOfAreas > 1)
@@ -550,7 +548,6 @@ namespace ReIdentificator
             }
             if(numberOfAreas > 1)
             {
-                Debug.WriteLine("Comparer:" + numberOfAreas);
             }
             return numberOfAreas;
         }

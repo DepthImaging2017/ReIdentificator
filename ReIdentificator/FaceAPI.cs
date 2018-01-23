@@ -48,9 +48,8 @@ namespace ReIdentificator
         private BodyFrameReader _bodyReader = null;
         private IList<Body> _bodies = null;
         private FaceFrameSource _faceSource = null;
-        private FaceFrameResult result;
-        private ulong currentID;
-
+        private ulong currentID ;
+        private bool faceTracked = false;
         Face[] faces;                   // The list of detected faces.
         String[] faceDescriptions;      // The list of descriptions for the detected faces.
         bool[] alreadyPrinted;
@@ -63,10 +62,14 @@ namespace ReIdentificator
             this.bodies = new Body[this.kinect.BodyFrameSource.BodyCount];
             _bodyReader = kinect.BodyFrameSource.OpenReader();
             _bodyReader.FrameArrived += BodyReader_FrameArrived;
-            _faceSource = new FaceFrameSource(kinect, 0,
-                                              FaceFrameFeatures.LeftEyeClosed |
-                                              FaceFrameFeatures.MouthOpen |
-                                              FaceFrameFeatures.RightEyeClosed);
+            _faceSource = new FaceFrameSource(kinect, 0, FaceFrameFeatures.BoundingBoxInColorSpace |
+                                                          FaceFrameFeatures.FaceEngagement |
+                                                          FaceFrameFeatures.Glasses |
+                                                          FaceFrameFeatures.Happy |
+                                                          FaceFrameFeatures.LeftEyeClosed |
+                                                          FaceFrameFeatures.MouthOpen |
+                                                          FaceFrameFeatures.PointsInColorSpace |
+                                                          FaceFrameFeatures.RightEyeClosed);
             this._faceReader = _faceSource.OpenReader();
             _faceReader.FrameArrived += FaceReader_FrameArrived;
             _bodies = new Body[kinect.BodyFrameSource.BodyCount];
@@ -100,15 +103,15 @@ namespace ReIdentificator
                 }
             }
         }
-        private void FaceReader_FrameArrived(object sender, FaceFrameArrivedEventArgs e)
+        public void FaceReader_FrameArrived(object sender, FaceFrameArrivedEventArgs e)
         {
             using (var frame = e.FrameReference.AcquireFrame())
             {
                 if (frame != null)
                 {
-
                     // 4) Get the face frame result
-                    result = frame.FaceFrameResult;
+                    FaceFrameResult result = frame.FaceFrameResult;
+
                     if (result != null)
                     {
                         // 5) Do magic!
@@ -122,31 +125,36 @@ namespace ReIdentificator
                         var eyeLeftClosed = result.FaceProperties[FaceProperty.LeftEyeClosed];
                         var eyeRightClosed = result.FaceProperties[FaceProperty.RightEyeClosed];
                         var mouthOpen = result.FaceProperties[FaceProperty.MouthOpen];
+                        IsFaceInFrame(result);
+                        Debug.WriteLine("Das Ergebnis der Funktion lautet: " + faceTracked );
+                        Debug.WriteLine("X :" + eyeLeft.Y + " Y :" + eyeLeft.X );
                     }
 
                 }
 
             }
         }
-        private bool IsFaceInFrame()
+        private void IsFaceInFrame(FaceFrameResult result)
         {
-            if (result != null) return true;
-            else return false;
+            if (result != null && result.FacePointsInColorSpace[FacePointType.EyeLeft].X > 0 && result.FacePointsInColorSpace[FacePointType.EyeLeft].Y > 0 )
+                faceTracked = true;
+            else
+                faceTracked = false;
+               
+            }
 
-        }
         public bool ContainsKeyValue()
         {
-            foreach (KeyValuePair<ulong,bool> item in trackedBodies)
+            foreach (KeyValuePair<ulong, bool> item in trackedBodies)
             {
                 if (item.Key == currentID && item.Value == false)
                 {
                     trackedBodies[item.Key] = true;
                     return true;
-                } 
+                }
             }
             return false;
         }
-
         private void SaveImage(BitmapSource image, int i)
         {
 
@@ -181,7 +189,7 @@ namespace ReIdentificator
         /// <param name="e"></param>
         public void nui_ColorFrameReady(ColorFrame colorFrame, BodyFrame bodyFrame)
         {
-            if (IsFaceInFrame() == true && ContainsKeyValue()==true)
+            if (faceTracked == true && ContainsKeyValue() == true)
             {
 
                 // 32-bit per pixel, RGBA image
@@ -411,6 +419,7 @@ namespace ReIdentificator
                     Face[] faces = await faceServiceClient.DetectAsync(imageFileStream, returnFaceId: true, returnFaceLandmarks: false, returnFaceAttributes: faceAttributes);
                     
                     mainWindow.printLog(FaceDescription(faces[0]));
+                    trackedBodies[currentID] = true;
 
                     return faces;
 

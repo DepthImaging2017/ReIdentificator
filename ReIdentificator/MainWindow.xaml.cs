@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Collections.Generic;
 using Microsoft.Kinect;
+using Microsoft.Kinect.Face;
 using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -27,6 +28,7 @@ namespace ReIdentificator
         private int skipFrameTicker = 0;
         private List<dataForComparison> dataForComparison_list = new List<dataForComparison>();
 
+
         public event EventHandler<LeftViewEventArgs> BodyLeftView;
 
         public MainWindow()
@@ -49,10 +51,13 @@ namespace ReIdentificator
              FrameSourceTypes.Body | FrameSourceTypes.Color | FrameSourceTypes.BodyIndex | FrameSourceTypes.Depth);
             this.multiSourceFrameReader.MultiSourceFrameArrived +=
             this.Reader_MultiSourceFrameArrived;
+
+
+
         }
         public void startComparison(ulong trackingId, object data)
         {
-            int numberOfProcessors = 3;
+            int numberOfProcessors = 4;
 
             if (!dataForComparison_list.Exists(element => element.TrackingId == trackingId))
             {
@@ -62,6 +67,7 @@ namespace ReIdentificator
             currentComparisonData.processorData.Add(data);
             if (currentComparisonData.processorData.Count == numberOfProcessors)
             {
+                printLog("STartstart");
                 Individual idv = new Individual();
                 for (int i = 0; i < currentComparisonData.processorData.Count; i++)
                 {
