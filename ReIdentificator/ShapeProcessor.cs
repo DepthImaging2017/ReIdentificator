@@ -176,7 +176,7 @@ namespace ReIdentificator
             if (shape != null && shape.bodyWidth_list.Count >= minimumDetectionPerBody)
             {
                 shape.bodyWidth = Util.trimmedMean(shape.bodyWidth_list, trimmedMeanPercentage);
-                mainWindow.printLog("Body width: " + shape.bodyWidth);
+                //mainWindow.printLog("Body width: " + shape.bodyWidth);
                 mainWindow.startComparison(shape.TrackingId, shape);
             }
             shapesToProcess.Remove(shape);

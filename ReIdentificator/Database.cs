@@ -10,7 +10,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace ReIdentificator
 {
-    class Database
+    public class Database
     {
         protected static IMongoClient _client;
         protected static IMongoDatabase _database;
@@ -34,11 +34,12 @@ namespace ReIdentificator
             //callback(obj.ID);
         }
 
-        public async void UpdateEntry(string id, string key, float val, Action<Individual> callback)
+        public async void UpdateEntry(string id, string key, Object val, Action<Individual> callback)
         {
             var collection = _database.GetCollection<Individual>(_collectionName);
             var dbId = ObjectId.Parse(id);
             var filter = Builders<Individual>.Filter.Eq("_id", dbId);
+
             var update = Builders<Individual>.Update
                 .Set(key, val);
             await collection.UpdateOneAsync(filter, update);
@@ -49,7 +50,7 @@ namespace ReIdentificator
                     IEnumerable<Individual> batch = cursor.Current;
                     foreach (Individual document in batch)
                     {
-                        callback(document);
+                        //callback(document);
                     }
                 }
             }
@@ -149,5 +150,12 @@ namespace ReIdentificator
         public double spineMidToRightShoulder { get; set; }
         [BsonElement("bodyWidth")]
         public double bodyWidth { get; set; }
+        [BsonElement("timestamps")]
+        public List<DateTime> timestamps { get; set; } = new List<DateTime>();
+
+        public Individual()
+        {
+            this.timestamps.Add(DateTime.Now);
+        }
         }
 }
