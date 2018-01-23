@@ -10,7 +10,7 @@ namespace ReIdentificator
 {
     public class Comparer
     {
-        private readonly int minimumSimiliarProperties = 50;
+        private readonly int minimumSimiliarProperties = 21;
         private Database db;
         private MainWindow main;
 
@@ -61,7 +61,6 @@ namespace ReIdentificator
                 {
                     bool val = (bool)pi.GetValue(matcher, null);
                     if (val) count++;
-                    Debug.WriteLine(pi.Name + " " + val);
                 }
                 if(count >= minimumSimiliarProperties)
                 {
