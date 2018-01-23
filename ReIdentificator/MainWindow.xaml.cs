@@ -38,7 +38,7 @@ namespace ReIdentificator
             this.comparer = new Comparer(this.db, this);
             this.bodyProcessor = new BodyProcessor(this, this.kinect, this.comparer);
             this.shapeProcessor = new ShapeProcessor(this, this.kinect, this.comparer);
-            //this.imageProcessor = new ImageProcessor(this.kinect, this.comparer, this);
+            this.imageProcessor = new ImageProcessor(this.kinect, this.comparer, this);
             this.faceAPI = new FaceAPI(this.kinect, this.comparer, this);
 
             this.bitmap = new WriteableBitmap(kinect.DepthFrameSource.FrameDescription.Width,
