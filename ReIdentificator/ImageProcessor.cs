@@ -16,6 +16,13 @@ namespace ReIdentificator
     {
         private double deleteTheTopAndBottom = 0.05;
         private static JointType[] jointTypesToTrack = { JointType.ShoulderLeft, JointType.ShoulderRight, JointType.ShoulderRight, JointType.KneeRight };
+        private static Tuple<JointType, JointType>[] watchinatorJointCombos = {
+            new Tuple<JointType, JointType>(JointType.HandLeft, JointType.ElbowLeft),
+            new Tuple<JointType, JointType>(JointType.HandRight, JointType.ElbowRight),
+            new Tuple<JointType, JointType>(JointType.AnkleLeft, JointType.KneeLeft),
+            new Tuple<JointType, JointType>(JointType.AnkleRight, JointType.KneeRight)
+        };
+
         private int avgColorView = 0;
         private ulong[,] currColorToView = new ulong[6, 2] { {  0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } };
         private KinectSensor kinect;
@@ -87,8 +94,7 @@ namespace ReIdentificator
             bodyFrame.GetAndRefreshBodyData(this.bodies);
             GetColorOfBodyParts(jointTypesToTrack, bodies);
             //new function here
-            JointType[] betweenTheseTwoRight = { JointType.ElbowLeft, JointType.HandLeft };
-            Watchinator(betweenTheseTwoRight, bodies);
+            Watchinator(watchinatorJointCombos, bodies);
         }
 
         byte[] averageColor(List<byte[]> colors)
@@ -316,54 +322,64 @@ namespace ReIdentificator
                 }
                 mainWindow.printLog("average color of joint #"+(i+1)+" of person with id " + e.TrackingId + ": " + avgColor[0] + ", " + avgColor[1] + ", " + avgColor[2] + ", " + avgColor[3]);
             }
-            float diffentAreas = WatchinatorAvg(e);
+            float[] diffentAreas = WatchinatorAvg(e.TrackingId);
             Debug.WriteLine(diffentAreas);
             mainWindow.printLog("average areas of person with id " + e.TrackingId + ": " + diffentAreas);
+            ImageProcessor_data data = new ImageProcessor_data(e.TrackingId);
+            data.image_areacount_armleft = diffentAreas[0];
+            data.image_areacount_armright = diffentAreas[1];
+            data.image_areacount_legleft = diffentAreas[2];
+            data.image_areacount_legright = diffentAreas[3];
+            mainWindow.startComparison(e.TrackingId, data);
+
             mainWindow.updatePanel(outputColors, fieldToShow);
         }
 
-        public void Watchinator(JointType[] betweenTheseTwo, Body[] bodies)
+        public void Watchinator(Tuple<JointType, JointType>[] betweenTheseTwo, Body[] bodies)
         {
             for (int bodyIndex = 0; bodyIndex < bodies.Length; bodyIndex++)
             {
                 if (bodies[bodyIndex] != null && bodies[bodyIndex].IsTracked)
                 {
                     List<int> differentAreas = new List<int>();
-                    // save in this body's color timeseries
+
+                    foreach (Tuple<JointType, JointType> jointCombo in watchinatorJointCombos)
+                    {
+                        byte[][] betweenColors = getColorBetween(jointCombo, bodyIndex);
+                        if (betweenColors.GetLength(0) != 0)
+                        {
+                            differentAreas.Add(Areainator(betweenColors));
+                        }
+                    }
+
                     if (!this.areas.ContainsKey(bodies[bodyIndex].TrackingId))
                     {
                         this.areas[bodies[bodyIndex].TrackingId] = new List<List<int>>();
                     }
-                    if (getColorBetween(betweenTheseTwo, bodyIndex).GetLength(0) != 0)
-                    {
-                        byte[][] betweenColors = getColorBetween(betweenTheseTwo, bodyIndex);
-                        differentAreas.Add(Areainator(betweenColors));
-                        this.areas[bodies[bodyIndex].TrackingId].Add(differentAreas);
-                    }
+                    this.areas[bodies[bodyIndex].TrackingId].Add(differentAreas);
                 }
             }
         }
 
-        public float WatchinatorAvg(LeftViewEventArgs e)
+        public float[] WatchinatorAvg(ulong trackingId)
         {
-            float diffentAreas = 0;
-            int diff = 0;
-            for (int i = 0; i < this.areas[e.TrackingId].Count; i++)
+            float[] diffentAreas = new float[this.areas[trackingId].Count];
+            for (int i = 0; i < this.areas[trackingId].Count; i++)
             {
-                for (int j = 0; j < this.areas[e.TrackingId][i].Count; j++)
+                diffentAreas[i] = 0;
+                for (int j = 0; j < this.areas[trackingId][i].Count; j++)
                 {
-                    diffentAreas += this.areas[e.TrackingId][i][j];
-                    diff++;
+                    diffentAreas[i] += this.areas[trackingId][i][j];
                 }
+                diffentAreas[i] /= this.areas[trackingId][i].Count;
             }
-            diffentAreas = diffentAreas / diff;
             return diffentAreas;
         }
 
-        public byte[][] getColorBetween(JointType[] betweenTheseTwo, int bodyIndex)
+        public byte[][] getColorBetween(Tuple<JointType, JointType> betweenTheseTwo, int bodyIndex)
         {
-                Joint bodyPart1 = bodies[bodyIndex].Joints[betweenTheseTwo[0]];
-                Joint bodyPart2 = bodies[bodyIndex].Joints[betweenTheseTwo[1]];
+                Joint bodyPart1 = bodies[bodyIndex].Joints[betweenTheseTwo.Item1];
+                Joint bodyPart2 = bodies[bodyIndex].Joints[betweenTheseTwo.Item2];
                 ColorSpacePoint colorPoint1 = kinect.CoordinateMapper.MapCameraPointToColorSpace(bodyPart1.Position);
                 ColorSpacePoint colorPoint2 = kinect.CoordinateMapper.MapCameraPointToColorSpace(bodyPart2.Position);
                 if ((between(colorPoint1.X, 0, 1920) && between(colorPoint1.Y, 0, 1080)) && (between(colorPoint2.X, 0, 1920) && between(colorPoint2.Y, 0, 1080)))
@@ -537,6 +553,20 @@ namespace ReIdentificator
                 Debug.WriteLine("Comparer:" + numberOfAreas);
             }
             return numberOfAreas;
+        }
+    }
+
+    class ImageProcessor_data
+    {
+        public ulong TrackingId { get; set; }
+        public float image_areacount_armleft { get; set; }
+        public float image_areacount_armright { get; set; }
+        public float image_areacount_legleft { get; set; }
+        public float image_areacount_legright { get; set; }
+
+        public ImageProcessor_data(ulong trackingId)
+        {
+            this.TrackingId = trackingId;
         }
     }
 }

@@ -50,7 +50,7 @@ namespace ReIdentificator
         }
         public void startComparison(ulong trackingId, object data)
         {
-            int numberOfProcessors = 2;
+            int numberOfProcessors = 3;
 
             if (!dataForComparison_list.Exists(element => element.TrackingId == trackingId))
             {
