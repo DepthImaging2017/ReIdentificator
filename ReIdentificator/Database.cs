@@ -114,13 +114,13 @@ namespace ReIdentificator
         [BsonElement("image_color_spinehistogram")]
         public int[] image_color_spinehistogram { get; set; }
         [BsonElement("image_areacount_armleft")]
-        public int image_areacount_armleft { get; set; }
+        public float image_areacount_armleft { get; set; }
         [BsonElement("image_areacount_armright")]
-        public int image_areacount_armright { get; set; }
+        public float image_areacount_armright { get; set; }
         [BsonElement("image_areacount_legleft")]
-        public int image_areacount_legleft { get; set; }
+        public float image_areacount_legleft { get; set; }
         [BsonElement("image_areacount_legright")]
-        public int image_areacount_legright { get; set; }
+        public float image_areacount_legright { get; set; }
         [BsonElement("image_wears_watch")]
         public bool image_wears_watch { get; set; }
         [BsonElement("image_wears_shorts")]
