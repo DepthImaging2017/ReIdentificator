@@ -43,7 +43,7 @@ namespace ReIdentificator
         //Dictionary that saves all tracked id's bool = false means the person has not been tracked yet
         private Dictionary<ulong, Boolean> trackedBodies = new Dictionary<ulong, bool>();
         private readonly IFaceServiceClient faceServiceClient =
-            new FaceServiceClient("21f520d419c34834b5b955354b524026", "https://westcentralus.api.cognitive.microsoft.com/face/v1.0");
+        new FaceServiceClient("21f520d419c34834b5b955354b524026", "https://westcentralus.api.cognitive.microsoft.com/face/v1.0");
         private List<FaceProcessor_face> facesToProcess= new List<FaceProcessor_face>();
 
         private FaceFrameReader _faceReader = null;
@@ -56,7 +56,7 @@ namespace ReIdentificator
         Face[] faces;                   // The list of detected faces.
         String[] faceDescriptions;      // The list of descriptions for the detected faces.
         bool[] alreadyPrinted;
-        double resizeFactor;            // The resize factor for the displayed image.
+        //double resizeFactor;            // The resize factor for the displayed image.
 
         public FaceAPI(KinectSensor kinect, Comparer comparer, MainWindow mainWindow)
         {
@@ -382,33 +382,12 @@ namespace ReIdentificator
 
             if (faces.Length > 0)
             {
-                // Prepare to draw rectangles around the faces.
-                DrawingVisual visual = new DrawingVisual();
-                DrawingContext drawingContext = visual.RenderOpen();
-                drawingContext.DrawImage(bitmapSource,
-                    new Rect(0, 0, bitmapSource.Width, bitmapSource.Height));
-                double dpi = bitmapSource.DpiX;
-                resizeFactor = 96 / dpi;
                 faceDescriptions = new String[faces.Length];
                 alreadyPrinted = new bool[faces.Length];
 
                 for (int i = 0; i < faces.Length; ++i)
                 {
                     Face face = faces[i];
-
-                    // Draw a rectangle on the face.
-                    drawingContext.DrawRectangle(
-                        System.Windows.Media.Brushes.Transparent,
-                        new System.Windows.Media.Pen(System.Windows.Media.Brushes.Red, 2),
-                        new Rect(
-                            face.FaceRectangle.Left * resizeFactor,
-                            face.FaceRectangle.Top * resizeFactor,
-                            face.FaceRectangle.Width * resizeFactor,
-                            face.FaceRectangle.Height * resizeFactor
-                            )
-                    );
-
-
 
                     // Store the face description.
                     faceDescriptions[i] = FaceDescription(face);
@@ -417,67 +396,17 @@ namespace ReIdentificator
                     processFace(_face, face);
                 }
 
-                drawingContext.Close();
-
-                // Display the image with the rectangle around the face.
+                /*// Display the image with the rectangle around the face.
                 RenderTargetBitmap faceWithRectBitmap = new RenderTargetBitmap(
                     (int)(bitmapSource.PixelWidth * resizeFactor),
                     (int)(bitmapSource.PixelHeight * resizeFactor),
                     96,
                     96,
-                    PixelFormats.Pbgra32);
+                    PixelFormats.Pbgra32);*/
 
-                faceWithRectBitmap.Render(visual);
+                
                 //mainWindow.FacePhoto.Source = faceWithRectBitmap;
-
-                // Set the status bar text.
-                //mainWindow.faceDescriptionStatusBar.Text = "Place the mouse pointer over a face to see the face description.";
             }
-        }
-
-        public void FacePhoto_MouseMove1(object sender, MouseEventArgs e)
-        {
-            // If the REST call has not completed, return from this method.
-            if (faces == null)
-                return;
-
-            // Find the mouse position relative to the image.
-            System.Windows.Point mouseXY = e.GetPosition(mainWindow.FacePhoto);
-
-            ImageSource imageSource = mainWindow.FacePhoto.Source;
-            BitmapSource bitmapSource = (BitmapSource)imageSource;
-
-            // Scale adjustment between the actual size and displayed size.
-            var scale = mainWindow.FacePhoto.ActualWidth / (bitmapSource.PixelWidth / resizeFactor);
-
-            // Check if this mouse position is over a face rectangle.
-            bool mouseOverFace = false;
-
-            for (int i = 0; i < faces.Length; ++i)
-            {
-                FaceRectangle fr = faces[i].FaceRectangle;
-                double left = fr.Left * scale;
-                double top = fr.Top * scale;
-                double width = fr.Width * scale;
-                double height = fr.Height * scale;
-
-                // Display the face description for this face if the mouse is over this face rectangle.
-                if (mouseXY.X >= left && mouseXY.X <= left + width && mouseXY.Y >= top && mouseXY.Y <= top + height)
-                {   
-                    if (alreadyPrinted[i]) {
-                        return;
-                    }
-                    mouseOverFace = true;
-                    alreadyPrinted[i] = true;
-                    break;
-                }
-                else
-                {
-                    alreadyPrinted[i] = false;
-                }
-            }
-
-    
         }
 
         private async Task<Face[]> UploadAndDetectFaces(string imageFilePath)
@@ -566,7 +495,6 @@ namespace ReIdentificator
             return sb.ToString();
         }
 
-
         private string FaceDescription(Face face)
         {
             StringBuilder sb = new StringBuilder();
@@ -639,69 +567,6 @@ namespace ReIdentificator
                 return asarray;
             }
         }
-
-        public void processColorFrame(ColorFrame colorFrame, BodyFrame bodyFrame)
-        {
-            this.colorPixels = new byte[this.kinect.ColorFrameSource.FrameDescription.LengthInPixels * 4];
-            colorFrame.CopyConvertedFrameDataToArray(this.colorPixels, Microsoft.Kinect.ColorImageFormat.Bgra);
-            this.colorBitmap = new WriteableBitmap(this.kinect.ColorFrameSource.FrameDescription.Width, this.kinect.ColorFrameSource.FrameDescription.Height, 96.0, 96.0, PixelFormats.Bgr32, null);
-
-            // Write the pixel data into our bitmap
-            this.colorBitmap.WritePixels(
-                new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight),
-                this.colorPixels,
-                this.colorBitmap.PixelWidth * sizeof(int),
-                0);
-
-            //mainWindow.FrameDisplayImage.Source = this.colorBitmap;
-            bodyFrame.GetAndRefreshBodyData(this.bodies);
-            //GetColorOfBodyParts(jointTypesToTrack, bodies);
-        }
-
-        byte[] averageColor(List<byte[]> colors)
-        {
-            int red = 0;
-            int green = 0;
-            int blue = 0;
-            int opacity = 0;
-            int length = 0;
-
-            colors.ForEach(color => {
-                if(color[3] != 0) {
-                    red += (int)Math.Pow(color[0], 2);
-                    green += (int)Math.Pow(color[1], 2);
-                    blue += (int)Math.Pow(color[2], 2);
-                    opacity += (int)Math.Pow(color[3], 2);
-                    length++;
-                }
-            });
-
-            byte[] asarray = {
-                (byte)Math.Sqrt(red / length),
-                (byte)Math.Sqrt(green / length),
-                (byte)Math.Sqrt(blue / length),
-                (byte)Math.Sqrt(opacity / length)
-            };
-
-            int[] indicator = IndicatorColor(asarray);
-            asarray = PostAvgColor(colors, indicator, deleteTheTopAndBottom);
-
-            return asarray;
-        }
-
-        
-
-        int[] IndicatorColor(byte[] asarray)
-         {
-           int indicator = 0;
-           int red = (int)Math.Pow(asarray[0], 2);
-           int green = (int)Math.Pow(asarray[1], 2);
-           int blue = (int)Math.Pow(asarray[2], 2);
-            indicator = red + blue + green;
-            int[] indicatorColor = { red, green, blue, indicator };
-           //opacity += (int)Math.Pow(color[3], 2);
-           return indicatorColor;
-         }
 
         void GetPositionOfHead(Body[] bodies)
         {
@@ -809,33 +674,6 @@ namespace ReIdentificator
             }
          }
 
-        public bool between(float x, int low, int high)
-        {
-            if (x <= high && x >= low)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public void userOutput(LeftViewEventArgs e, double fieldToShow)
-        {
-            byte[,] outputColors = new byte[this.colors[e.TrackingId].Length, 4];
-            for(int i = 0; i < this.colors[e.TrackingId].Length; i++)
-            {
-                byte[] avgColor = averageColor(this.colors[e.TrackingId][i]);
-                for(int j = 0; j < outputColors.GetLength(1)-1; j++)
-                {
-                    outputColors[i,j] = avgColor[j];
-                }
-                mainWindow.printLog("average color of joint #"+(i+1)+" of person with id " + e.TrackingId + ": " + avgColor[0] + ", " + avgColor[1] + ", " + avgColor[2] + ", " + avgColor[3]);
-            }
-            mainWindow.updatePanel(outputColors, fieldToShow);
-        }
-
         private void HandleBodyLeftViewEvent(object sender, LeftViewEventArgs e)
         {
 
@@ -847,6 +685,17 @@ namespace ReIdentificator
             facesToProcess.Remove(face);
         }
 
+        public bool between(float x, int low, int high)
+        {
+            if (x <= high && x >= low)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 
     class FaceProcessor_face
