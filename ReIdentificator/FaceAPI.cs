@@ -25,10 +25,8 @@ namespace ReIdentificator
 {
     class FaceAPI
     {
-        private double deleteTheTopAndBottom = 0.05;
         private static JointType[] jointTypesToTrack = { JointType.ShoulderLeft, JointType.ShoulderRight, JointType.ShoulderRight, JointType.KneeRight };
        //To be cleared? private int avgColorView = 0;
-        private ulong[,] currColorToView = new ulong[6, 2] { {  0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } };
         private KinectSensor kinect;
         private Comparer comparer;
         private int counter = 0;
@@ -56,7 +54,6 @@ namespace ReIdentificator
         Face[] faces;                   // The list of detected faces.
         String[] faceDescriptions;      // The list of descriptions for the detected faces.
         bool[] alreadyPrinted;
-        //double resizeFactor;            // The resize factor for the displayed image.
 
         public FaceAPI(KinectSensor kinect, Comparer comparer, MainWindow mainWindow)
         {
@@ -347,17 +344,6 @@ namespace ReIdentificator
 
         public async void BrowseButton_Click2(int counti, FaceProcessor_face _face)
         {
-            // Get the image file to scan from the user.
-            // var openDlg = new Microsoft.Win32.OpenFileDialog();
-
-            //openDlg.Filter = "JPEG Image(*.jpg)|*.jpg";
-            //bool? result = openDlg.ShowDialog(this.mainWindow);
-
-            // Return if canceled.
-            // if (!(bool)result)
-            //{
-            //   return;
-            //}
             string currentDir = Environment.CurrentDirectory;
 
             string subPath = currentDir + @"\Test"; // your code goes here
@@ -585,8 +571,8 @@ namespace ReIdentificator
 
                     Joint head = bodies[bodyIndex].Joints[JointType.Head];
                     float[] positionOfHead = this.getPositionOfJoint(head);
-                  
-                        Int32Rect faceRect = new Int32Rect((int)Math.Floor(positionOfHead[0]) - 100, (int)Math.Floor(positionOfHead[1]) - 100, 200, 200);
+                    mainWindow.printLog("positionOfHead[0]: " + positionOfHead[0] + " positionOfHead[1]: " + positionOfHead[1] + " minmax0" + (Math.Min(Math.Max((int)Math.Floor(positionOfHead[0]) - 100, 0), this.colorBitmap.PixelWidth)) + " minmax1: " + (Math.Min(Math.Max((int)Math.Floor(positionOfHead[1]) - 100, 0), this.colorBitmap.PixelHeight)));
+                        Int32Rect faceRect = new Int32Rect((Math.Min(Math.Max((int)Math.Floor(positionOfHead[0]) - 100, 0), this.colorBitmap.PixelWidth)), (Math.Min(Math.Max((int)Math.Floor(positionOfHead[1]) - 100, 0), this.colorBitmap.PixelHeight)), 200, 200);
                         image.CopyPixels(faceRect, this.colorPixels, this.colorBitmap.PixelWidth * sizeof(int), 0);
 
                         BitmapSource image2 = BitmapSource.Create(200, 200, 96, 96, PixelFormats.Bgr32, null, this.colorPixels, this.colorBitmap.PixelWidth * sizeof(int));

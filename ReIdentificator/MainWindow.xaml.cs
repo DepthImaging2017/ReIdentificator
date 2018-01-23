@@ -139,7 +139,7 @@ namespace ReIdentificator
                     }
                     if (bodyFrame != null && colorFrame != null)
                     {
-                        //imageProcessor.processColorFrame(colorFrame, bodyFrame);
+                        imageProcessor.processColorFrame(colorFrame, bodyFrame);
                     }
                     if (bodyIndexFrame != null && depthFrame != null && bodyFrame != null && skipFrameTicker % 15 == 0)
                     {
