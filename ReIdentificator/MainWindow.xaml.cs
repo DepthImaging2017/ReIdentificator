@@ -67,7 +67,6 @@ namespace ReIdentificator
             currentComparisonData.processorData.Add(data);
             if (currentComparisonData.processorData.Count == numberOfProcessors)
             {
-                printLog("STartstart");
                 Individual idv = new Individual();
                 for (int i = 0; i < currentComparisonData.processorData.Count; i++)
                 {
@@ -76,7 +75,6 @@ namespace ReIdentificator
                     {
                         if (idv.GetType().GetProperty(pi.Name) != null)
                         {
-                            Debug.WriteLine("Hey");
                             idv.GetType().GetProperty(pi.Name).SetValue(idv, pi.GetValue(currentComparisonData.processorData[i], null));
                         }
                     }
@@ -85,16 +83,6 @@ namespace ReIdentificator
                 db.GetAllEntries((result) =>
                 {
                     comparer.compare(idv, result);
-                    //bool reÌdentified = comparer.compare(idv, result);
-                    //if (!reÌdentified)
-                    //{
-                    //    printLog("Person that left the frame is not reidentified");
-                    //    db.AddEntry(idv, null);
-                    //}
-                    //else
-                    //{
-                    //    printLog("Person that left the frame is reidentified!");
-                    //}
                     dataForComparison_list.Remove(currentComparisonData);
 
                 });
