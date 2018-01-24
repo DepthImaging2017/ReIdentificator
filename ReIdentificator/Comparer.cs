@@ -54,6 +54,7 @@ namespace ReIdentificator
                 matcher.height = (current.height < (person.height + 0.05) && (current.height > person.height - 0.05));
                 matcher.torsoHeight = (current.torsoHeight < (person.torsoHeight + 0.06) && (current.torsoHeight > person.torsoHeight - 0.06));
                 matcher.neckToSpineMid = (current.neckToSpineMid < (person.neckToSpineMid + 0.04) && (current.neckToSpineMid > person.neckToSpineMid - 0.04));
+                matcher.spineMidToSpineBase = (current.spineMidToSpineBase < (person.spineMidToSpineBase + 0.02) && (current.spineMidToSpineBase > person.spineMidToSpineBase - 0.02));
                 matcher.neckToLeftShoulder = (current.neckToLeftShoulder < (person.neckToLeftShoulder + 0.02) && (current.neckToLeftShoulder > person.neckToLeftShoulder - 0.02));
                 matcher.neckToRightShoulder = (current.neckToRightShoulder < (person.neckToRightShoulder + 0.02) && (current.neckToRightShoulder > person.neckToRightShoulder - 0.02));
                 matcher.leftHipToSpineBase = (current.leftHipToSpineBase < (person.leftHipToSpineBase + 0.01) && (current.leftHipToSpineBase > person.leftHipToSpineBase - 0.01));
@@ -106,25 +107,31 @@ namespace ReIdentificator
         public bool face_hair_red { get; set; }
         public bool face_glasses { get; set; }
 
+        /*
         public bool image_color_shoulderleft { get; set; }
         public bool image_color_shoulderright { get; set; }
         public bool image_color_kneeleft { get; set; }
         public bool image_color_kneeright { get; set; }
         public bool image_color_spinemid { get; set; }
+        */
         public bool image_color_shoulderleft_name { get; set; }
         public bool image_color_shoulderright_name { get; set; }
         public bool image_color_kneeleft_name { get; set; }
         public bool image_color_kneeright_name { get; set; }
         public bool image_color_spinemid_name { get; set; }
+        /*
         public bool image_color_shoulderhistogram { get; set; }
         public bool image_color_spinehistogram { get; set; }
+        */
         public bool image_areacount_armleft { get; set; }
         public bool image_areacount_armright { get; set; }
         public bool image_areacount_legleft { get; set; }
         public bool image_areacount_legright { get; set; }
+        /*
         public bool image_wears_watch { get; set; }
         public bool image_wears_shorts { get; set; }
         public bool image_wears_shirt { get; set; }
+        */
 
         public bool height { get; set; }
         public bool torsoHeight { get; set; }
