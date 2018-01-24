@@ -85,7 +85,6 @@ namespace ReIdentificator
                     frame.GetAndRefreshBodyData(_bodies);
 
                     Body body = _bodies.Where(b => b.IsTracked).FirstOrDefault();
-
                     if (!_faceSource.IsTrackingIdValid)
                     {
                         if (body != null)
@@ -140,6 +139,28 @@ namespace ReIdentificator
                 faceTracked = false;
                
             }
+        public double Length(CameraSpacePoint point)
+        {
+            return Math.Sqrt(
+                point.X * point.X +
+                point.Y * point.Y +
+                point.Z * point.Z
+            );
+        }
+
+        private double BodyDistanceToCameron (Body body)
+        {
+            double distance = 100;
+            if (body != null)
+            {
+                var point = body.Joints[JointType.Head].Position;
+                distance = Length(point);
+                
+            }
+           
+                return distance;
+        } 
+
 
         public bool ContainsKeyValue()
         {
@@ -188,8 +209,10 @@ namespace ReIdentificator
         /// <param name="e"></param>
         public void nui_ColorFrameReady(ColorFrame colorFrame, BodyFrame bodyFrame)
         {
-            if (faceTracked == true && ContainsKeyValue() == true)
-            {
+            if (faceTracked == true) { 
+               
+            
+                    Debug.WriteLine("Alle Parameter erfüllt");
 
                 // 32-bit per pixel, RGBA image
                 //PlanarImage Image = e.ImageFrame.Image;
@@ -209,8 +232,9 @@ namespace ReIdentificator
 
                 bodyFrame.GetAndRefreshBodyData(this.bodies);
                 GetPositionOfHead(bodies);
-            }
+            
 
+        }
         }
 
 
@@ -227,8 +251,6 @@ namespace ReIdentificator
                     this.colorPixels,
                     this.colorBitmap.PixelWidth * sizeof(int),
                     0);
-
-
 
                 Bitmap myBitmap;
                 ImageCodecInfo myImageCodecInfo;
@@ -304,7 +326,6 @@ namespace ReIdentificator
             HairColor[] hairColors = face.FaceAttributes.Hair.HairColor;
             foreach (HairColor hairColor in hairColors)
             {
-                Debug.WriteLine(hairColor.Color.ToString());
                 if (hairColor.Color.ToString() == "Blond")
                 {
                     _face.face_hair_blonde = hairColor.Confidence * 100;
@@ -538,14 +559,18 @@ namespace ReIdentificator
         {
             for (int bodyIndex = 0; bodyIndex < bodies.Length; bodyIndex++)
             {
+
                 Body body = bodies[bodyIndex];
-                if (bodies[bodyIndex] != null && body.IsTracked)
+                //Debug.WriteLine("Distanz zur Kamera: " + BodyDistanceToCameron(body));
+                if (bodies[bodyIndex] != null && body.IsTracked && BodyDistanceToCameron(body) < 2.5 && ContainsKeyValue() == true)
                 {
+
                     // save in this body's color timeseries
                     if (!this.faceData.ContainsKey(body.TrackingId))
                     {
                         this.faceData[body.TrackingId] = true;
                         facesToProcess.Add(new FaceProcessor_face(body.TrackingId));
+
                     }
                     FaceProcessor_face _face = facesToProcess.Find(element => element.TrackingId == body.TrackingId);
 
@@ -560,6 +585,7 @@ namespace ReIdentificator
                         mainWindow.FacePhoto.Source = image2;
 
                         SaveImage(image2, counti);
+                        Debug.WriteLine("Distanz: " + BodyDistanceToCameron(body));
                         BrowseButton_Click2(counti, _face);
 
                         counti = counti + 1;
