@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-//using Windows.Graphic.Imaging;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -49,7 +48,7 @@ namespace ReIdentificator
         private IList<Body> _bodies = null;
         private FaceFrameSource _faceSource = null;
         private ulong currentID ;
-        private bool faceTracked = false;
+        private bool faceTracked = false; //Global variable that is used in the function IsFaceInFrame(result)
         Face[] faces;                   // The list of detected faces.
         String[] faceDescriptions;      // The list of descriptions for the detected faces.
         bool[] alreadyPrinted;
@@ -126,8 +125,7 @@ namespace ReIdentificator
                         var eyeRightClosed = result.FaceProperties[FaceProperty.RightEyeClosed];
                         var mouthOpen = result.FaceProperties[FaceProperty.MouthOpen];
                         IsFaceInFrame(result);
-                        Debug.WriteLine("Das Ergebnis der Funktion lautet: " + faceTracked );
-                        Debug.WriteLine("X :" + eyeLeft.Y + " Y :" + eyeLeft.X );
+
                     }
 
                 }
@@ -162,6 +160,7 @@ namespace ReIdentificator
 
             string subPath = currentDir + @"\Test"; // your code goes here
 
+            //If clause that checks if the needed directory was already created , if not it will be created here 
             bool exists = System.IO.Directory.Exists(subPath);
 
             if (!exists)
@@ -196,8 +195,6 @@ namespace ReIdentificator
                 //PlanarImage Image = e.ImageFrame.Image;
                 this.colorPixels = new byte[this.kinect.ColorFrameSource.FrameDescription.LengthInPixels * 4];
                 colorFrame.CopyConvertedFrameDataToArray(this.colorPixels, Microsoft.Kinect.ColorImageFormat.Bgra);
-                //int n = this.kinect.ColorFrameSource.FrameDescription.Width;
-                //int b = System.Convert.ToInt32(this.kinect.ColorFrameSource.FrameDescription.BytesPerPixel);
 
                 this.colorBitmap = new WriteableBitmap(this.kinect.ColorFrameSource.FrameDescription.Width, this.kinect.ColorFrameSource.FrameDescription.Height, 96.0, 96.0, PixelFormats.Bgr32, null);
 
@@ -209,10 +206,6 @@ namespace ReIdentificator
                 mainWindow.FacePhoto2.Source = image;
                 SaveImage(image, counti);
                 counti = counti + 1;
-
-                //SaveImage(image2,  counti);
-                //  counti = counti + 1;
-                //BrowseButton_Click2(counti);
 
                 bodyFrame.GetAndRefreshBodyData(this.bodies);
                 GetPositionOfHead(bodies);
@@ -228,23 +221,12 @@ namespace ReIdentificator
                 this.colorPixels = new byte[this.kinect.ColorFrameSource.FrameDescription.LengthInPixels * 4];
                 colorFrame.CopyConvertedFrameDataToArray(this.colorPixels, Microsoft.Kinect.ColorImageFormat.Bgra);
                 this.colorBitmap = new WriteableBitmap(this.kinect.ColorFrameSource.FrameDescription.Width, this.kinect.ColorFrameSource.FrameDescription.Height, 96.0, 96.0, PixelFormats.Bgr32, null);
-                //this.secBitmap = new Bitmap(this.kinect.ColorFrameSource.FrameDescription.Width, this.kinect.ColorFrameSource.FrameDescription.Height, colorBitmap.PixelWidth * sizeof(int), System.Drawing.Imaging.PixelFormat.Format32bppRgb, colorPixels);
                 // Write the pixel data into our bitmap
                 this.colorBitmap.WritePixels(
                     new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight),
                     this.colorPixels,
                     this.colorBitmap.PixelWidth * sizeof(int),
                     0);
-
-                /* !!!mainWindow.FacePhoto.Source = this.colorBitmap;*/
-
-
-                /*SoftwareBitmap outputBitmap = SoftwareBitmap.CreateCopyFromBuffer(
-                writeableBitmap.PixelBuffer,
-                BitmapPixelFormat.Bgra8,
-                writeableBitmap.PixelWidth,
-                writeableBitmap.PixelHeight
-                );*/
 
 
 
@@ -255,7 +237,6 @@ namespace ReIdentificator
                 EncoderParameters myEncoderParameters;
 
                 // Create a Bitmap object based on a BMP file.
-                //myBitmap = /*new Bitmap("C:/Users/Benjamin Karic/Downloads/Soviet_BMP-1_IFV.bmp");*/ BitmapFromWriteableBitmap(this.colorBitmap);
                 
 
                 // Get an ImageCodecInfo object that represents the JPEG codec.
@@ -278,7 +259,6 @@ namespace ReIdentificator
                 // Save the bitmap as a JPEG file with quality level 25.
                 myEncoderParameter = new EncoderParameter(myEncoder, 25L);
                 myEncoderParameters.Param[0] = myEncoderParameter;
-                //cloneBitmap.Save("C:/Users/Benjamin Karic/Codepicture"+ counter +".jpg", myImageCodecInfo, myEncoderParameters);
                 
 
             }
@@ -343,7 +323,7 @@ namespace ReIdentificator
                 }
                 _face.face_glasses = face.FaceAttributes.Glasses.ToString();
             }
-               // mainWindow.printLog("body parameters: " + _face.face_gender + " - " + _face.face_age + " - " + _face.face_hair_bald + " - " + _face.face_hair_blonde + " - " + _face.face_hair_black + " - " + _face.face_hair_brown + " - " + _face.face_hair_red + " - " + _face.face_glasses);
+                mainWindow.printLog("face parameters: " + _face.face_gender + " - " + _face.face_age + " - " + _face.face_hair_bald + " - " + _face.face_hair_blonde + " - " + _face.face_hair_black + " - " + _face.face_hair_brown + " - " + _face.face_hair_red + " - " + _face.face_glasses);
                 //mainWindow.startComparison(_body.TrackingId, _body);
 
             
@@ -391,16 +371,7 @@ namespace ReIdentificator
                     processFace(_face, face);
                 }
 
-                /*// Display the image with the rectangle around the face.
-                RenderTargetBitmap faceWithRectBitmap = new RenderTargetBitmap(
-                    (int)(bitmapSource.PixelWidth * resizeFactor),
-                    (int)(bitmapSource.PixelHeight * resizeFactor),
-                    96,
-                    96,
-                    PixelFormats.Pbgra32);*/
 
-                
-                //mainWindow.FacePhoto.Source = faceWithRectBitmap;
             }
         }
 
