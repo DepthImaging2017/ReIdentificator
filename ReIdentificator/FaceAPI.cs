@@ -343,7 +343,7 @@ namespace ReIdentificator
                 }
                 _face.face_glasses = face.FaceAttributes.Glasses.ToString();
             }
-                mainWindow.printLog("body parameters: " + _face.face_gender + " - " + _face.face_age + " - " + _face.face_hair_bald + " - " + _face.face_hair_blonde + " - " + _face.face_hair_black + " - " + _face.face_hair_brown + " - " + _face.face_hair_red + " - " + _face.face_glasses);
+               // mainWindow.printLog("body parameters: " + _face.face_gender + " - " + _face.face_age + " - " + _face.face_hair_bald + " - " + _face.face_hair_blonde + " - " + _face.face_hair_black + " - " + _face.face_hair_brown + " - " + _face.face_hair_red + " - " + _face.face_glasses);
                 //mainWindow.startComparison(_body.TrackingId, _body);
 
             
@@ -418,7 +418,7 @@ namespace ReIdentificator
                 { 
                     Face[] faces = await faceServiceClient.DetectAsync(imageFileStream, returnFaceId: true, returnFaceLandmarks: false, returnFaceAttributes: faceAttributes);
                     
-                    mainWindow.printLog(FaceDescription(faces[0]));
+                   // mainWindow.printLog(FaceDescription(faces[0]));
                     trackedBodies[currentID] = true;
 
                     return faces;
@@ -580,7 +580,7 @@ namespace ReIdentificator
 
                     Joint head = bodies[bodyIndex].Joints[JointType.Head];
                     float[] positionOfHead = this.getPositionOfJoint(head);
-                    mainWindow.printLog("positionOfHead[0]: " + positionOfHead[0] + " positionOfHead[1]: " + positionOfHead[1] + " minmax0" + (Math.Min(Math.Max((int)Math.Floor(positionOfHead[0]) - 100, 0), this.colorBitmap.PixelWidth)) + " minmax1: " + (Math.Min(Math.Max((int)Math.Floor(positionOfHead[1]) - 100, 0), this.colorBitmap.PixelHeight)));
+                    //mainWindow.printLog("positionOfHead[0]: " + positionOfHead[0] + " positionOfHead[1]: " + positionOfHead[1] + " minmax0" + (Math.Min(Math.Max((int)Math.Floor(positionOfHead[0]) - 100, 0), this.colorBitmap.PixelWidth)) + " minmax1: " + (Math.Min(Math.Max((int)Math.Floor(positionOfHead[1]) - 100, 0), this.colorBitmap.PixelHeight)));
                         Int32Rect faceRect = new Int32Rect((Math.Min(Math.Max((int)Math.Floor(positionOfHead[0]) - 100, 0), this.colorBitmap.PixelWidth)), (Math.Min(Math.Max((int)Math.Floor(positionOfHead[1]) - 100, 0), this.colorBitmap.PixelHeight)), 200, 200);
                         image.CopyPixels(faceRect, this.colorPixels, this.colorBitmap.PixelWidth * sizeof(int), 0);
 

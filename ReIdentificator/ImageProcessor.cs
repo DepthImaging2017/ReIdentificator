@@ -320,11 +320,11 @@ namespace ReIdentificator
                 {
                     outputColors[i,j] = avgColor[j];
                 }
-                mainWindow.printLog("average color of joint #"+(i+1)+" of person with id " + e.TrackingId + ": " + avgColor[0] + ", " + avgColor[1] + ", " + avgColor[2] + ", " + avgColor[3]);
+                //mainWindow.printLog("average color of joint #"+(i+1)+" of person with id " + e.TrackingId + ": " + avgColor[0] + ", " + avgColor[1] + ", " + avgColor[2] + ", " + avgColor[3]);
             }
             float[] diffentAreas = WatchinatorAvg(e.TrackingId);
             Debug.WriteLine(diffentAreas);
-            mainWindow.printLog("average areas of person with id " + e.TrackingId + ": " + diffentAreas);
+            //mainWindow.printLog("average areas of person with id " + e.TrackingId + ": " + diffentAreas);
             ImageProcessor_data data = new ImageProcessor_data(e.TrackingId);
             data.image_areacount_armleft = diffentAreas[0];
             data.image_areacount_armright = diffentAreas[1];

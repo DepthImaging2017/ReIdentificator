@@ -67,7 +67,7 @@ namespace ReIdentificator
             currentComparisonData.processorData.Add(data);
             if (currentComparisonData.processorData.Count == numberOfProcessors)
             {
-                printLog("STartstart");
+               // printLog("STartstart");
                 Individual idv = new Individual();
                 for (int i = 0; i < currentComparisonData.processorData.Count; i++)
                 {
@@ -174,6 +174,12 @@ namespace ReIdentificator
         public void printLog(string logtext)
         {
             LoggingBox.AppendText("\n" + logtext);
+        }
+
+        public void printPersonCounter(string logtext)
+        {
+            personcounter.Content = "Personcounter: " + logtext;
+            //personcounter.AppendText("\n" + logtext);
         }
 
         public void raisePersonLeftViewEvent(ulong trackingId)

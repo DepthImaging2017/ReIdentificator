@@ -13,6 +13,7 @@ namespace ReIdentificator
         private readonly int minimumSimiliarProperties = 21;
         private Database db;
         private MainWindow main;
+        private int personcounter = 0;
 
         public Comparer(Database db, MainWindow main)
         {
@@ -79,6 +80,8 @@ namespace ReIdentificator
             }
             db.AddEntry(current, null);
             main.printLog("Person that left the frame NOT reidentified!");
+            personcounter = personcounter + 1;
+            main.printPersonCounter(("" + personcounter));
             return;
 
         } 

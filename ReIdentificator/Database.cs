@@ -152,6 +152,8 @@ namespace ReIdentificator
         public double bodyWidth { get; set; }
         [BsonElement("timestamps")]
         public List<DateTime> timestamps { get; set; } = new List<DateTime>();
+        [BsonElement("sensorID")]
+        public int sensorID { get; set; } = 1;
 
         public Individual()
         {
