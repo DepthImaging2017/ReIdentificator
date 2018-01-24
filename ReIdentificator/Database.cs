@@ -10,7 +10,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace ReIdentificator
 {
-    class Database
+    public class Database
     {
         protected static IMongoClient _client;
         protected static IMongoDatabase _database;
@@ -34,11 +34,12 @@ namespace ReIdentificator
             //callback(obj.ID);
         }
 
-        public async void UpdateEntry(string id, string key, float val, Action<Individual> callback)
+        public async void UpdateEntry(string id, string key, Object val, Action<Individual> callback)
         {
             var collection = _database.GetCollection<Individual>(_collectionName);
             var dbId = ObjectId.Parse(id);
             var filter = Builders<Individual>.Filter.Eq("_id", dbId);
+
             var update = Builders<Individual>.Update
                 .Set(key, val);
             await collection.UpdateOneAsync(filter, update);
@@ -49,7 +50,7 @@ namespace ReIdentificator
                     IEnumerable<Individual> batch = cursor.Current;
                     foreach (Individual document in batch)
                     {
-                        callback(document);
+                        //callback(document);
                     }
                 }
             }
@@ -86,19 +87,19 @@ namespace ReIdentificator
         [BsonId]
         public ObjectId ID {get; set;}
         [BsonElement("face_age")]
-        public float face_age { get; set; }
+        public double face_age { get; set; }
         [BsonElement("face_gender")]
-        public bool face_gender { get; set; }
+        public string face_gender { get; set; }
         [BsonElement("face_hair_bald")]
-        public int face_hair_bald { get; set; }
+        public double face_hair_bald { get; set; }
         [BsonElement("face_hair_blonde")]
-        public int face_hair_blonde { get; set; }
+        public double face_hair_blonde { get; set; }
         [BsonElement("face_hair_black")]
-        public int face_hair_black { get; set; }
+        public double face_hair_black { get; set; }
         [BsonElement("face_hair_brown")]
-        public int face_hair_brown { get; set; }
+        public double face_hair_brown { get; set; }
         [BsonElement("face_hair_red")]
-        public int face_hair_red { get; set; }
+        public double face_hair_red { get; set; }
         [BsonElement("face_glasses")]
         public string face_glasses { get; set; }
 
@@ -163,5 +164,14 @@ namespace ReIdentificator
         public double spineMidToRightShoulder { get; set; }
         [BsonElement("bodyWidth")]
         public double bodyWidth { get; set; }
+        [BsonElement("timestamps")]
+        public List<DateTime> timestamps { get; set; } = new List<DateTime>();
+        [BsonElement("sensorID")]
+        public int sensorID { get; set; } = 1;
+
+        public Individual()
+        {
+            this.timestamps.Add(DateTime.Now);
+        }
         }
 }

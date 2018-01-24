@@ -10,14 +10,18 @@ namespace ReIdentificator
 {
     public class Comparer
     {
-        private readonly int minimumSimiliarProperties = 5;
+        private readonly int minimumSimiliarProperties = 21;
+        private Database db;
+        private MainWindow main;
+        private int personcounter = 0;
 
-        public Comparer()
+        public Comparer(Database db, MainWindow main)
         {
-            
+            this.db = db;
+            this.main = main;
         }
 
-        public bool compare(Individual current, List<Individual> all)
+        public void compare(Individual current, List<Individual> all)
         {
             MatcherObject matcher = new MatcherObject();
             foreach(var person in all)
@@ -65,14 +69,27 @@ namespace ReIdentificator
                 {
                     bool val = (bool)pi.GetValue(matcher, null);
                     if (val) count++;
-                    Debug.WriteLine(pi.Name + " " + val);
                 }
                 if(count >= minimumSimiliarProperties)
                 {
-                    return true;
+                    String times = "";
+                    foreach(DateTime tm in person.timestamps)
+                    {
+                        times += ", " + tm.ToString();
+                    }
+                    main.printLog("Person was already here at" + times);
+                    DateTime time = DateTime.Now;
+                    person.timestamps.Add(time);
+                    db.UpdateEntry(person.ID.ToString(), "timestamps", person.timestamps, null);
+                    main.printLog("Person that left the frame is reidentified!");
+                    return;
                 }
             }
-            return false;
+            db.AddEntry(current, null);
+            main.printLog("Person that left the frame NOT reidentified!");
+            personcounter = personcounter + 1;
+            main.printPersonCounter(("" + personcounter));
+            return;
 
         } 
 

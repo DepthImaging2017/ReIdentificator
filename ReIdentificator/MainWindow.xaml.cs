@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Collections.Generic;
 using Microsoft.Kinect;
+using Microsoft.Kinect.Face;
 using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -18,12 +19,15 @@ namespace ReIdentificator
         private BodyProcessor bodyProcessor;
         private ShapeProcessor shapeProcessor;
         private ImageProcessor imageProcessor;
+        private FaceAPI faceAPI;
+
         private Comparer comparer;
         private MultiSourceFrameReader multiSourceFrameReader = null;
         private Database db;
         private WriteableBitmap bitmap = null;
         private int skipFrameTicker = 0;
         private List<dataForComparison> dataForComparison_list = new List<dataForComparison>();
+
 
         public event EventHandler<LeftViewEventArgs> BodyLeftView;
 
@@ -32,10 +36,12 @@ namespace ReIdentificator
             InitializeComponent();
             this.kinect = KinectSensor.GetDefault();
             this.kinect.Open();
-            this.comparer = new Comparer();
+            this.db = new Database("mongodb://localhost:27017", "depthImaging", "individuals");
+            this.comparer = new Comparer(this.db, this);
             this.bodyProcessor = new BodyProcessor(this, this.kinect, this.comparer);
             this.shapeProcessor = new ShapeProcessor(this, this.kinect, this.comparer);
             this.imageProcessor = new ImageProcessor(this.kinect, this.comparer, this);
+            this.faceAPI = new FaceAPI(this.kinect, this.comparer, this);
 
             this.bitmap = new WriteableBitmap(kinect.DepthFrameSource.FrameDescription.Width,
             kinect.DepthFrameSource.FrameDescription.Height, 96, 96, System.Windows.Media.PixelFormats.Gray8, null);
@@ -46,11 +52,12 @@ namespace ReIdentificator
             this.multiSourceFrameReader.MultiSourceFrameArrived +=
             this.Reader_MultiSourceFrameArrived;
 
-            this.db = new Database("mongodb://localhost:27017", "depthImaging", "individuals");
+
+
         }
         public void startComparison(ulong trackingId, object data)
         {
-            int numberOfProcessors = 3;
+            int numberOfProcessors = 4;
 
             if (!dataForComparison_list.Exists(element => element.TrackingId == trackingId))
             {
@@ -75,16 +82,7 @@ namespace ReIdentificator
                 }
                 db.GetAllEntries((result) =>
                 {
-                    bool reÌdentified = comparer.compare(idv, result);
-                    if (!reÌdentified)
-                    {
-                        printLog("Person that left the frame is not reidentified");
-                        db.AddEntry(idv, null);
-                    }
-                    else
-                    {
-                        printLog("Person that left the frame is reidentified!");
-                    }
+                    comparer.compare(idv, result);
                     dataForComparison_list.Remove(currentComparisonData);
 
                 });
@@ -140,6 +138,8 @@ namespace ReIdentificator
                     if (bodyIndexFrame != null && depthFrame != null && bodyFrame != null && skipFrameTicker % 15 == 0)
                     {
                        shapeProcessor.processBodyIndexFrame(bodyIndexFrame, depthFrame, bodyFrame);
+                       faceAPI.nui_ColorFrameReady(colorFrame, bodyFrame);
+
                     }
                 }
                 finally
@@ -159,10 +159,15 @@ namespace ReIdentificator
                 }
             }
         }
-
         public void printLog(string logtext)
         {
             LoggingBox.AppendText("\n" + logtext);
+        }
+
+        public void printPersonCounter(string logtext)
+        {
+            personcounter.Content = "Personcounter: " + logtext;
+            //personcounter.AppendText("\n" + logtext);
         }
 
         public void raisePersonLeftViewEvent(ulong trackingId)

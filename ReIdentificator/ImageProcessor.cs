@@ -348,7 +348,7 @@ namespace ReIdentificator
                 {
                     outputColors[i,j] = avgColor[j];
                 }
-                mainWindow.printLog("average color of joint #"+(i+1)+" of person with id " + e.TrackingId + ": " + avgColor[0] + ", " + avgColor[1] + ", " + avgColor[2] + ", " + avgColor[3]);
+                //mainWindow.printLog("average color of joint #"+(i+1)+" of person with id " + e.TrackingId + ": " + avgColor[0] + ", " + avgColor[1] + ", " + avgColor[2] + ", " + avgColor[3]);
             }
             data.image_color_shoulderleft  = outputColors[0,0]*65536 + outputColors[0,1]*255 + outputColors[0,2];
             data.image_color_shoulderright = outputColors[1,0]*65536 + outputColors[1,1]*255 + outputColors[1,2];
@@ -369,10 +369,14 @@ namespace ReIdentificator
 
             float[] diffentAreas = WatchinatorAvg(e.TrackingId);
             Debug.WriteLine(diffentAreas);
+
+            ImageProcessor_data data = new ImageProcessor_data(e.TrackingId);
+
             mainWindow.printLog("average areas of person with id " + e.TrackingId + " arm l: " + diffentAreas[0]);
             mainWindow.printLog("average areas of person with id " + e.TrackingId + " arm r: " + diffentAreas[1]);
             mainWindow.printLog("average areas of person with id " + e.TrackingId + " leg l: " + diffentAreas[2]);
             mainWindow.printLog("average areas of person with id " + e.TrackingId + " leg r: " + diffentAreas[3]);
+
             data.image_areacount_armleft = diffentAreas[0];
             data.image_areacount_armright = diffentAreas[1];
             data.image_areacount_legleft = diffentAreas[2];
@@ -516,7 +520,7 @@ namespace ReIdentificator
             int numberOfAreas = 0;
             for (int i = 0; start < colors.GetLength(0); i++)
             {
-                //keine Breiche kleiner als 2% der Länge
+                //keine Breiche kleiner als 2% der LÃ¤nge
                 if ((findBreakInColors(colors, IndicatorColor(avgColor), 0.2, start) - differentAreas[differentAreas.Count-1]) > (colors.GetLength(0) * 0.02))
                 {
                     start = findBreakInColors(colors, IndicatorColor(avgColor), 0.2, start);
@@ -527,7 +531,7 @@ namespace ReIdentificator
             }
             if (numberOfAreas > 1)
             {
-                Debug.WriteLine("Area:" + numberOfAreas);
+               // Debug.WriteLine("Area:" + numberOfAreas);
                 numberOfAreas = Comparer(numberOfAreas, differentAreas, colorList);
             }
             return numberOfAreas;
@@ -535,7 +539,7 @@ namespace ReIdentificator
 
         public int Comparer(int numberOfAreas, List<int> differentAreas, List<byte[]> colorList)
         {
-            Debug.WriteLine("Comparer Start " + numberOfAreas);
+            //Debug.WriteLine("Comparer Start " + numberOfAreas);
             for (int i = 0; i < differentAreas.Count - 2; i++)
             {
                 int startI = i;
@@ -574,7 +578,6 @@ namespace ReIdentificator
                     }
                     else
                     {
-                        Debug.WriteLine("1");
                         differentAreas.Remove(mid);
                         numberOfAreas--;
                         if (numberOfAreas > 1)
@@ -586,7 +589,6 @@ namespace ReIdentificator
                 }
                 else
                 {
-                    Debug.WriteLine("0");
                     differentAreas.Remove(mid);
                     numberOfAreas--;
                     if (numberOfAreas > 1)
@@ -598,7 +600,6 @@ namespace ReIdentificator
             }
             if(numberOfAreas > 1)
             {
-                Debug.WriteLine("Comparer:" + numberOfAreas);
             }
             return numberOfAreas;
         }
