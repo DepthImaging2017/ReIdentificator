@@ -323,7 +323,7 @@ namespace ReIdentificator
                 }
                 _face.face_glasses = face.FaceAttributes.Glasses.ToString();
             }
-                mainWindow.printLog("face parameters: " + _face.face_gender + " - " + _face.face_age + " - " + _face.face_hair_bald + " - " + _face.face_hair_blonde + " - " + _face.face_hair_black + " - " + _face.face_hair_brown + " - " + _face.face_hair_red + " - " + _face.face_glasses);
+               //mainWindow.printLog("face parameters: " + _face.face_gender + " - " + _face.face_age + " - " + _face.face_hair_bald + " - " + _face.face_hair_blonde + " - " + _face.face_hair_black + " - " + _face.face_hair_brown + " - " + _face.face_hair_red + " - " + _face.face_glasses);
                 //mainWindow.startComparison(_body.TrackingId, _body);
 
             
