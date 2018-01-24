@@ -50,7 +50,7 @@ namespace ReIdentificator
                 matcher.spineMidToLeftShoulder = (current.spineMidToLeftShoulder < (person.spineMidToLeftShoulder + 0.02) && (current.spineMidToLeftShoulder > person.spineMidToLeftShoulder - 0.02));
                 matcher.spineMidToRightShoulder = (current.spineMidToRightShoulder < (person.spineMidToRightShoulder + 0.02) && (current.spineMidToRightShoulder > person.spineMidToRightShoulder - 0.02));
 
-                matcher.bodyWidth = (current.bodyWidth < (person.bodyWidth + 0.02) && (current.bodyWidth > person.bodyWidth - 0.1));
+                matcher.bodyWidth = (current.bodyWidth < (person.bodyWidth + 0.02) && (current.bodyWidth > person.bodyWidth - 0.02));
 
                 int count = 0;
                 PropertyInfo[] properties = matcher.GetType().GetProperties();
