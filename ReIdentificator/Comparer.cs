@@ -40,9 +40,16 @@ namespace ReIdentificator
                 matcher.image_areacount_armright = (current.image_areacount_armright < (person.image_areacount_armright + 10) && (current.image_areacount_armright > person.image_areacount_armright - 10));
                 matcher.image_areacount_legleft = (current.image_areacount_legleft < (person.image_areacount_legleft + 10) && (current.image_areacount_legleft > person.image_areacount_legleft - 10));
                 matcher.image_areacount_legright = (current.image_areacount_legright < (person.image_areacount_legright + 10) && (current.image_areacount_legright > person.image_areacount_legright - 10));
+                /*
                 matcher.image_wears_watch = (current.image_wears_watch == person.image_wears_watch);
                 matcher.image_wears_shirt = (current.image_wears_shirt == person.image_wears_shirt);
-                matcher.image_wears_shorts = (current.image_wears_shorts == person.image_wears_shorts);                
+                matcher.image_wears_shorts = (current.image_wears_shorts == person.image_wears_shorts);
+                */
+                matcher.image_color_shoulderleft_name = (current.image_color_shoulderleft_name == person.image_color_shoulderleft_name);
+                matcher.image_color_shoulderright_name = (current.image_color_shoulderright_name == person.image_color_shoulderright_name);
+                matcher.image_color_kneeleft_name = (current.image_color_kneeleft_name == person.image_color_kneeleft_name);
+                matcher.image_color_kneeright_name = (current.image_color_kneeright_name == person.image_color_kneeright_name);
+                matcher.image_color_spinemid_name = (current.image_color_spinemid_name == person.image_color_spinemid_name);
 
                 matcher.height = (current.height < (person.height + 0.05) && (current.height > person.height - 0.05));
                 matcher.torsoHeight = (current.torsoHeight < (person.torsoHeight + 0.06) && (current.torsoHeight > person.torsoHeight - 0.06));
@@ -54,7 +61,7 @@ namespace ReIdentificator
                 matcher.spineMidToLeftShoulder = (current.spineMidToLeftShoulder < (person.spineMidToLeftShoulder + 0.02) && (current.spineMidToLeftShoulder > person.spineMidToLeftShoulder - 0.02));
                 matcher.spineMidToRightShoulder = (current.spineMidToRightShoulder < (person.spineMidToRightShoulder + 0.02) && (current.spineMidToRightShoulder > person.spineMidToRightShoulder - 0.02));
 
-                matcher.bodyWidth = (current.bodyWidth < (person.bodyWidth + 0.02) && (current.bodyWidth > person.bodyWidth - 0.1));
+                matcher.bodyWidth = (current.bodyWidth < (person.bodyWidth + 0.02) && (current.bodyWidth > person.bodyWidth - 0.02));
 
                 int count = 0;
                 PropertyInfo[] properties = matcher.GetType().GetProperties();
@@ -101,7 +108,14 @@ namespace ReIdentificator
 
         public bool image_color_shoulderleft { get; set; }
         public bool image_color_shoulderright { get; set; }
-        public bool image_color_torso { get; set; }
+        public bool image_color_kneeleft { get; set; }
+        public bool image_color_kneeright { get; set; }
+        public bool image_color_spinemid { get; set; }
+        public bool image_color_shoulderleft_name { get; set; }
+        public bool image_color_shoulderright_name { get; set; }
+        public bool image_color_kneeleft_name { get; set; }
+        public bool image_color_kneeright_name { get; set; }
+        public bool image_color_spinemid_name { get; set; }
         public bool image_color_shoulderhistogram { get; set; }
         public bool image_color_spinehistogram { get; set; }
         public bool image_areacount_armleft { get; set; }

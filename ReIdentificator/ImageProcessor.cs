@@ -15,7 +15,7 @@ namespace ReIdentificator
     class ImageProcessor
     {
         private double deleteTheTopAndBottom = 0.05;
-        private static JointType[] jointTypesToTrack = { JointType.ShoulderLeft, JointType.ShoulderRight, JointType.ShoulderRight, JointType.KneeRight };
+        private static JointType[] jointTypesToTrack = { JointType.ShoulderLeft, JointType.ShoulderRight, JointType.KneeLeft, JointType.KneeRight, JointType.SpineMid };
         private static Tuple<JointType, JointType>[] watchinatorJointCombos = {
             new Tuple<JointType, JointType>(JointType.HandLeft, JointType.ElbowLeft),
             new Tuple<JointType, JointType>(JointType.HandRight, JointType.ElbowRight),
@@ -310,9 +310,37 @@ namespace ReIdentificator
             }
         }
 
+        public static string colorToName(byte[] color)
+        {
+            Debug.WriteLine("R:"+color[0] + " G:"+color[1] + " B:" + color[2]);
+            if (color[0] <= 84 && color[1] <= 84 && color[2] <= 84) return "Black";
+            if (color[0] <= 84 && color[1] <= 84 && color[2] > 84 && color[2] <= 170) return "Navy";
+            if (color[0] <= 84 && color[1] <= 84 && color[2] > 170) return "Blue";
+            if (color[0] <= 84 && color[1] > 84 && color[1] <= 170 && color[2] <= 84) return "Green";
+            if (color[0] <= 84 && color[1] > 84 && color[1] <= 170 && color[2] > 84 && color[2] <= 170) return "Teal";
+            if (color[0] <= 84 && color[1] > 170 && color[2] <= 84) return "Lime";
+            if (color[0] <= 84 && color[1] > 170 && color[2] > 170) return "Aqua";
+            if (color[0] > 84 && color[0] <= 170 && color[1] <= 84 && color[2] <= 84) return "Maroon";
+            if (color[0] > 84 && color[0] <= 170 && color[1] <= 84 && color[2] > 84 && color[2] <= 170) return "Purple";
+            if (color[0] > 84 && color[0] <= 170 && color[1] > 84 && color[1] <= 170 && color[2] <= 84) return "Olive";
+            if (color[0] > 84 && color[0] <= 170 && color[1] > 84 && color[1] <= 170 && color[2] > 84 && color[2] <= 170) return "Gray";
+            if (color[0] > 170 && color[1] > 170 && color[2] > 170) return "Silver";
+            if (color[0] > 170 && color[1] <= 84 && color[2] <= 84) return "Red";
+            if (color[0] > 170 && color[1] <= 84 && color[2] > 170) return "Fuchsia";
+            if (color[0] > 170 && color[1] > 170 && color[2] <= 84) return "Yellow";
+            if (color[0] > 170 && color[1] > 170 && color[2] > 170) return "White";
+            return "unknown";
+        }
+
+        public static byte[] getSlice(byte[,] multidimarray, int row)
+        {
+            return new byte[] { multidimarray[row, 0], multidimarray[row, 1], multidimarray[row, 2], multidimarray[row, 3] };
+        }
+
         public void userOutput(LeftViewEventArgs e, double fieldToShow)
         {
             byte[,] outputColors = new byte[this.colors[e.TrackingId].Length, 4];
+            ImageProcessor_data data = new ImageProcessor_data(e.TrackingId);
             for (int i = 0; i < this.colors[e.TrackingId].Length; i++)
             {
                 byte[] avgColor = averageColor(this.colors[e.TrackingId][i]);
@@ -322,14 +350,38 @@ namespace ReIdentificator
                 }
                 //mainWindow.printLog("average color of joint #"+(i+1)+" of person with id " + e.TrackingId + ": " + avgColor[0] + ", " + avgColor[1] + ", " + avgColor[2] + ", " + avgColor[3]);
             }
+            data.image_color_shoulderleft  = outputColors[0,0]*65536 + outputColors[0,1]*255 + outputColors[0,2];
+            data.image_color_shoulderright = outputColors[1,0]*65536 + outputColors[1,1]*255 + outputColors[1,2];
+            data.image_color_kneeleft      = outputColors[2,0]*65536 + outputColors[2,1]*255 + outputColors[2,2];
+            data.image_color_kneeright     = outputColors[3,0]*65536 + outputColors[3,1]*255 + outputColors[3,2];
+            data.image_color_spinemid      = outputColors[4,0]*65536 + outputColors[4,1]*255 + outputColors[4,2];
+
+            data.image_color_shoulderleft_name = colorToName(getSlice(outputColors, 0));
+            Debug.WriteLine(data.image_color_shoulderleft_name);
+            data.image_color_shoulderright_name = colorToName(getSlice(outputColors, 1));
+            Debug.WriteLine(data.image_color_shoulderright_name);
+            data.image_color_kneeleft_name = colorToName(getSlice(outputColors, 2));
+            Debug.WriteLine(data.image_color_kneeleft_name);
+            data.image_color_kneeright_name = colorToName(getSlice(outputColors, 3));
+            Debug.WriteLine(data.image_color_kneeright_name);
+            data.image_color_spinemid_name = colorToName(getSlice(outputColors, 4));
+            Debug.WriteLine(data.image_color_spinemid_name);
+
             float[] diffentAreas = WatchinatorAvg(e.TrackingId);
             Debug.WriteLine(diffentAreas);
-            //mainWindow.printLog("average areas of person with id " + e.TrackingId + ": " + diffentAreas);
+
             ImageProcessor_data data = new ImageProcessor_data(e.TrackingId);
+
+            mainWindow.printLog("average areas of person with id " + e.TrackingId + " arm l: " + diffentAreas[0]);
+            mainWindow.printLog("average areas of person with id " + e.TrackingId + " arm r: " + diffentAreas[1]);
+            mainWindow.printLog("average areas of person with id " + e.TrackingId + " leg l: " + diffentAreas[2]);
+            mainWindow.printLog("average areas of person with id " + e.TrackingId + " leg r: " + diffentAreas[3]);
+
             data.image_areacount_armleft = diffentAreas[0];
             data.image_areacount_armright = diffentAreas[1];
             data.image_areacount_legleft = diffentAreas[2];
             data.image_areacount_legright = diffentAreas[3];
+
             mainWindow.startComparison(e.TrackingId, data);
 
             mainWindow.updatePanel(outputColors, fieldToShow);
@@ -468,7 +520,7 @@ namespace ReIdentificator
             int numberOfAreas = 0;
             for (int i = 0; start < colors.GetLength(0); i++)
             {
-                //keine Breiche kleiner als 2% der Länge
+                //keine Breiche kleiner als 2% der LÃ¤nge
                 if ((findBreakInColors(colors, IndicatorColor(avgColor), 0.2, start) - differentAreas[differentAreas.Count-1]) > (colors.GetLength(0) * 0.02))
                 {
                     start = findBreakInColors(colors, IndicatorColor(avgColor), 0.2, start);
@@ -560,6 +612,16 @@ namespace ReIdentificator
         public float image_areacount_armright { get; set; }
         public float image_areacount_legleft { get; set; }
         public float image_areacount_legright { get; set; }
+        public int image_color_shoulderleft { get; set; }
+        public int image_color_shoulderright { get; set; }
+        public int image_color_kneeleft { get; set; }
+        public int image_color_kneeright { get; set; }
+        public int image_color_spinemid { get; set; }
+        public string image_color_shoulderleft_name { get; set; }
+        public string image_color_shoulderright_name { get; set; }
+        public string image_color_kneeleft_name { get; set; }
+        public string image_color_kneeright_name { get; set; }
+        public string image_color_spinemid_name { get; set; }
 
         public ImageProcessor_data(ulong trackingId)
         {
