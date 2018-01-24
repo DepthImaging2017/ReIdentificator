@@ -10,14 +10,18 @@ namespace ReIdentificator
 {
     public class Comparer
     {
-        private readonly int minimumSimiliarProperties = 5;
+        private readonly int minimumSimiliarProperties = 21;
+        private Database db;
+        private MainWindow main;
+        private int personcounter = 0;
 
-        public Comparer()
+        public Comparer(Database db, MainWindow main)
         {
-            
+            this.db = db;
+            this.main = main;
         }
 
-        public bool compare(Individual current, List<Individual> all)
+        public void compare(Individual current, List<Individual> all)
         {
             MatcherObject matcher = new MatcherObject();
             foreach(var person in all)
@@ -36,13 +40,21 @@ namespace ReIdentificator
                 matcher.image_areacount_armright = (current.image_areacount_armright < (person.image_areacount_armright + 10) && (current.image_areacount_armright > person.image_areacount_armright - 10));
                 matcher.image_areacount_legleft = (current.image_areacount_legleft < (person.image_areacount_legleft + 10) && (current.image_areacount_legleft > person.image_areacount_legleft - 10));
                 matcher.image_areacount_legright = (current.image_areacount_legright < (person.image_areacount_legright + 10) && (current.image_areacount_legright > person.image_areacount_legright - 10));
+                /*
                 matcher.image_wears_watch = (current.image_wears_watch == person.image_wears_watch);
                 matcher.image_wears_shirt = (current.image_wears_shirt == person.image_wears_shirt);
-                matcher.image_wears_shorts = (current.image_wears_shorts == person.image_wears_shorts);                
+                matcher.image_wears_shorts = (current.image_wears_shorts == person.image_wears_shorts);
+                */
+                matcher.image_color_shoulderleft_name = (current.image_color_shoulderleft_name == person.image_color_shoulderleft_name);
+                matcher.image_color_shoulderright_name = (current.image_color_shoulderright_name == person.image_color_shoulderright_name);
+                matcher.image_color_kneeleft_name = (current.image_color_kneeleft_name == person.image_color_kneeleft_name);
+                matcher.image_color_kneeright_name = (current.image_color_kneeright_name == person.image_color_kneeright_name);
+                matcher.image_color_spinemid_name = (current.image_color_spinemid_name == person.image_color_spinemid_name);
 
                 matcher.height = (current.height < (person.height + 0.05) && (current.height > person.height - 0.05));
                 matcher.torsoHeight = (current.torsoHeight < (person.torsoHeight + 0.06) && (current.torsoHeight > person.torsoHeight - 0.06));
                 matcher.neckToSpineMid = (current.neckToSpineMid < (person.neckToSpineMid + 0.04) && (current.neckToSpineMid > person.neckToSpineMid - 0.04));
+                matcher.spineMidToSpineBase = (current.spineMidToSpineBase < (person.spineMidToSpineBase + 0.02) && (current.spineMidToSpineBase > person.spineMidToSpineBase - 0.02));
                 matcher.neckToLeftShoulder = (current.neckToLeftShoulder < (person.neckToLeftShoulder + 0.02) && (current.neckToLeftShoulder > person.neckToLeftShoulder - 0.02));
                 matcher.neckToRightShoulder = (current.neckToRightShoulder < (person.neckToRightShoulder + 0.02) && (current.neckToRightShoulder > person.neckToRightShoulder - 0.02));
                 matcher.leftHipToSpineBase = (current.leftHipToSpineBase < (person.leftHipToSpineBase + 0.01) && (current.leftHipToSpineBase > person.leftHipToSpineBase - 0.01));
@@ -50,7 +62,7 @@ namespace ReIdentificator
                 matcher.spineMidToLeftShoulder = (current.spineMidToLeftShoulder < (person.spineMidToLeftShoulder + 0.02) && (current.spineMidToLeftShoulder > person.spineMidToLeftShoulder - 0.02));
                 matcher.spineMidToRightShoulder = (current.spineMidToRightShoulder < (person.spineMidToRightShoulder + 0.02) && (current.spineMidToRightShoulder > person.spineMidToRightShoulder - 0.02));
 
-                matcher.bodyWidth = (current.bodyWidth < (person.bodyWidth + 0.02) && (current.bodyWidth > person.bodyWidth - 0.1));
+                matcher.bodyWidth = (current.bodyWidth < (person.bodyWidth + 0.02) && (current.bodyWidth > person.bodyWidth - 0.02));
 
                 int count = 0;
                 PropertyInfo[] properties = matcher.GetType().GetProperties();
@@ -58,14 +70,27 @@ namespace ReIdentificator
                 {
                     bool val = (bool)pi.GetValue(matcher, null);
                     if (val) count++;
-                    Debug.WriteLine(pi.Name + " " + val);
                 }
                 if(count >= minimumSimiliarProperties)
                 {
-                    return true;
+                    String times = "";
+                    foreach(DateTime tm in person.timestamps)
+                    {
+                        times += ", " + tm.ToString();
+                    }
+                    main.printLog("Person was already here at" + times);
+                    DateTime time = DateTime.Now;
+                    person.timestamps.Add(time);
+                    db.UpdateEntry(person.ID.ToString(), "timestamps", person.timestamps, null);
+                    main.printLog("Person that left the frame is reidentified!");
+                    return;
                 }
             }
-            return false;
+            db.AddEntry(current, null);
+            main.printLog("Person that left the frame NOT reidentified!");
+            personcounter = personcounter + 1;
+            main.printPersonCounter(("" + personcounter));
+            return;
 
         } 
 
@@ -82,18 +107,31 @@ namespace ReIdentificator
         public bool face_hair_red { get; set; }
         public bool face_glasses { get; set; }
 
+        /*
         public bool image_color_shoulderleft { get; set; }
         public bool image_color_shoulderright { get; set; }
-        public bool image_color_torso { get; set; }
+        public bool image_color_kneeleft { get; set; }
+        public bool image_color_kneeright { get; set; }
+        public bool image_color_spinemid { get; set; }
+        */
+        public bool image_color_shoulderleft_name { get; set; }
+        public bool image_color_shoulderright_name { get; set; }
+        public bool image_color_kneeleft_name { get; set; }
+        public bool image_color_kneeright_name { get; set; }
+        public bool image_color_spinemid_name { get; set; }
+        /*
         public bool image_color_shoulderhistogram { get; set; }
         public bool image_color_spinehistogram { get; set; }
+        */
         public bool image_areacount_armleft { get; set; }
         public bool image_areacount_armright { get; set; }
         public bool image_areacount_legleft { get; set; }
         public bool image_areacount_legright { get; set; }
+        /*
         public bool image_wears_watch { get; set; }
         public bool image_wears_shorts { get; set; }
         public bool image_wears_shirt { get; set; }
+        */
 
         public bool height { get; set; }
         public bool torsoHeight { get; set; }
