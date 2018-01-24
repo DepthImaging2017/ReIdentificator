@@ -15,7 +15,7 @@ namespace ReIdentificator
     class ImageProcessor
     {
         private double deleteTheTopAndBottom = 0.05;
-        private static JointType[] jointTypesToTrack = { JointType.ShoulderLeft, JointType.ShoulderRight, JointType.ShoulderRight, JointType.KneeRight };
+        private static JointType[] jointTypesToTrack = { JointType.ShoulderLeft, JointType.ShoulderRight, JointType.KneeLeft, JointType.KneeRight, JointType.SpineMid };
         private static Tuple<JointType, JointType>[] watchinatorJointCombos = {
             new Tuple<JointType, JointType>(JointType.HandLeft, JointType.ElbowLeft),
             new Tuple<JointType, JointType>(JointType.HandRight, JointType.ElbowRight),
@@ -313,6 +313,7 @@ namespace ReIdentificator
         public void userOutput(LeftViewEventArgs e, double fieldToShow)
         {
             byte[,] outputColors = new byte[this.colors[e.TrackingId].Length, 4];
+            ImageProcessor_data data = new ImageProcessor_data(e.TrackingId);
             for (int i = 0; i < this.colors[e.TrackingId].Length; i++)
             {
                 byte[] avgColor = averageColor(this.colors[e.TrackingId][i]);
@@ -322,14 +323,23 @@ namespace ReIdentificator
                 }
                 mainWindow.printLog("average color of joint #"+(i+1)+" of person with id " + e.TrackingId + ": " + avgColor[0] + ", " + avgColor[1] + ", " + avgColor[2] + ", " + avgColor[3]);
             }
+            data.image_color_shoulderleft  = outputColors[0,0]*65536 + outputColors[0,1]*255 + outputColors[0,2];
+            data.image_color_shoulderright = outputColors[1,0]*65536 + outputColors[1,1]*255 + outputColors[1,2];
+            data.image_color_kneeleft      = outputColors[2,0]*65536 + outputColors[2,1]*255 + outputColors[2,2];
+            data.image_color_kneeright     = outputColors[3,0]*65536 + outputColors[3,1]*255 + outputColors[3,2];
+            data.image_color_spinemid      = outputColors[4,0]*65536 + outputColors[4,1]*255 + outputColors[4,2];
+
             float[] diffentAreas = WatchinatorAvg(e.TrackingId);
             Debug.WriteLine(diffentAreas);
-            mainWindow.printLog("average areas of person with id " + e.TrackingId + ": " + diffentAreas);
-            ImageProcessor_data data = new ImageProcessor_data(e.TrackingId);
+            mainWindow.printLog("average areas of person with id " + e.TrackingId + " arm l: " + diffentAreas[0]);
+            mainWindow.printLog("average areas of person with id " + e.TrackingId + " arm r: " + diffentAreas[1]);
+            mainWindow.printLog("average areas of person with id " + e.TrackingId + " leg l: " + diffentAreas[2]);
+            mainWindow.printLog("average areas of person with id " + e.TrackingId + " leg r: " + diffentAreas[3]);
             data.image_areacount_armleft = diffentAreas[0];
             data.image_areacount_armright = diffentAreas[1];
             data.image_areacount_legleft = diffentAreas[2];
             data.image_areacount_legright = diffentAreas[3];
+
             mainWindow.startComparison(e.TrackingId, data);
 
             mainWindow.updatePanel(outputColors, fieldToShow);
@@ -563,6 +573,11 @@ namespace ReIdentificator
         public float image_areacount_armright { get; set; }
         public float image_areacount_legleft { get; set; }
         public float image_areacount_legright { get; set; }
+        public int image_color_shoulderleft { get; set; }
+        public int image_color_shoulderright { get; set; }
+        public int image_color_kneeleft { get; set; }
+        public int image_color_kneeright { get; set; }
+        public int image_color_spinemid { get; set; }
 
         public ImageProcessor_data(ulong trackingId)
         {
