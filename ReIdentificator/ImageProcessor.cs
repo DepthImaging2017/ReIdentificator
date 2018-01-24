@@ -310,6 +310,33 @@ namespace ReIdentificator
             }
         }
 
+        public static string colorToName(byte[] color)
+        {
+            Debug.WriteLine("R:"+color[0] + " G:"+color[1] + " B:" + color[2]);
+            if (color[0] <= 84 && color[1] <= 84 && color[2] <= 84) return "Black";
+            if (color[0] <= 84 && color[1] <= 84 && color[2] > 84 && color[2] <= 170) return "Navy";
+            if (color[0] <= 84 && color[1] <= 84 && color[2] > 170) return "Blue";
+            if (color[0] <= 84 && color[1] > 84 && color[1] <= 170 && color[2] <= 84) return "Green";
+            if (color[0] <= 84 && color[1] > 84 && color[1] <= 170 && color[2] > 84 && color[2] <= 170) return "Teal";
+            if (color[0] <= 84 && color[1] > 170 && color[2] <= 84) return "Lime";
+            if (color[0] <= 84 && color[1] > 170 && color[2] > 170) return "Aqua";
+            if (color[0] > 84 && color[0] <= 170 && color[1] <= 84 && color[2] <= 84) return "Maroon";
+            if (color[0] > 84 && color[0] <= 170 && color[1] <= 84 && color[2] > 84 && color[2] <= 170) return "Purple";
+            if (color[0] > 84 && color[0] <= 170 && color[1] > 84 && color[1] <= 170 && color[2] <= 84) return "Olive";
+            if (color[0] > 84 && color[0] <= 170 && color[1] > 84 && color[1] <= 170 && color[2] > 84 && color[2] <= 170) return "Gray";
+            if (color[0] > 170 && color[1] > 170 && color[2] > 170) return "Silver";
+            if (color[0] > 170 && color[1] <= 84 && color[2] <= 84) return "Red";
+            if (color[0] > 170 && color[1] <= 84 && color[2] > 170) return "Fuchsia";
+            if (color[0] > 170 && color[1] > 170 && color[2] <= 84) return "Yellow";
+            if (color[0] > 170 && color[1] > 170 && color[2] > 170) return "White";
+            return "unknown";
+        }
+
+        public static byte[] getSlice(byte[,] multidimarray, int row)
+        {
+            return new byte[] { multidimarray[row, 0], multidimarray[row, 1], multidimarray[row, 2], multidimarray[row, 3] };
+        }
+
         public void userOutput(LeftViewEventArgs e, double fieldToShow)
         {
             byte[,] outputColors = new byte[this.colors[e.TrackingId].Length, 4];
@@ -328,6 +355,17 @@ namespace ReIdentificator
             data.image_color_kneeleft      = outputColors[2,0]*65536 + outputColors[2,1]*255 + outputColors[2,2];
             data.image_color_kneeright     = outputColors[3,0]*65536 + outputColors[3,1]*255 + outputColors[3,2];
             data.image_color_spinemid      = outputColors[4,0]*65536 + outputColors[4,1]*255 + outputColors[4,2];
+
+            data.image_color_shoulderleft_name = colorToName(getSlice(outputColors, 0));
+            Debug.WriteLine(data.image_color_shoulderleft_name);
+            data.image_color_shoulderright_name = colorToName(getSlice(outputColors, 1));
+            Debug.WriteLine(data.image_color_shoulderright_name);
+            data.image_color_kneeleft_name = colorToName(getSlice(outputColors, 2));
+            Debug.WriteLine(data.image_color_kneeleft_name);
+            data.image_color_kneeright_name = colorToName(getSlice(outputColors, 3));
+            Debug.WriteLine(data.image_color_kneeright_name);
+            data.image_color_spinemid_name = colorToName(getSlice(outputColors, 4));
+            Debug.WriteLine(data.image_color_spinemid_name);
 
             float[] diffentAreas = WatchinatorAvg(e.TrackingId);
             Debug.WriteLine(diffentAreas);
@@ -578,6 +616,11 @@ namespace ReIdentificator
         public int image_color_kneeleft { get; set; }
         public int image_color_kneeright { get; set; }
         public int image_color_spinemid { get; set; }
+        public string image_color_shoulderleft_name { get; set; }
+        public string image_color_shoulderright_name { get; set; }
+        public string image_color_kneeleft_name { get; set; }
+        public string image_color_kneeright_name { get; set; }
+        public string image_color_spinemid_name { get; set; }
 
         public ImageProcessor_data(ulong trackingId)
         {

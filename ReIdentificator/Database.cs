@@ -112,6 +112,16 @@ namespace ReIdentificator
         public int image_color_kneeright { get; set; }
         [BsonElement("image_color_spinemid")]
         public int image_color_spinemid { get; set; }
+        [BsonElement("image_color_shoulderleft_name")]
+        public string image_color_shoulderleft_name { get; set; }
+        [BsonElement("image_color_shoulderright_name")]
+        public string image_color_shoulderright_name { get; set; }
+        [BsonElement("image_color_kneeleft_name")]
+        public string image_color_kneeleft_name { get; set; }
+        [BsonElement("image_color_kneeright_name")]
+        public string image_color_kneeright_name { get; set; }
+        [BsonElement("image_color_spinemid_name")]
+        public string image_color_spinemid_name { get; set; }
         [BsonElement("image_color_shoulderhistogram")]
         public int[] image_color_shoulderhistogram { get; set; }
         [BsonElement("image_color_spinehistogram")]
