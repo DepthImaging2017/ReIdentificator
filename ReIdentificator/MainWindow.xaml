@@ -1,24 +1,24 @@
-﻿<Window x:Class="ReIdentificator.MainWindow"
+﻿<Window x:Class="ReIdentificator.WPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ReIdentificator"
+        xmlns:local="clr-namespace:ReIdentificator.WPF"
         mc:Ignorable="d"
-        Title="Output" Height="565.061" Width="1600.451">
-    <Grid Name="gdmain">
-        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical">
-            <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
-                <Image x:Name="FrameDisplayImage" Stretch="None" Width="570" Height="512" MinWidth="5"/>
-                <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" x:Name="userOutput">
-                </StackPanel>
-                <StackPanel Height="533">
-                    <TextBox x:Name="LoggingBox" HorizontalAlignment="Left" Height="250" Margin="10,10,10,10" TextWrapping="Wrap" VerticalAlignment="Top" Width="500"/>
-                    <Label x:Name="personcounter" Content="Person Counter: 0"/>
-                    <Image x:Name="FacePhoto" Height="125" Width="507"/>
-                    <Image x:Name="FacePhoto2" Height="125" Width="512"/>
-                </StackPanel>
-            </StackPanel>
-        </StackPanel>
+        Title="ReIdentificator"
+        Height="645.723" Width="858.872"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded">
+    <Grid>
+        <Grid.Background>
+            <ImageBrush ImageSource="/Assets/Background.jpg" />
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+        <Frame Grid.Row="0" Name="frame" NavigationUIVisibility="Hidden" />
+
     </Grid>
 </Window>

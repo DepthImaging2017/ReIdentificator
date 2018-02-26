@@ -34,7 +34,7 @@ namespace ReIdentificator
         private Body[] bodies = null;
         private WriteableBitmap colorBitmap;
         private BitmapSource image;
-        private MainWindow mainWindow;
+        private ReIdent reident;
         private Dictionary<ulong, List<byte[]>[]> colors = new Dictionary<ulong, List<byte[]>[]>();
         private Dictionary<ulong, Boolean> faceData = new Dictionary<ulong, Boolean>();
         //Dictionary that saves all tracked id's bool = false means the person has not been tracked yet
@@ -53,11 +53,11 @@ namespace ReIdentificator
         String[] faceDescriptions;      // The list of descriptions for the detected faces.
         bool[] alreadyPrinted;
 
-        public FaceAPI(KinectSensor kinect, Comparer comparer, MainWindow mainWindow)
+        public FaceAPI(KinectSensor kinect, Comparer comparer, ReIdent reident)
         {
             this.kinect = kinect;
             this.comparer = comparer;
-            this.mainWindow = mainWindow;
+            this.reident = reident;
             this.bodies = new Body[this.kinect.BodyFrameSource.BodyCount];
             _bodyReader = kinect.BodyFrameSource.OpenReader();
             _bodyReader.FrameArrived += BodyReader_FrameArrived;
@@ -72,7 +72,7 @@ namespace ReIdentificator
             this._faceReader = _faceSource.OpenReader();
             _faceReader.FrameArrived += FaceReader_FrameArrived;
             _bodies = new Body[kinect.BodyFrameSource.BodyCount];
-            mainWindow.BodyLeftView += HandleBodyLeftViewEvent;
+            reident.BodyLeftView += HandleBodyLeftViewEvent;
         }
         /*Helper Functions that are needed to determine if there is a face in the frame
  */
@@ -226,7 +226,7 @@ namespace ReIdentificator
 
 
 
-                mainWindow.FacePhoto2.Source = image;
+                reident.FacePhoto2.Source = image;
                 SaveImage(image, counti);
                 counti = counti + 1;
 
@@ -372,9 +372,9 @@ namespace ReIdentificator
 
 
             // Detect any faces in the image.
-            mainWindow.Title = "Detecting...";
+            reident.Title = "Detecting...";
             faces = await UploadAndDetectFaces(filePath);
-            mainWindow.Title = String.Format("Detection Finished. {0} face(s) detected", faces.Length);
+            reident.Title = String.Format("Detection Finished. {0} face(s) detected", faces.Length);
 
             if (faces.Length > 0)
             {
@@ -582,7 +582,7 @@ namespace ReIdentificator
 
                         BitmapSource image2 = BitmapSource.Create(200, 200, 96, 96, PixelFormats.Bgr32, null, this.colorPixels, this.colorBitmap.PixelWidth * sizeof(int));
 
-                        mainWindow.FacePhoto.Source = image2;
+                        reident.FacePhoto.Source = image2;
 
                         SaveImage(image2, counti);
                         Debug.WriteLine("Distanz: " + BodyDistanceToCameron(body));
@@ -671,7 +671,7 @@ namespace ReIdentificator
             FaceProcessor_face face = facesToProcess.Find(element => element.TrackingId == e.TrackingId);
             if (face != null)
             {
-                mainWindow.startComparison(face.TrackingId, face);
+                reident.startComparison(face.TrackingId, face);
             }
             facesToProcess.Remove(face);
         }

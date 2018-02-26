@@ -12,10 +12,10 @@ namespace ReIdentificator
     {
         private readonly int minimumSimiliarProperties = 21;
         private Database db;
-        private MainWindow main;
+        private ReIdent main;
         private int personcounter = 0;
 
-        public Comparer(Database db, MainWindow main)
+        public Comparer(Database db, ReIdent main)
         {
             this.db = db;
             this.main = main;
