@@ -11,18 +11,18 @@ namespace ReIdentificator
         private List<BodyProcessor_body> bodiesToProcess = new List<BodyProcessor_body>();
         private KinectSensor kinect;
         private Comparer comparer;
-        private MainWindow mainWindow;
+        private ReIdent reident;
         private Microsoft.Kinect.Vector4 clipPlane;
 
         private readonly int minimumDetectionPerBody = 10;
         private readonly double minDistanceToSensorPlane = 0.8;
         private readonly double maxDistanceToSensorPlane = 4;
 
-        public BodyProcessor(MainWindow mainWindow, KinectSensor kinect, Comparer comparer)
+        public BodyProcessor(ReIdent reident, KinectSensor kinect, Comparer comparer)
         {
             this.kinect = kinect;
             this.comparer = comparer;
-            this.mainWindow = mainWindow;
+            this.reident = reident;
             this.bodies = new Body[this.kinect.BodyFrameSource.BodyCount];
         }
 
@@ -67,7 +67,7 @@ namespace ReIdentificator
                 // body left frame
                 if (!visibleInFrame)
                 {
-                    mainWindow.raisePersonLeftViewEvent(b.TrackingId);
+                    reident.raisePersonLeftViewEvent(b.TrackingId);
                     bodiesToProcess.RemoveAt(i);
                     processBody(b);
                 }
@@ -133,7 +133,7 @@ namespace ReIdentificator
                 _body.spineMidToLeftShoulder = Util.trimmedMean(_body.spineMidToLeftShoulder_list, trimmedMeanPercentage);
                 _body.spineMidToRightShoulder = Util.trimmedMean(_body.spineMidToRightShoulder_list, trimmedMeanPercentage);
                 //mainWindow.printLog("body parameters: " + _body.height + " - " + _body.neckToSpineMid + " - " + _body.spineMidToSpineBase + " - " + _body.neckToLeftShoulder + " - " + _body.neckToRightShoulder + " - " + _body.leftHipToSpineBase + " - " + _body.rightHipToSpineBase + " - " + _body.spineMidToLeftShoulder + " - " + _body.spineMidToRightShoulder);
-                mainWindow.startComparison(_body.TrackingId, _body);
+                reident.startComparison(_body.TrackingId, _body);
             }
             
         }

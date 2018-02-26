@@ -9,7 +9,7 @@ namespace ReIdentificator
     class ShapeProcessor
     {
         private Comparer comparer;
-        private MainWindow mainWindow;
+        private ReIdent reident;
         private KinectSensor kinect;
         private byte[] bodyIndexFrameData = null;
         private UInt16[] depthFrameData = null;
@@ -18,13 +18,13 @@ namespace ReIdentificator
         private readonly int minimumDetectionPerBody = 4;
         private readonly double minDistanceToSensorPlane = 0.8;
         private readonly double maxDistanceToSensorPlane = 4;
-        public ShapeProcessor(MainWindow mainWindow, KinectSensor kinect, Comparer comparer)
+        public ShapeProcessor(ReIdent reident, KinectSensor kinect, Comparer comparer)
         {
             this.kinect = kinect;
             this.comparer = comparer;
-            this.mainWindow = mainWindow;
+            this.reident = reident;
             this.bodies = new Body[this.kinect.BodyFrameSource.BodyCount];
-            mainWindow.BodyLeftView += HandleBodyLeftViewEvent;
+            reident.BodyLeftView += HandleBodyLeftViewEvent;
         }
 
         public void processBodyIndexFrame(BodyIndexFrame bodyIndexFrame, DepthFrame depthFrame, BodyFrame bodyFrame)
@@ -159,7 +159,7 @@ namespace ReIdentificator
                             shapeToBeDrawn[(int)firstShoulderDepthPoint.X + j + (int)firstShoulderDepthPoint.Y * depthFrame.FrameDescription.Width] = 100;
                             shapeToBeDrawn[(int)secondShoulderDepthPoint.X + j + (int)secondShoulderDepthPoint.Y * depthFrame.FrameDescription.Width] = 33;
                         }
-                        mainWindow.RenderPixelArray(shapeToBeDrawn, mainWindow.FrameDisplayImage);
+                        reident.RenderPixelArray(shapeToBeDrawn, reident.FrameDisplayImage);
 
 
 
@@ -180,7 +180,7 @@ namespace ReIdentificator
             {
                 shape.bodyWidth = Util.trimmedMean(shape.bodyWidth_list, trimmedMeanPercentage);
                 //mainWindow.printLog("Body width: " + shape.bodyWidth);
-                mainWindow.startComparison(shape.TrackingId, shape);
+                reident.startComparison(shape.TrackingId, shape);
             }
             shapesToProcess.Remove(shape);
         }

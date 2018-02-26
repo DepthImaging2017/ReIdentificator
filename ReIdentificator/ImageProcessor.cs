@@ -30,19 +30,19 @@ namespace ReIdentificator
         private byte[] colorPixels;
         private Body[] bodies = null;
         private WriteableBitmap colorBitmap;
-        private MainWindow mainWindow;
+        private ReIdent reident;
         private Dictionary<ulong, List<byte[]>[]> colors = new Dictionary<ulong, List<byte[]>[]>();
         private Dictionary<ulong, List<List<int>>> areas = new Dictionary<ulong, List<List<int>>>();
 
-        public ImageProcessor(KinectSensor kinect, Comparer comparer, MainWindow mainWindow)
+        public ImageProcessor(KinectSensor kinect, Comparer comparer, ReIdent reident)
         {
             this.kinect = kinect;
             this.comparer = comparer;
-            this.mainWindow = mainWindow;
+            this.reident = reident;
             this.bodies = new Body[this.kinect.BodyFrameSource.BodyCount];
-            mainWindow.StackPanelInit(jointTypesToTrack.Length);
+            reident.StackPanelInit(jointTypesToTrack.Length);
 
-            mainWindow.BodyLeftView += HandleBodyLeftViewEvent;
+            reident.BodyLeftView += HandleBodyLeftViewEvent;
         }
 
         public byte[] getColorOfJoint(Joint joint)
@@ -220,7 +220,7 @@ namespace ReIdentificator
                  }
                  if(fieldToShow != -1)
                     {
-                        mainWindow.updatePanel(outputColors, fieldToShow);
+                        reident.updatePanel(outputColors, fieldToShow);
                     }
                }
 
@@ -372,19 +372,19 @@ namespace ReIdentificator
 
             
 
-            mainWindow.printLog("average areas of person with id " + e.TrackingId + " arm l: " + diffentAreas[0]);
-            mainWindow.printLog("average areas of person with id " + e.TrackingId + " arm r: " + diffentAreas[1]);
-            mainWindow.printLog("average areas of person with id " + e.TrackingId + " leg l: " + diffentAreas[2]);
-            mainWindow.printLog("average areas of person with id " + e.TrackingId + " leg r: " + diffentAreas[3]);
+            reident.printLog("average areas of person with id " + e.TrackingId + " arm l: " + diffentAreas[0]);
+            reident.printLog("average areas of person with id " + e.TrackingId + " arm r: " + diffentAreas[1]);
+            reident.printLog("average areas of person with id " + e.TrackingId + " leg l: " + diffentAreas[2]);
+            reident.printLog("average areas of person with id " + e.TrackingId + " leg r: " + diffentAreas[3]);
 
             data.image_areacount_armleft = diffentAreas[0];
             data.image_areacount_armright = diffentAreas[1];
             data.image_areacount_legleft = diffentAreas[2];
             data.image_areacount_legright = diffentAreas[3];
 
-            mainWindow.startComparison(e.TrackingId, data);
+            reident.startComparison(e.TrackingId, data);
 
-            mainWindow.updatePanel(outputColors, fieldToShow);
+            reident.updatePanel(outputColors, fieldToShow);
         }
 
         public void Watchinator(Tuple<JointType, JointType>[] betweenTheseTwo, Body[] bodies)
