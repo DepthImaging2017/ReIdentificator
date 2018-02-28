@@ -370,12 +370,11 @@ namespace ReIdentificator
             float[] diffentAreas = WatchinatorAvg(e.TrackingId);
             Debug.WriteLine(diffentAreas);
 
-            ImageProcessor_data data = new ImageProcessor_data(e.TrackingId);
 
-            mainWindow.printLog("average areas of person with id " + e.TrackingId + " arm l: " + diffentAreas[0]);
+            /*mainWindow.printLog("average areas of person with id " + e.TrackingId + " arm l: " + diffentAreas[0]);
             mainWindow.printLog("average areas of person with id " + e.TrackingId + " arm r: " + diffentAreas[1]);
             mainWindow.printLog("average areas of person with id " + e.TrackingId + " leg l: " + diffentAreas[2]);
-            mainWindow.printLog("average areas of person with id " + e.TrackingId + " leg r: " + diffentAreas[3]);
+            mainWindow.printLog("average areas of person with id " + e.TrackingId + " leg r: " + diffentAreas[3]);*/
 
             data.image_areacount_armleft = diffentAreas[0];
             data.image_areacount_armright = diffentAreas[1];

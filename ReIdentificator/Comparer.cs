@@ -10,7 +10,7 @@ namespace ReIdentificator
 {
     public class Comparer
     {
-        private readonly int minimumSimiliarProperties = 21;
+        private readonly int minimumSimiliarProperties = 24;
         private Database db;
         private MainWindow main;
         private int personcounter = 0;
@@ -68,8 +68,18 @@ namespace ReIdentificator
                 PropertyInfo[] properties = matcher.GetType().GetProperties();
                 foreach(PropertyInfo pi in properties)
                 {
+                    
                     bool val = (bool)pi.GetValue(matcher, null);
-                    if (val) count++;
+                    if (val) 
+                    {
+                        count++;
+                        if (pi.Name == "height")
+                        {
+                            count = count + 2;
+                        }
+                    }
+
+                    //main.printLog(pi.Name + " :" + val);
                 }
                 if(count >= minimumSimiliarProperties)
                 {
@@ -82,14 +92,15 @@ namespace ReIdentificator
                     DateTime time = DateTime.Now;
                     person.timestamps.Add(time);
                     db.UpdateEntry(person.ID.ToString(), "timestamps", person.timestamps, null);
-                    main.printLog("Person that left the frame is reidentified!");
+                    main.printLog("Person was REIDENTIFIED!" + "\n");
+                    //main.printLog(person.ID.ToString());
                     return;
                 }
             }
-            db.AddEntry(current, null);
-            main.printLog("Person that left the frame NOT reidentified!");
+            db.AddEntry(current, (e)=> { /*main.printLog(e.ToString());*/ });
+            main.printLog("NEW person found!" + "\n");
             personcounter = personcounter + 1;
-            main.printPersonCounter(("" + personcounter));
+            main.printPersonCounter("" + personcounter);
             return;
 
         } 

@@ -31,7 +31,7 @@ namespace ReIdentificator
             await collection.InsertOneAsync(obj);
             Debug.WriteLine("Inserted Document");
             //Debug.WriteLine(obj.ID);
-            //callback(obj.ID);
+            callback(obj.ID);
         }
 
         public async void UpdateEntry(string id, string key, Object val, Action<Individual> callback)

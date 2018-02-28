@@ -12,9 +12,10 @@
                 <Image x:Name="FrameDisplayImage" Stretch="None" Width="570" Height="512" MinWidth="5"/>
                 <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" x:Name="userOutput">
                 </StackPanel>
-                <StackPanel Height="533">
+                <StackPanel Margin="20,0,0,0" Height="533">
                     <TextBox x:Name="LoggingBox" HorizontalAlignment="Left" Height="250" Margin="10,10,10,10" TextWrapping="Wrap" VerticalAlignment="Top" Width="500"/>
-                    <Label x:Name="personcounter" Content="Person Counter: 0"/>
+                    <Label x:Name="personcounter" FontSize="60" FontWeight="Bold" Margin="0,70,0,0"  Content="Person Counter: 0"/>
+                    <Image x:Name="use" Height="250" Width="507"/>
                     <Image x:Name="FacePhoto" Height="125" Width="507"/>
                     <Image x:Name="FacePhoto2" Height="125" Width="512"/>
                 </StackPanel>

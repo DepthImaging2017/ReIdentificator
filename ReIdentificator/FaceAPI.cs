@@ -40,7 +40,7 @@ namespace ReIdentificator
         //Dictionary that saves all tracked id's bool = false means the person has not been tracked yet
         private Dictionary<ulong, Boolean> trackedBodies = new Dictionary<ulong, bool>();
         private readonly IFaceServiceClient faceServiceClient =
-        new FaceServiceClient("21f520d419c34834b5b955354b524026", "https://westcentralus.api.cognitive.microsoft.com/face/v1.0");
+        new FaceServiceClient("deae3f3a4846477cb7c31086a18fbe3a", "https://westcentralus.api.cognitive.microsoft.com/face/v1.0");
         private List<FaceProcessor_face> facesToProcess= new List<FaceProcessor_face>();
 
         private FaceFrameReader _faceReader = null;
