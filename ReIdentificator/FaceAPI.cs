@@ -50,8 +50,6 @@ namespace ReIdentificator
         private ulong currentID ;
         private bool faceTracked = false; //Global variable that is used in the function IsFaceInFrame(result)
         Face[] faces;                   // The list of detected faces.
-        String[] faceDescriptions;      // The list of descriptions for the detected faces.
-        bool[] alreadyPrinted;
 
         public FaceAPI(KinectSensor kinect, Comparer comparer, ReIdent reident)
         {
@@ -74,8 +72,7 @@ namespace ReIdentificator
             _bodies = new Body[kinect.BodyFrameSource.BodyCount];
             reident.BodyLeftView += HandleBodyLeftViewEvent;
         }
-        /*Helper Functions that are needed to determine if there is a face in the frame
- */
+        /*Helper Functions that are needed to determine if there is a face in the frame*/
         private void BodyReader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
             using (var frame = e.FrameReference.AcquireFrame())
@@ -119,7 +116,6 @@ namespace ReIdentificator
                         var nose = result.FacePointsInColorSpace[FacePointType.Nose];
                         var mouthLeft = result.FacePointsInColorSpace[FacePointType.MouthCornerLeft];
                         var mouthRight = result.FacePointsInColorSpace[FacePointType.MouthCornerRight];
-
                         var eyeLeftClosed = result.FaceProperties[FaceProperty.LeftEyeClosed];
                         var eyeRightClosed = result.FaceProperties[FaceProperty.RightEyeClosed];
                         var mouthOpen = result.FaceProperties[FaceProperty.MouthOpen];
@@ -131,6 +127,8 @@ namespace ReIdentificator
 
             }
         }
+
+
         private void IsFaceInFrame(FaceFrameResult result)
         {
             if (result != null && result.FacePointsInColorSpace[FacePointType.EyeLeft].X > 0 && result.FacePointsInColorSpace[FacePointType.EyeLeft].Y > 0 )
@@ -138,29 +136,41 @@ namespace ReIdentificator
             else
                 faceTracked = false;
                
-            }
+        }
+
+        /*Function that calculates distance between center of camera and a specific CameraSpacePoint
+        @param point is a specific CameraSpacePoint
+        returns distance of point to camera center in meters as double 
+        */
         public double Length(CameraSpacePoint point)
         {
             return Math.Sqrt(
-                point.X * point.X +
-                point.Y * point.Y +
-                point.Z * point.Z
+                (point.X * point.X) +
+                (point.Y * point.Y) +
+                (point.Z * point.Z)
             );
         }
 
+        /*Function that calculates distance between center of camera and head joint of a given body
+        @param body a specific Kinect body object
+        returns distance between head joint of body and camera in meters as double*/
         private double BodyDistanceToCameron (Body body)
         {
+            /*set the initial distance between camera and body(headjoint) to 100 meters, as we know Kinect 
+            can not track bodies of 100m -> this means if returned distance is still 100 the body was not tracked*/
             double distance = 100;
+            //if a body is tracked...
             if (body != null)
             {
+                //set point to the position of head joint 
                 var point = body.Joints[JointType.Head].Position;
+                //calculate distance between camera and head joint
                 distance = Length(point);
                 
             }
            
                 return distance;
         } 
-
 
         public bool ContainsKeyValue()
         {
@@ -174,61 +184,74 @@ namespace ReIdentificator
             }
             return false;
         }
+
+        /*
+        Function that saves a BitmapSource to a .jpeg file with name "Test" + a given integer
+        @param image is the BitmapSource you want to save to jpeg
+        @param i is the integer you add to the name "Test" of the .jpeg file (if i = 1 -> filename = "Test1") 
+        */
         private void SaveImage(BitmapSource image, int i)
         {
-
+            //check currrent Direction path
             string currentDir = Environment.CurrentDirectory;
 
-            string subPath = currentDir + @"\Test"; // your code goes here
+            //sets the Path your .jpeg will be saved to
+            string subPath = currentDir + @"\Test"; 
 
-            //If clause that checks if the needed directory was already created , if not it will be created here 
+            //checks whether the needed directory was already created , if not it will be created here 
             bool exists = System.IO.Directory.Exists(subPath);
-
             if (!exists)
                 System.IO.Directory.CreateDirectory(subPath);
 
+            // create .jpeg from BitmapSource and save it to subpath
             FileStream stream = new FileStream(String.Format(subPath+@"\Test{0}.jpg",counti), FileMode.Create);
             JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-
             encoder.FlipHorizontal = false;
             encoder.FlipVertical = false;
             encoder.QualityLevel = 30;
             encoder.Frames.Add(BitmapFrame.Create(image));
             encoder.Save(stream);
 
+            //close stream
             stream.Close();
         }
 
         
         //Call this method after you created your image in the eventhandlers (e.g.)
-        
-        /// <summary>
-        /// Eventhandler, triggered when new color frame is available
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        // <summary>
+        // Eventhandler, triggered when new color frame is available
+        // </summary>
+        // <param name="sender"></param>
+        // <param name="e"></param>
         public void nui_ColorFrameReady(ColorFrame colorFrame, BodyFrame bodyFrame)
         {
+            // if there is a face in current frame
             if (faceTracked == true) { 
-               
-            
-                    Debug.WriteLine("Alle Parameter erfüllt");
+                Debug.WriteLine("Alle Parameter erfüllt");
 
-                // 32-bit per pixel, RGBA image
-                //PlanarImage Image = e.ImageFrame.Image;
+                //create empty byte array with size of colorFrame (RGBA image, 32 bit per pixel -> byte array with size=(Length in Pixels * 4))
                 this.colorPixels = new byte[this.kinect.ColorFrameSource.FrameDescription.LengthInPixels * 4];
+                
+                //copy data from color frame to colorPixels byte array
                 colorFrame.CopyConvertedFrameDataToArray(this.colorPixels, Microsoft.Kinect.ColorImageFormat.Bgra);
 
+                //create WriteAbleBitmap with size of color frame source
                 this.colorBitmap = new WriteableBitmap(this.kinect.ColorFrameSource.FrameDescription.Width, this.kinect.ColorFrameSource.FrameDescription.Height, 96.0, 96.0, PixelFormats.Bgr32, null);
 
+                //set BitmapSource image to ColorFrameSource
                 image = BitmapSource.Create(
                     this.kinect.ColorFrameSource.FrameDescription.Width, this.kinect.ColorFrameSource.FrameDescription.Height, 96, 96, PixelFormats.Bgr32, null, this.colorPixels, this.colorBitmap.PixelWidth * sizeof(int));
 
 
-
+                //shows our "image" in the reident window
                 reident.FacePhoto2.Source = image;
+
+                //save image
                 SaveImage(image, counti);
+
+                //rise counter for .jpeg file name integer one up
                 counti = counti + 1;
+
 
                 bodyFrame.GetAndRefreshBodyData(this.bodies);
                 GetPositionOfHead(bodies);
@@ -237,7 +260,7 @@ namespace ReIdentificator
         }
         }
 
-
+        /*
         public void processFaceFrame(ColorFrame colorFrame, BodyFrame bodyFrame)
         {
             if (counter % 100 == 50)
@@ -288,8 +311,9 @@ namespace ReIdentificator
             //bodyFrame.GetAndRefreshBodyData(this.bodies);
             //GetColorOfBodyParts(jointTypesToTrack, bodies);
         }
+        */
 
-
+        /*
         private Bitmap BitmapFromWriteableBitmap(WriteableBitmap writeBmp)
         {
             Bitmap bmp;
@@ -302,7 +326,10 @@ namespace ReIdentificator
             }
             return bmp;
         }
+        */
 
+
+        /*
         private static ImageCodecInfo GetEncoderInfo(String mimeType)
         {
             int j;
@@ -315,14 +342,22 @@ namespace ReIdentificator
             }
             return null;
         }
+        */
 
-
+        /*
+        Function that sets attributes of a FaceProcessor_face object to values from a face analyzed by Microsoft Azure FaceAPI
+        @param _face is a specific Object that will be filled with data
+        @param face is an object given by Microsoft Azure FaceAPI that includes calculated facedata 
+        */
         private void processFace(FaceProcessor_face _face, Face face)
         {
             
+            //set all attributes from _face to given values of face 
             _face.face_gender = face.FaceAttributes.Gender;    
             _face.face_age = face.FaceAttributes.Age;
             _face.face_hair_bald = face.FaceAttributes.Hair.Bald * 100;
+            
+            //set haircolor attributes
             HairColor[] hairColors = face.FaceAttributes.Hair.HairColor;
             foreach (HairColor hairColor in hairColors)
             {
@@ -344,58 +379,48 @@ namespace ReIdentificator
                 }
                 _face.face_glasses = face.FaceAttributes.Glasses.ToString();
             }
-               //mainWindow.printLog("face parameters: " + _face.face_gender + " - " + _face.face_age + " - " + _face.face_hair_bald + " - " + _face.face_hair_blonde + " - " + _face.face_hair_black + " - " + _face.face_hair_brown + " - " + _face.face_hair_red + " - " + _face.face_glasses);
-                //mainWindow.startComparison(_body.TrackingId, _body);
-
-            
         }
 
-
-        public async void BrowseButton_Click2(int counti, FaceProcessor_face _face)
+        /*
+        Function that sends picture to Microsoft Azure FaceAPI and calls function "processFace" to saves result of face analysis to own face objects
+        @param counti index of name of current face jpeg that will be sended to FaceAPI
+        @param _face is a specific Object that will be filled with face data
+        */
+        public async void SendPictureToAPI(int counti, FaceProcessor_face _face)
         {
+            //get current working direction
             string currentDir = Environment.CurrentDirectory;
-
             string subPath = currentDir + @"\Test"; // your code goes here
 
             // Display the image file.
             string filePath = String.Format(subPath + @"\Test{0}.jpg", counti);
 
+
+            //send image to Microsoft Azure FaceAPi
             Uri fileUri = new Uri(filePath);
             BitmapImage bitmapSource = new BitmapImage();
-
             bitmapSource.BeginInit();
             bitmapSource.CacheOption = BitmapCacheOption.None;
             bitmapSource.UriSource = fileUri;
             bitmapSource.EndInit();
-
-            //mainWindow.FacePhoto.Source = bitmapSource;
-
-
             // Detect any faces in the image.
-            reident.Title = "Detecting...";
             faces = await UploadAndDetectFaces(filePath);
-            reident.Title = String.Format("Detection Finished. {0} face(s) detected", faces.Length);
 
+            //if there are some faces.. (there should only be one face as we only send a rectangle with size of one face)
             if (faces.Length > 0)
             {
-                faceDescriptions = new String[faces.Length];
-                alreadyPrinted = new bool[faces.Length];
-
                 for (int i = 0; i < faces.Length; i++)
-                {
-                    Face face = faces[i];
-                    
-                    // Store the face description.
-                    faceDescriptions[i] = FaceDescription(face);
-                    alreadyPrinted[i] = false;
-
-                    processFace(_face, face);
+                {   
+                    //set attributes of our _face object to those returned by Microsoft Azure FaceAPI               
+                    processFace(_face, face[i]);
                 }
-
-
             }
         }
 
+
+        /*
+        Function that uploads
+        */
         private async Task<Face[]> UploadAndDetectFaces(string imageFilePath)
         {
 
@@ -481,7 +506,7 @@ namespace ReIdentificator
             // Return the built string.
             return sb.ToString();
         }
-
+        /*
         private string FaceDescription(Face face)
         {
             StringBuilder sb = new StringBuilder();
@@ -532,7 +557,9 @@ namespace ReIdentificator
             // Return the built string.
             return sb.ToString();
         }
+        */
 
+        
         public float[] getPositionOfJoint(Joint joint)
         {
             ColorSpacePoint positionPoint = kinect.CoordinateMapper.MapCameraPointToColorSpace(joint.Position);
@@ -586,7 +613,7 @@ namespace ReIdentificator
 
                         SaveImage(image2, counti);
                         Debug.WriteLine("Distanz: " + BodyDistanceToCameron(body));
-                        BrowseButton_Click2(counti, _face);
+                        SendPictureToAPI(counti, _face);
 
                         counti = counti + 1;
                     
