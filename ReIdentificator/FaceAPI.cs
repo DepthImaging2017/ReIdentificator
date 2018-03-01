@@ -223,7 +223,7 @@ namespace ReIdentificator
         // </summary>
         // <param name="sender"></param>
         // <param name="e"></param>
-        public void nui_ColorFrameReady(ColorFrame colorFrame, BodyFrame bodyFrame)
+        public void processFaceAnalysis(ColorFrame colorFrame, BodyFrame bodyFrame)
         {
             // if there is a face in current frame
             if (faceTracked == true) { 
@@ -396,14 +396,16 @@ namespace ReIdentificator
             string filePath = String.Format(subPath + @"\Test{0}.jpg", counti);
 
 
-            //send image to Microsoft Azure FaceAPi
+            /*
             Uri fileUri = new Uri(filePath);
             BitmapImage bitmapSource = new BitmapImage();
             bitmapSource.BeginInit();
             bitmapSource.CacheOption = BitmapCacheOption.None;
             bitmapSource.UriSource = fileUri;
             bitmapSource.EndInit();
-            // Detect any faces in the image.
+            */
+
+            //send image to Microsoft Azure FaceAPI & detect any faces in the image.
             faces = await UploadAndDetectFaces(filePath);
 
             //if there are some faces.. (there should only be one face as we only send a rectangle with size of one face)
@@ -419,14 +421,14 @@ namespace ReIdentificator
 
 
         /*
-        Function that uploads
+        Function that uploads an image to 
         */
         private async Task<Face[]> UploadAndDetectFaces(string imageFilePath)
         {
 
             // The list of Face attributes to return.
             IEnumerable<FaceAttributeType> faceAttributes =
-                new FaceAttributeType[] { FaceAttributeType.Gender, FaceAttributeType.Age, FaceAttributeType.Smile, FaceAttributeType.Emotion, FaceAttributeType.Glasses, FaceAttributeType.Hair };
+                new FaceAttributeType[] { FaceAttributeType.Gender, FaceAttributeType.Age, /*FaceAttributeType.Smile, FaceAttributeType.Emotion,*/ FaceAttributeType.Glasses, FaceAttributeType.Hair };
 
             // Call the Face API.
             try
@@ -456,6 +458,7 @@ namespace ReIdentificator
             }
         }
 
+        /*
         private string FaceData(Face face)
         {
             StringBuilder sb = new StringBuilder();
@@ -506,6 +509,8 @@ namespace ReIdentificator
             // Return the built string.
             return sb.ToString();
         }
+        */ 
+
         /*
         private string FaceDescription(Face face)
         {
@@ -559,7 +564,7 @@ namespace ReIdentificator
         }
         */
 
-        
+
         public float[] getPositionOfJoint(Joint joint)
         {
             ColorSpacePoint positionPoint = kinect.CoordinateMapper.MapCameraPointToColorSpace(joint.Position);
@@ -613,7 +618,7 @@ namespace ReIdentificator
 
                         SaveImage(image2, counti);
                         Debug.WriteLine("Distanz: " + BodyDistanceToCameron(body));
-                        SendPictureToAPI(counti, _face);
+                        SendImageAndProcess(counti, _face);
 
                         counti = counti + 1;
                     
@@ -621,6 +626,7 @@ namespace ReIdentificator
             }
         }
 
+        /*
         byte[] PostAvgColor(List<byte[]> colors, int[] preColors, double intError)
          {
            //195075 == (255^2)*3
@@ -691,6 +697,7 @@ namespace ReIdentificator
                 return asarray;
             }
          }
+         */
 
         private void HandleBodyLeftViewEvent(object sender, LeftViewEventArgs e)
         {

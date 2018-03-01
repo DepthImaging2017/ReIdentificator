@@ -135,11 +135,22 @@ namespace ReIdentificator
                     {
                         imageProcessor.processColorFrame(colorFrame, bodyFrame);
                     }
+                    /*
+                    Replaced the following lines of code:
                     if (bodyIndexFrame != null && depthFrame != null && bodyFrame != null && skipFrameTicker % 15 == 0)
                     {
                         shapeProcessor.processBodyIndexFrame(bodyIndexFrame, depthFrame, bodyFrame);
                         faceAPI.nui_ColorFrameReady(colorFrame, bodyFrame);
 
+                    }
+                    */
+                    if (bodyIndexFrame != null && depthFrame != null && bodyFrame != null && skipFrameTicker % 15 == 0)
+                    {
+                        shapeProcessor.processBodyIndexFrame(bodyIndexFrame, depthFrame, bodyFrame);
+                    }
+                    if (depthFrame != null && bodyFrame != null && colorFrame != null)
+                    {
+                        faceAPI.processFaceAnalysis(colorFrame, bodyFrame);
                     }
                 }
                 finally
