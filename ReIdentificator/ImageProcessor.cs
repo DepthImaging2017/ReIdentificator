@@ -103,7 +103,7 @@ namespace ReIdentificator
             int green = 0;
             int blue = 0;
             int opacity = 0;
-            int length = 0;
+            int length = 1;
 
             colors.ForEach(color => {
                 if(color[3] != 0) {
@@ -348,7 +348,6 @@ namespace ReIdentificator
                 {
                     outputColors[i,j] = avgColor[j];
                 }
-                //mainWindow.printLog("average color of joint #"+(i+1)+" of person with id " + e.TrackingId + ": " + avgColor[0] + ", " + avgColor[1] + ", " + avgColor[2] + ", " + avgColor[3]);
             }
             data.image_color_shoulderleft  = outputColors[0,0]*65536 + outputColors[0,1]*255 + outputColors[0,2];
             data.image_color_shoulderright = outputColors[1,0]*65536 + outputColors[1,1]*255 + outputColors[1,2];
@@ -371,11 +370,6 @@ namespace ReIdentificator
             Debug.WriteLine(diffentAreas);
 
             
-
-            reident.printLog("average areas of person with id " + e.TrackingId + " arm l: " + diffentAreas[0]);
-            reident.printLog("average areas of person with id " + e.TrackingId + " arm r: " + diffentAreas[1]);
-            reident.printLog("average areas of person with id " + e.TrackingId + " leg l: " + diffentAreas[2]);
-            reident.printLog("average areas of person with id " + e.TrackingId + " leg r: " + diffentAreas[3]);
 
             data.image_areacount_armleft = diffentAreas[0];
             data.image_areacount_armright = diffentAreas[1];
