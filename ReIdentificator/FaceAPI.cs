@@ -24,11 +24,17 @@ namespace ReIdentificator
 {
     class FaceAPI
     {
+        /*This is the key you will need in order for the API to work 
+          we used trial keys which lasted 30 days and have a limit on how many 
+          calls to the API you can make
+
+            visit : https://azure.microsoft.com/de-de/services/cognitive-services/face/ for a new key 
+        */  
+        private static string API_KEY = "deae3f3a4846477cb7c31086a18fbe3a";
         private static JointType[] jointTypesToTrack = { JointType.ShoulderLeft, JointType.ShoulderRight, JointType.ShoulderRight, JointType.KneeRight };
-       //To be cleared? private int avgColorView = 0;
+
         private KinectSensor kinect;
         private Comparer comparer;
-        private int counter = 0;
         private int counti = 0;
         private byte[] colorPixels;
         private Body[] bodies = null;
@@ -40,7 +46,7 @@ namespace ReIdentificator
         //Dictionary that saves all tracked id's bool = false means the person has not been tracked yet
         private Dictionary<ulong, Boolean> trackedBodies = new Dictionary<ulong, bool>();
         private readonly IFaceServiceClient faceServiceClient =
-        new FaceServiceClient("deae3f3a4846477cb7c31086a18fbe3a", "https://westcentralus.api.cognitive.microsoft.com/face/v1.0");
+        new FaceServiceClient(API_KEY, "https://westcentralus.api.cognitive.microsoft.com/face/v1.0");
         private List<FaceProcessor_face> facesToProcess= new List<FaceProcessor_face>();
 
         private FaceFrameReader _faceReader = null;
@@ -59,7 +65,7 @@ namespace ReIdentificator
             this.bodies = new Body[this.kinect.BodyFrameSource.BodyCount];
             _bodyReader = kinect.BodyFrameSource.OpenReader();
             _bodyReader.FrameArrived += BodyReader_FrameArrived;
-            _faceSource = new FaceFrameSource(kinect, 0, FaceFrameFeatures.BoundingBoxInColorSpace |
+            _faceSource = new FaceFrameSource(kinect, 0,  FaceFrameFeatures.BoundingBoxInColorSpace |
                                                           FaceFrameFeatures.FaceEngagement |
                                                           FaceFrameFeatures.Glasses |
                                                           FaceFrameFeatures.Happy |
@@ -128,10 +134,15 @@ namespace ReIdentificator
             }
         }
 
-
+        /** Simple function that detects if the given face parameters are set or not 
+         *  more parameters can be added via '&&'
+         */
         private void IsFaceInFrame(FaceFrameResult result)
         {
-            if (result != null && result.FacePointsInColorSpace[FacePointType.EyeLeft].X > 0 && result.FacePointsInColorSpace[FacePointType.EyeLeft].Y > 0 )
+            if (result != null && result.FacePointsInColorSpace[FacePointType.EyeLeft].X > 0 &&
+                result.FacePointsInColorSpace[FacePointType.EyeLeft].Y > 0 &&
+                result.FacePointsInColorSpace[FacePointType.EyeRight].X > 0 &&
+                result.FacePointsInColorSpace[FacePointType.EyeRight].Y > 0)
                 faceTracked = true;
             else
                 faceTracked = false;
@@ -218,11 +229,6 @@ namespace ReIdentificator
 
         
         //Call this method after you created your image in the eventhandlers (e.g.)
-        // <summary>
-        // Eventhandler, triggered when new color frame is available
-        // </summary>
-        // <param name="sender"></param>
-        // <param name="e"></param>
         public void processFaceAnalysis(ColorFrame colorFrame, BodyFrame bodyFrame)
         {
             // if there is a face in current frame
@@ -246,9 +252,6 @@ namespace ReIdentificator
                 //shows our "image" in the reident window
                 reident.FacePhoto2.Source = image;
 
-                //save image
-                SaveImage(image, counti);
-
                 //rise counter for .jpeg file name integer one up
                 counti = counti + 1;
 
@@ -257,92 +260,28 @@ namespace ReIdentificator
                 GetPositionOfHead(bodies);
             
 
-        }
-        }
-
-        /*
-        public void processFaceFrame(ColorFrame colorFrame, BodyFrame bodyFrame)
-        {
-            if (counter % 100 == 50)
-            {
-                this.colorPixels = new byte[this.kinect.ColorFrameSource.FrameDescription.LengthInPixels * 4];
-                colorFrame.CopyConvertedFrameDataToArray(this.colorPixels, Microsoft.Kinect.ColorImageFormat.Bgra);
-                this.colorBitmap = new WriteableBitmap(this.kinect.ColorFrameSource.FrameDescription.Width, this.kinect.ColorFrameSource.FrameDescription.Height, 96.0, 96.0, PixelFormats.Bgr32, null);
-                // Write the pixel data into our bitmap
-                this.colorBitmap.WritePixels(
-                    new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight),
-                    this.colorPixels,
-                    this.colorBitmap.PixelWidth * sizeof(int),
-                    0);
-
-                Bitmap myBitmap;
-                ImageCodecInfo myImageCodecInfo;
-                System.Drawing.Imaging.Encoder myEncoder;
-                EncoderParameter myEncoderParameter;
-                EncoderParameters myEncoderParameters;
-
-                // Create a Bitmap object based on a BMP file.
-                
-
-                // Get an ImageCodecInfo object that represents the JPEG codec.
-                myImageCodecInfo = GetEncoderInfo("image/jpeg");
-
-                // Create an Encoder object based on the GUID
-
-                // for the Quality parameter category.
-                myEncoder = System.Drawing.Imaging.Encoder.Quality;
-
-                // Create an EncoderParameters object.
-
-                // An EncoderParameters object has an array of EncoderParameter
-
-                // objects. In this case, there is only one
-
-                // EncoderParameter object in the array.
-                myEncoderParameters = new EncoderParameters(1);
-
-                // Save the bitmap as a JPEG file with quality level 25.
-                myEncoderParameter = new EncoderParameter(myEncoder, 25L);
-                myEncoderParameters.Param[0] = myEncoderParameter;
-                
-
             }
-            counter = counter + 1;
-            //bodyFrame.GetAndRefreshBodyData(this.bodies);
-            //GetColorOfBodyParts(jointTypesToTrack, bodies);
         }
-        */
 
-        /*
-        private Bitmap BitmapFromWriteableBitmap(WriteableBitmap writeBmp)
+        /** 
+         * Helper function that deletes every picture in the given directory
+         * gets called after an API call is returned 
+         */
+        public void DeletePictures()
         {
-            Bitmap bmp;
-            using (MemoryStream outStream = new MemoryStream())
-            {
-                BitmapEncoder enc = new BmpBitmapEncoder();
-                enc.Frames.Add(BitmapFrame.Create((BitmapSource)writeBmp));
-                enc.Save(outStream);
-                bmp = new Bitmap(outStream);
-            }
-            return bmp;
-        }
-        */
+            string currentDir = Environment.CurrentDirectory;
 
+            System.IO.DirectoryInfo di = new DirectoryInfo(currentDir + @"\Test");
 
-        /*
-        private static ImageCodecInfo GetEncoderInfo(String mimeType)
-        {
-            int j;
-            ImageCodecInfo[] encoders;
-            encoders = ImageCodecInfo.GetImageEncoders();
-            for (j = 0; j < encoders.Length; ++j)
+            foreach (FileInfo file in di.GetFiles())
             {
-                if (encoders[j].MimeType == mimeType)
-                    return encoders[j];
+                file.Delete();
             }
-            return null;
+            foreach (DirectoryInfo dir in di.GetDirectories())
+            {
+                dir.Delete(true);
+            }
         }
-        */
 
         /*
         Function that sets attributes of a FaceProcessor_face object to values from a face analyzed by Microsoft Azure FaceAPI
@@ -395,16 +334,6 @@ namespace ReIdentificator
             // Display the image file.
             string filePath = String.Format(subPath + @"\Test{0}.jpg", counti);
 
-
-            /*
-            Uri fileUri = new Uri(filePath);
-            BitmapImage bitmapSource = new BitmapImage();
-            bitmapSource.BeginInit();
-            bitmapSource.CacheOption = BitmapCacheOption.None;
-            bitmapSource.UriSource = fileUri;
-            bitmapSource.EndInit();
-            */
-
             //send image to Microsoft Azure FaceAPI & detect any faces in the image.
             faces = await UploadAndDetectFaces(filePath);
 
@@ -414,7 +343,7 @@ namespace ReIdentificator
                 for (int i = 0; i < faces.Length; i++)
                 {   
                     //set attributes of our _face object to those returned by Microsoft Azure FaceAPI               
-                    processFace(_face, face[i]);
+                    processFace(_face, faces[i]);
                 }
             }
         }
@@ -437,9 +366,8 @@ namespace ReIdentificator
                 { 
                     Face[] faces = await faceServiceClient.DetectAsync(imageFileStream, returnFaceId: true, returnFaceLandmarks: false, returnFaceAttributes: faceAttributes);
                     
-                   // mainWindow.printLog(FaceDescription(faces[0]));
                     trackedBodies[currentID] = true;
-
+                    DeletePictures();
                     return faces;
 
                 }
@@ -458,111 +386,6 @@ namespace ReIdentificator
             }
         }
 
-        /*
-        private string FaceData(Face face)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("Face: ");
-
-            // Add the gender, age, and smile.
-            sb.Append(face.FaceAttributes.Gender);
-            sb.Append(", ");
-            sb.Append(face.FaceAttributes.Age);
-            sb.Append(", ");
-            sb.Append(String.Format("smile {0:F1}%, ", face.FaceAttributes.Smile * 100));
-
-            // Add the emotions. Display all emotions over 10%.
-            sb.Append("Emotion: ");
-            EmotionScores emotionScores = face.FaceAttributes.Emotion;
-            if (emotionScores.Anger >= 0.1f) sb.Append(String.Format("anger {0:F1}%, ", emotionScores.Anger * 100));
-            if (emotionScores.Contempt >= 0.1f) sb.Append(String.Format("contempt {0:F1}%, ", emotionScores.Contempt * 100));
-            if (emotionScores.Disgust >= 0.1f) sb.Append(String.Format("disgust {0:F1}%, ", emotionScores.Disgust * 100));
-            if (emotionScores.Fear >= 0.1f) sb.Append(String.Format("fear {0:F1}%, ", emotionScores.Fear * 100));
-            if (emotionScores.Happiness >= 0.1f) sb.Append(String.Format("happiness {0:F1}%, ", emotionScores.Happiness * 100));
-            if (emotionScores.Neutral >= 0.1f) sb.Append(String.Format("neutral {0:F1}%, ", emotionScores.Neutral * 100));
-            if (emotionScores.Sadness >= 0.1f) sb.Append(String.Format("sadness {0:F1}%, ", emotionScores.Sadness * 100));
-            if (emotionScores.Surprise >= 0.1f) sb.Append(String.Format("surprise {0:F1}%, ", emotionScores.Surprise * 100));
-
-            // Add glasses.
-            sb.Append(face.FaceAttributes.Glasses);
-            sb.Append(", ");
-
-            // Add hair.
-            sb.Append("Hair: ");
-
-            // Display baldness confidence if over 1%.
-            if (face.FaceAttributes.Hair.Bald >= 0.01f)
-                sb.Append(String.Format("bald {0:F1}% ", face.FaceAttributes.Hair.Bald * 100));
-
-            // Display all hair color attributes over 10%.
-            HairColor[] hairColors = face.FaceAttributes.Hair.HairColor;
-            foreach (HairColor hairColor in hairColors)
-            {
-                if (hairColor.Confidence >= 0.1f)
-                {
-                    sb.Append(hairColor.Color.ToString());
-                    sb.Append(String.Format(" {0:F1}% ", hairColor.Confidence * 100));
-                }
-            }
-
-            // Return the built string.
-            return sb.ToString();
-        }
-        */ 
-
-        /*
-        private string FaceDescription(Face face)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("Face: ");
-
-            // Add the gender, age, and smile.
-            sb.Append(face.FaceAttributes.Gender);
-            sb.Append(", ");
-            sb.Append(face.FaceAttributes.Age);
-            sb.Append(", ");
-            sb.Append(String.Format("smile {0:F1}%, ", face.FaceAttributes.Smile * 100));
-
-            // Add the emotions. Display all emotions over 10%.
-            sb.Append("Emotion: ");
-            EmotionScores emotionScores = face.FaceAttributes.Emotion;
-            if (emotionScores.Anger >= 0.1f) sb.Append(String.Format("anger {0:F1}%, ", emotionScores.Anger * 100));
-            if (emotionScores.Contempt >= 0.1f) sb.Append(String.Format("contempt {0:F1}%, ", emotionScores.Contempt * 100));
-            if (emotionScores.Disgust >= 0.1f) sb.Append(String.Format("disgust {0:F1}%, ", emotionScores.Disgust * 100));
-            if (emotionScores.Fear >= 0.1f) sb.Append(String.Format("fear {0:F1}%, ", emotionScores.Fear * 100));
-            if (emotionScores.Happiness >= 0.1f) sb.Append(String.Format("happiness {0:F1}%, ", emotionScores.Happiness * 100));
-            if (emotionScores.Neutral >= 0.1f) sb.Append(String.Format("neutral {0:F1}%, ", emotionScores.Neutral * 100));
-            if (emotionScores.Sadness >= 0.1f) sb.Append(String.Format("sadness {0:F1}%, ", emotionScores.Sadness * 100));
-            if (emotionScores.Surprise >= 0.1f) sb.Append(String.Format("surprise {0:F1}%, ", emotionScores.Surprise * 100));
-
-            // Add glasses.
-            sb.Append(face.FaceAttributes.Glasses);
-            sb.Append(", ");
-
-            // Add hair.
-            sb.Append("Hair: ");
-
-            // Display baldness confidence if over 1%.
-            if (face.FaceAttributes.Hair.Bald >= 0.01f)
-                sb.Append(String.Format("bald {0:F1}% ", face.FaceAttributes.Hair.Bald * 100));
-
-            // Display all hair color attributes over 10%.
-            HairColor[] hairColors = face.FaceAttributes.Hair.HairColor;
-            foreach (HairColor hairColor in hairColors)
-            {
-                if (hairColor.Confidence >= 0.1f)
-                {
-                    sb.Append(hairColor.Color.ToString());
-                    sb.Append(String.Format(" {0:F1}% ", hairColor.Confidence * 100));
-                }
-            }
-
-            // Return the built string.
-            return sb.ToString();
-        }
-        */
 
 
         public float[] getPositionOfJoint(Joint joint)
@@ -608,7 +431,6 @@ namespace ReIdentificator
 
                     Joint head = bodies[bodyIndex].Joints[JointType.Head];
                     float[] positionOfHead = this.getPositionOfJoint(head);
-                    //mainWindow.printLog("positionOfHead[0]: " + positionOfHead[0] + " positionOfHead[1]: " + positionOfHead[1] + " minmax0" + (Math.Min(Math.Max((int)Math.Floor(positionOfHead[0]) - 100, 0), this.colorBitmap.PixelWidth)) + " minmax1: " + (Math.Min(Math.Max((int)Math.Floor(positionOfHead[1]) - 100, 0), this.colorBitmap.PixelHeight)));
                         Int32Rect faceRect = new Int32Rect((Math.Min(Math.Max((int)Math.Floor(positionOfHead[0]) - 100, 0), this.colorBitmap.PixelWidth)), (Math.Min(Math.Max((int)Math.Floor(positionOfHead[1]) - 100, 0), this.colorBitmap.PixelHeight)), 200, 200);
                         image.CopyPixels(faceRect, this.colorPixels, this.colorBitmap.PixelWidth * sizeof(int), 0);
 
@@ -617,8 +439,7 @@ namespace ReIdentificator
                         reident.FacePhoto.Source = image2;
 
                         SaveImage(image2, counti);
-                        Debug.WriteLine("Distanz: " + BodyDistanceToCameron(body));
-                        SendImageAndProcess(counti, _face);
+                        SendPictureToAPI(counti, _face);
 
                         counti = counti + 1;
                     
@@ -626,79 +447,7 @@ namespace ReIdentificator
             }
         }
 
-        /*
-        byte[] PostAvgColor(List<byte[]> colors, int[] preColors, double intError)
-         {
-           //195075 == (255^2)*3
-           double error = intError;
-           int overallError = (int) (error*195075);
-           int eachError = (int)(error * 65025);
-
-            int red = 0;
-           int green = 0;
-           int blue = 0;
-           //int opacity = 0;
-           int length = 0;
-            int lengthForCheck = 0;
-
-           colors.ForEach(color => {
-
-             int redTemp = 0;
-             int greenTemp = 0;
-             int blueTemp = 0;
-             //int opacityTemp = 0;
-             redTemp += (int)Math.Pow(color[0], 2);
-             greenTemp += (int)Math.Pow(color[1], 2);
-             blueTemp += (int)Math.Pow(color[2], 2);
-             //opacityTemp += (int)Math.Pow(color[3], 2);
-             int comparison = redTemp + greenTemp + blueTemp; //+opacityTemp
-             if (comparison > preColors[3] - overallError && comparison < preColors[3] + overallError)
-             {
-               if (redTemp > preColors[0] - eachError * 1.5 && redTemp < preColors[0] + eachError * 1.5)
-               {
-                 if (greenTemp > preColors[1] - eachError * 1.5 && greenTemp < preColors[1] + eachError * 1.5)
-                 {
-                   if (blueTemp > preColors[2] - eachError * 1.5 && blueTemp < preColors[2] + eachError * 1.5)
-                   {
-                     if(color[3] != 0)
-                     {
-                        red += redTemp;
-                        green += greenTemp;
-                        blue += blueTemp;
-                        length++;
-                     }
-
-                   }
-                 }
-               }
-             }
-             });
-
-            if (length != 0)
-            {
-                byte[] asarray = {
-               (byte)Math.Sqrt(red / length),
-               (byte)Math.Sqrt(green / length),
-               (byte)Math.Sqrt(blue / length),
-               //(byte)Math.Sqrt(opacity / length)
-               255
-             };
-                //If less than three quarters of all Points are in the Span
-                if (asarray.Length < lengthForCheck * 0.75)
-                {
-                    asarray = PostAvgColor(colors, preColors, (double)(intError * 5 / 4));
-                }
-
-                return asarray;
-            }
-            else
-            {
-                byte[] asarray = PostAvgColor(colors, preColors, (double)(intError * 5 / 4));
-                return asarray;
-            }
-         }
-         */
-
+      
         private void HandleBodyLeftViewEvent(object sender, LeftViewEventArgs e)
         {
 
