@@ -55,16 +55,17 @@ namespace ReIdentificator
 
 
         }
+
         public void startComparison(ulong trackingId, object data)
         {
             int numberOfProcessors = 4;
-
             if (!dataForComparison_list.Exists(element => element.TrackingId == trackingId))
             {
                 dataForComparison_list.Add(new dataForComparison(trackingId));
             }
             dataForComparison currentComparisonData = dataForComparison_list.Find(element => element.TrackingId == trackingId);
             currentComparisonData.processorData.Add(data);
+            printLog(currentComparisonData.processorData.Count+"");
             if (currentComparisonData.processorData.Count == numberOfProcessors)
             {
                 Individual idv = new Individual();
